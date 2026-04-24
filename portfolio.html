@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Đinh Văn Hùng — Full Stack Developer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --or:  #f97316;
+  --or2: #ea580c;
+  --re:  #dc2626;
+  --gd:  #d97706;
+  --dk:  #080808;
+  --glow-or: rgba(249,115,22,0.4);
+  --glow-re: rgba(220,38,38,0.35);
+}
+html { scroll-behavior:smooth; }
+body { background:var(--dk); color:#d4d4d4; font-family:'Segoe UI',system-ui,sans-serif; overflow-x:hidden; }
+
+#space-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+body::after {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(249,115,22,0.012) 2px,rgba(249,115,22,0.012) 4px);
+}
+body::before {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 35%,rgba(8,8,8,0.75) 100%);
+}
+
+nav {
+  position:fixed; top:0; width:100%; z-index:100;
+  background:rgba(8,8,8,0.82);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(249,115,22,0.18);
+}
+.nav-logo { background:linear-gradient(90deg,var(--or),var(--gd)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+.glitch { position:relative; animation:gm 5s infinite; }
+.glitch::before,.glitch::after { content:attr(data-text); position:absolute; top:0; left:0; width:100%; }
+.glitch::before { color:var(--or); animation:g1 5s infinite; clip-path:polygon(0 0,100% 0,100% 30%,0 30%); transform:translate(-3px); opacity:.6; }
+.glitch::after  { color:var(--re); animation:g2 5s infinite; clip-path:polygon(0 70%,100% 70%,100% 100%,0 100%); transform:translate(3px); opacity:.6; }
+@keyframes gm { 0%,88%,100%{transform:none}89%{transform:skewX(-1deg)}91%{transform:skewX(1deg)}93%{transform:none}}
+@keyframes g1 { 0%,88%,100%{transform:translate(-3px)}89%{transform:translate(3px) skewX(3deg)}91%{transform:translate(-3px)}}
+@keyframes g2 { 0%,88%,100%{transform:translate(3px)} 89%{transform:translate(-3px) skewX(-3deg)}91%{transform:translate(3px)}}
+
+.cursor { display:inline-block; width:3px; height:.9em; background:var(--or); margin-left:3px; vertical-align:middle; animation:blink .65s infinite; box-shadow:0 0 8px var(--glow-or); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+.text-or  { color:var(--or); }
+.text-or-glow { color:var(--or); text-shadow:0 0 14px var(--glow-or),0 0 28px var(--glow-or); }
+
+.stat-val { font-size:2.4rem; font-weight:900; line-height:1; background:linear-gradient(135deg,var(--or),var(--gd)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+.hud-card {
+  position:relative;
+  background:rgba(8,8,8,0.7);
+  border:1px solid rgba(249,115,22,0.14);
+  backdrop-filter:blur(14px);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.hud-card::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background:linear-gradient(135deg,rgba(249,115,22,0.04),transparent 60%);
+  pointer-events:none;
+}
+.hud-card:hover { border-color:rgba(249,115,22,0.45); box-shadow:0 0 28px rgba(249,115,22,0.1),inset 0 0 18px rgba(249,115,22,0.03); transform:translateY(-5px); }
+
+.bracket::before,.bracket::after { content:''; position:absolute; width:12px; height:12px; border-color:var(--or); border-style:solid; opacity:.5; }
+.bracket::before { top:-1px; left:-1px; border-width:1.5px 0 0 1.5px; }
+.bracket::after  { bottom:-1px; right:-1px; border-width:0 1.5px 1.5px 0; }
+
+.tag { display:inline-block; padding:2px 9px; border-radius:3px; font-size:.7rem; font-family:'Courier New',monospace; background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.22); color:#fb923c; letter-spacing:.03em; }
+
+.tl-dot { position:absolute; left:-5px; top:7px; width:10px; height:10px; border-radius:50%; background:var(--or); box-shadow:0 0 12px var(--or),0 0 24px var(--glow-or); }
+.tl-line { border-left:1px solid rgba(249,115,22,0.15); }
+
+.sec-label { font-family:'Courier New',monospace; font-size:.7rem; color:var(--or); letter-spacing:.18em; text-transform:uppercase; opacity:.75; }
+
+.divider { height:1px; background:linear-gradient(90deg,transparent,rgba(249,115,22,0.3),transparent); }
+
+.hud-line::after { content:''; display:block; margin-top:6px; width:40px; height:1.5px; background:linear-gradient(90deg,var(--or),transparent); }
+
+.btn-fire {
+  position:relative; overflow:hidden;
+  background:transparent; border:1px solid var(--or);
+  color:var(--or); font-family:'Courier New',monospace; font-size:.85rem; letter-spacing:.1em;
+  padding:.75rem 2rem; transition:color .3s,box-shadow .25s,transform .2s;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.btn-fire::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--or),var(--or2)); transform:translateX(-110%); transition:transform .3s ease; z-index:-1; }
+.btn-fire:hover   { color:#080808; box-shadow:0 0 22px var(--glow-or); transform:translateY(-2px); }
+.btn-fire:hover::before { transform:translateX(0); }
+.btn-ghost { border:1px solid rgba(255,255,255,0.1); color:#737373; font-family:'Courier New',monospace; font-size:.85rem; letter-spacing:.08em; padding:.75rem 2rem; transition:border-color .3s,color .3s,transform .2s; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); }
+.btn-ghost:hover { border-color:rgba(249,115,22,0.5); color:#fb923c; transform:translateY(-2px); }
+
+.orbit { position:absolute; border-radius:50%; border:1px solid rgba(249,115,22,0.07); animation:spin linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+.reveal { opacity:0; transform:translateY(32px); transition:opacity .75s ease,transform .75s ease; }
+.reveal.in { opacity:1; transform:translateY(0); }
+
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:var(--dk); }
+::-webkit-scrollbar-thumb { background:var(--or); border-radius:2px; }
+
+#mob-menu { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+#mob-menu.open { max-height:400px; }
+</style>
+</head>
+<body>
+
+<canvas id="space-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
+    <span class="font-mono font-bold text-sm tracking-widest nav-logo">DVH<span style="color:#525252;">.dev</span></span>
+    <ul class="hidden md:flex gap-8 text-xs font-mono tracking-widest text-gray-600">
+      <li><a href="#about"      class="hover:text-orange-400 transition-colors duration-200">ABOUT</a></li>
+      <li><a href="#skills"     class="hover:text-orange-400 transition-colors duration-200">SKILLS</a></li>
+      <li><a href="#experience" class="hover:text-orange-400 transition-colors duration-200">EXP</a></li>
+      <li><a href="#projects"   class="hover:text-orange-400 transition-colors duration-200">PROJECTS</a></li>
+      <li><a href="#education"  class="hover:text-orange-400 transition-colors duration-200">EDU</a></li>
+      <li><a href="#contact"    class="hover:text-orange-400 transition-colors duration-200">CONTACT</a></li>
+    </ul>
+    <button id="ham" class="md:hidden flex flex-col gap-1.5 p-1">
+      <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
+      <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
+      <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
+    </button>
+  </div>
+  <div id="mob-menu" class="md:hidden border-t" style="border-color:rgba(249,115,22,0.1)">
+    <div class="max-w-5xl mx-auto px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest text-gray-600">
+      <a href="#about"      class="hover:text-orange-400">ABOUT</a>
+      <a href="#skills"     class="hover:text-orange-400">SKILLS</a>
+      <a href="#experience" class="hover:text-orange-400">EXPERIENCE</a>
+      <a href="#projects"   class="hover:text-orange-400">PROJECTS</a>
+      <a href="#education"  class="hover:text-orange-400">EDUCATION</a>
+      <a href="#contact"    class="hover:text-orange-400">CONTACT</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+  <canvas id="hero-canvas" class="absolute inset-0 z-0"></canvas>
+  <div class="orbit" style="width:520px;height:520px;right:-200px;top:50%;margin-top:-260px;animation-duration:32s;"></div>
+  <div class="orbit" style="width:330px;height:330px;right:-80px;top:50%;margin-top:-165px;animation-duration:20s;border-color:rgba(220,38,38,0.09);"></div>
+  <div class="orbit" style="width:160px;height:160px;right:75px;top:50%;margin-top:-80px;animation-duration:11s;border-color:rgba(249,115,22,0.14);"></div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-6 pt-20 w-full">
+    <div class="max-w-2xl">
+      <div class="flex items-center gap-3 mb-7">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-60"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500" style="box-shadow:0 0 8px #f97316"></span>
+        </span>
+        <span class="font-mono text-xs tracking-widest text-gray-600">// SYSTEM ONLINE · AVAILABLE FOR HIRE</span>
+      </div>
+
+      <div class="font-mono text-xs tracking-widest mb-2" style="color:rgba(249,115,22,0.55)">FULL STACK DEVELOPER</div>
+      <h1 class="font-black leading-none tracking-tight mb-6 glitch" data-text="Đinh Văn Hùng"
+          style="font-size:clamp(2.6rem,7vw,4.8rem);color:#e5e5e5;">Đinh Văn Hùng</h1>
+      <div class="font-mono text-sm mb-6" style="color:rgba(249,115,22,0.65)">
+        <span id="typed-role"></span><span class="cursor"></span>
+      </div>
+      <p class="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
+        Building scalable APIs, cloud architectures, AI-powered systems and real-world production apps
+        that serve <span class="text-gray-300 font-semibold">thousands of users</span> — from backend to blockchain.
+      </p>
+      <div class="flex flex-wrap gap-3 mb-14">
+        <a href="#contact" class="btn-fire no-underline inline-flex items-center gap-2">CONTACT ME ›</a>
+        <a href="https://github.com/HungDDev" target="_blank" class="btn-ghost no-underline inline-flex items-center gap-2">⌥ GITHUB</a>
+      </div>
+      <div class="flex gap-10 flex-wrap">
+        <div><div class="stat-val" id="cnt-exp">0+</div><div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">YRS EXPERIENCE</div></div>
+        <div><div class="stat-val" id="cnt-proj">0+</div><div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">PROJECTS SHIPPED</div></div>
+        <div><div class="stat-val" id="cnt-gpa">0.0</div><div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">GPA / 10</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
+    <span class="font-mono text-xs tracking-widest" style="color:rgba(249,115,22,0.3)">SCROLL</span>
+    <div class="w-px h-10" style="background:linear-gradient(to bottom,var(--or),transparent)"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line">Who I am</h2></div>
+    <div class="grid md:grid-cols-2 gap-12">
+      <div class="space-y-4 text-gray-500 leading-relaxed reveal">
+        <p>I'm a <span class="text-gray-200 font-semibold">Full Stack Developer</span> with 3 years of hands-on experience specialising in backend development and system design.</p>
+        <p>My core stack: <span class="text-or font-mono">Laravel</span> · <span class="text-or font-mono">NestJS</span> · <span class="text-or font-mono">Node.js</span> · <span class="text-or font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.</p>
+        <p>From scalable web systems to blockchain smart contracts and multi-agent AI — I ship systems that <span class="text-gray-200 font-semibold">real users depend on</span>.</p>
+      </div>
+      <ul class="space-y-3 reveal">
+        <li class="flex items-center gap-3 text-sm text-gray-500"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📍</span>Tam Binh Ward, Thu Duc City, Ho Chi Minh City</li>
+        <li class="flex items-center gap-3 text-sm text-gray-500"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📅</span>Born 28 January 2002</li>
+        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📧</span><a href="mailto:manhhung.dvh@gmail.com" class="text-or hover:underline">manhhung.dvh@gmail.com</a></li>
+        <li class="flex items-center gap-3 text-sm text-gray-500"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📱</span>034 256 8696</li>
+        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🐙</span><a href="https://github.com/HungDDev" target="_blank" class="text-or hover:underline">github.com/HungDDev</a></li>
+        <li class="flex items-center gap-3 text-sm text-gray-500"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🌐</span>Vietnamese (Native) · English (Intermediate)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">02 — SKILLS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line">Technical Stack</h2></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">LANGUAGES</p><div class="flex flex-wrap gap-2"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">PHP</span><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">Solidity</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">FRONTEND</p><div class="flex flex-wrap gap-2"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Vue.js</span><span class="tag">Tailwind CSS</span><span class="tag">Bootstrap</span><span class="tag">jQuery</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">BACKEND</p><div class="flex flex-wrap gap-2"><span class="tag">NestJS</span><span class="tag">Laravel</span><span class="tag">Node.js</span><span class="tag">ExpressJS</span><span class="tag">Phalcon</span><span class="tag">RESTful API</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">AI / DATA</p><div class="flex flex-wrap gap-2"><span class="tag">OpenAI</span><span class="tag">Gemini API</span><span class="tag">ChromaDB</span><span class="tag">BullMQ</span><span class="tag">Socket.IO</span><span class="tag">Playwright</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">DATABASES</p><div class="flex flex-wrap gap-2"><span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">Redis Streams</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">DEVOPS / CLOUD</p><div class="flex flex-wrap gap-2"><span class="tag">AWS EC2</span><span class="tag">S3</span><span class="tag">RDS</span><span class="tag">ECS</span><span class="tag">CloudFront</span><span class="tag">Docker</span><span class="tag">CI/CD</span><span class="tag">Nginx</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-3">CMS / TOOLS</p><div class="flex flex-wrap gap-2"><span class="tag">WordPress</span><span class="tag">Git</span><span class="tag">Jira</span><span class="tag">Figma</span><span class="tag">Flutter</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">03 — EXPERIENCE</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line">Work History</h2></div>
+    <div class="relative pl-6 tl-line space-y-10">
+
+      <!-- Exora -->
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card rounded-xl p-6">
+          <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">AUG 2025 – PRESENT</p>
+          <h3 class="font-bold text-lg text-gray-200 mb-0.5">EXORA MEDIA COMPANY LIMITED</h3>
+          <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex gap-2"><span class="text-or">▸</span>Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Develop a distributed web crawling worker for automated social media data collection using Redis Streams.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- HIT GROUP -->
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card rounded-xl p-6">
+          <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">JAN 2025 – JUL 2025</p>
+          <h3 class="font-bold text-lg text-gray-200 mb-0.5">HIT GROUP COMPANY LIMITED</h3>
+          <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex gap-2"><span class="text-or">▸</span>Design and maintain scalable web-based systems across multiple business domains.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Optimise and upgrade existing systems for performance, reliability, and security.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Collaborate with cross-functional teams to deploy features aligned with business goals.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Liberation -->
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card rounded-xl p-6">
+          <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">JAN 2024 – DEC 2024</p>
+          <h3 class="font-bold text-lg text-gray-200 mb-0.5">Liberation Technology JSC</h3>
+          <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li class="flex gap-2"><span class="text-or">▸</span>Engineered and maintained full-stack web applications for various client projects.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Developed core system features with a focus on performance and scalability.</li>
+            <li class="flex gap-2"><span class="text-or">▸</span>Ensured code quality and security through testing and regular refactoring.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">04 — PROJECTS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line">Highlighted Work</h2></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <!-- 01 AI Social Builder -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 01</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🤖 AI Social Builder</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">AI-powered social media content generation platform with multi-tenant workspaces, multi-agent architecture, and adaptive MPE learning framework.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span>
+          <span class="tag">Redis</span><span class="tag">BullMQ</span><span class="tag">ChromaDB</span>
+          <span class="tag">OpenAI</span><span class="tag">Socket.IO</span><span class="tag">Docker</span>
+        </div>
+        <p class="font-mono text-xs text-gray-700">Internal Platform</p>
+      </div>
+
+      <!-- 02 Crawler Social Tool -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 02</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🕷️ Crawler Social Tool</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Distributed Node.js worker that consumes crawl jobs from Redis Streams. Supports Facebook, X, Instagram, TikTok with persistent browser sessions.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <span class="tag">Node.js</span><span class="tag">Playwright</span>
+          <span class="tag">Redis Streams</span><span class="tag">Docker</span>
+        </div>
+        <p class="font-mono text-xs text-gray-700">Internal Tool</p>
+      </div>
+
+      <!-- 03 Digital Publishing -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 03</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">📚 XuatBanDienTu</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar service.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span>
+          <span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span>
+        </div>
+        <a href="https://docsach.com.vn" target="_blank" class="text-or text-xs font-mono hover:underline">↗ docsach.com.vn</a>
+      </div>
+
+      <!-- 04 AnchayFood -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 04</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🥗 AnchayFood</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with real-time exchange rates.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div>
+        <div class="flex gap-4">
+          <a href="https://anchayfood.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Web</a>
+          <a href="https://vendor.anchayfood.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Vendor</a>
+        </div>
+      </div>
+
+      <!-- 05 CheckYay -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 05</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">✅ CheckYay</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Digital checklist & task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span><span class="tag">AI</span></div>
+        <a href="https://app.checkyay.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ App</a>
+      </div>
+
+      <!-- 06 AiBC -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 06</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🧠 AiBC</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and support for PDF/Word/XML inputs.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div>
+        <a href="https://ai-pro.pro/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
+      </div>
+
+      <!-- 07 Video NFT -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 07</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🎬 Video NFT</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Earn crypto watching & uploading videos. ERC-20 & NFT on Binance Smart Chain, wallet system, NFT marketplace, Solidity smart contracts.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div>
+        <a href="https://videonft.live/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
+      </div>
+
+      <!-- 08 CyberMart -->
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
+        <p class="font-mono text-gray-700 text-xs mb-2">// 08</p>
+        <h3 class="font-bold text-base text-gray-200 mb-2">🖥️ CyberMart</h3>
+        <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p>
+        <div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div>
+        <a href="https://cybermart.io.vn" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EDUCATION -->
+<section id="education" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">05 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line">Academic Background</h2></div>
+    <div class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div>
+        <h3 class="text-xl font-bold text-gray-200 mb-1">FPT Polytechnic College</h3>
+        <p class="font-mono text-xs mb-5 text-or tracking-widest">ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+          <span><span class="text-gray-300">Duration:</span> 2022 – 2024</span>
+          <span><span class="text-gray-300">Graduated:</span> Sep 30, 2024</span>
+          <span><span class="text-gray-300">GPA:</span> 8.5 / 10</span>
+          <span><span class="text-gray-300">Rank:</span> Top 10%</span>
+          <span><span class="text-gray-300">Credits:</span> 103</span>
+          <span><span class="text-gray-300">Cert:</span> Academic English Lvl 3 – Topnotch 2</span>
+        </div>
+      </div>
+      <div class="text-center px-8 py-5 rounded-xl flex-shrink-0" style="background:linear-gradient(135deg,rgba(249,115,22,0.15),rgba(220,38,38,0.12));border:1px solid rgba(249,115,22,0.28)">
+        <div class="text-4xl font-black text-or-glow">8.5</div>
+        <div class="font-mono text-xs mt-1 tracking-widest" style="color:rgba(249,115,22,0.6)">DISTINCTION</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" class="relative z-10 py-24 px-6 text-center">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal">
+      <p class="sec-label mb-2">06 — CONTACT</p>
+      <h2 class="text-3xl font-black mb-3 tracking-tight">Let's work together</h2>
+      <p class="text-gray-600 text-sm font-mono mb-10 tracking-wide">// OPEN TO NEW OPPORTUNITIES</p>
+    </div>
+    <div class="flex flex-wrap justify-center gap-4 mb-10 reveal">
+      <a href="mailto:manhhung.dvh@gmail.com" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">📧</span>
+        <div><div class="font-mono text-xs text-gray-700 mb-0.5">EMAIL</div><div class="text-sm font-semibold text-gray-200">manhhung.dvh@gmail.com</div></div>
+      </a>
+      <a href="tel:0342568696" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">📱</span>
+        <div><div class="font-mono text-xs text-gray-700 mb-0.5">PHONE</div><div class="text-sm font-semibold text-gray-200">034 256 8696</div></div>
+      </a>
+      <a href="https://github.com/HungDDev" target="_blank" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">🐙</span>
+        <div><div class="font-mono text-xs text-gray-700 mb-0.5">GITHUB</div><div class="text-sm font-semibold text-gray-200">HungDDev</div></div>
+      </a>
+    </div>
+    <a href="mailto:manhhung.dvh@gmail.com" class="btn-fire no-underline inline-flex items-center gap-2 reveal">SEND MESSAGE ›</a>
+  </div>
+</section>
+
+<footer class="relative z-10 py-6 text-center border-t" style="border-color:rgba(249,115,22,0.08)">
+  <p class="font-mono text-xs text-gray-800 tracking-widest">ĐINH VĂN HÙNG © 2026 · HO CHI MINH CITY · THREE.JS + TAILWIND</p>
+</footer>
+
+<script>
+'use strict';
+
+/* ── 1. SPACE BACKGROUND ─────────────────────────────────────────────── */
+(function spaceScene() {
+  const canvas   = document.getElementById('space-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:false });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.setSize(innerWidth, innerHeight);
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
+  camera.position.z = 6;
+
+  const STARS = 3200, sPos = new Float32Array(STARS*3), sCol = new Float32Array(STARS*3);
+  const pal = [[1,.55,.15],[.9,.75,.2],[1,.25,.15],[.9,.9,.9],[1,.4,.05]];
+  for (let i=0;i<STARS;i++) {
+    const r=14+Math.random()*65, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    sPos[i*3]=r*Math.sin(ph)*Math.cos(th); sPos[i*3+1]=r*Math.sin(ph)*Math.sin(th); sPos[i*3+2]=r*Math.cos(ph);
+    const c=pal[Math.floor(Math.random()*pal.length)]; sCol[i*3]=c[0]; sCol[i*3+1]=c[1]; sCol[i*3+2]=c[2];
+  }
+  const sGeo=new THREE.BufferGeometry();
+  sGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
+  sGeo.setAttribute('color',new THREE.BufferAttribute(sCol,3));
+  scene.add(new THREE.Points(sGeo,new THREE.PointsMaterial({size:.065,vertexColors:true,transparent:true,opacity:.9})));
+
+  [{pos:[9,4,-22],col:0x2a0c00,r:9},{pos:[-11,-5,-26],col:0x1a0500,r:11},{pos:[1,-9,-20],col:0x200800,r:8}]
+    .forEach(d=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(d.r,10,10),new THREE.MeshBasicMaterial({color:d.col,transparent:true,opacity:.22,side:THREE.BackSide})); m.position.set(...d.pos); scene.add(m); });
+
+  const grid=new THREE.GridHelper(60,30,0x1a0800,0x0d0400);
+  grid.position.y=-9;
+  scene.add(grid);
+
+  const rocks=[];
+  for (let i=0;i<9;i++) {
+    const m=new THREE.Mesh(new THREE.IcosahedronGeometry(.05+Math.random()*.1,0),new THREE.MeshBasicMaterial({color:0x1a0a00,wireframe:Math.random()>.4}));
+    m.position.set((Math.random()-.5)*20,(Math.random()-.5)*13,(Math.random()-.5)*8-4);
+    m._spd={rx:(Math.random()-.5)*.4,ry:(Math.random()-.5)*.3}; m._oy=m.position.y; m._ph=Math.random()*Math.PI*2;
+    scene.add(m); rocks.push(m);
+  }
+
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.6;my=(e.clientY/innerHeight-.5)*.4;});
+  window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+  const clk=new THREE.Clock();
+  (function tick(){
+    requestAnimationFrame(tick); const t=clk.getElapsedTime();
+    scene.rotation.y=t*.01; scene.rotation.x=Math.sin(t*.007)*.035;
+    camera.position.x+=(mx-camera.position.x)*.03;
+    camera.position.y+=(-my-camera.position.y)*.03;
+    rocks.forEach(r=>{r.rotation.x+=r._spd.rx*.016;r.rotation.y+=r._spd.ry*.016;r.position.y=r._oy+Math.sin(t*.38+r._ph)*.22;});
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ── 2. HERO 3D SCENE ───────────────────────────────────────────────── */
+(function heroScene() {
+  const canvas   = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  const scene    = new THREE.Scene();
+  const camera   = new THREE.PerspectiveCamera(50,1,.1,100);
+  camera.position.set(0,0,6);
+
+  function resize(){const w=canvas.parentElement.clientWidth,h=canvas.parentElement.clientHeight;renderer.setSize(w,h);renderer.setPixelRatio(Math.min(devicePixelRatio,2));camera.aspect=w/h;camera.updateProjectionMatrix();}
+  resize(); window.addEventListener('resize',resize);
+
+  scene.add(new THREE.AmbientLight(0x100400,1));
+  const ptO=new THREE.PointLight(0xf97316,3.5,18); ptO.position.set(3,3,4); scene.add(ptO);
+  const ptR=new THREE.PointLight(0xdc2626,2.5,18); ptR.position.set(-4,-2,3); scene.add(ptR);
+  const ptG=new THREE.PointLight(0xd97706,1.8,14); ptG.position.set(0,-4,2); scene.add(ptG);
+
+  const planet=new THREE.Mesh(new THREE.SphereGeometry(1.2,64,64),new THREE.MeshPhongMaterial({color:0x120600,emissive:0x0a0200,shininess:80,specular:0xf97316}));
+  planet.position.set(2.3,-.2,0); scene.add(planet);
+
+  const pWire=new THREE.Mesh(new THREE.SphereGeometry(1.22,22,22),new THREE.MeshBasicMaterial({color:0xf97316,wireframe:true,transparent:true,opacity:.07}));
+  pWire.position.copy(planet.position); scene.add(pWire);
+
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(1.42,28,28),new THREE.MeshBasicMaterial({color:0xea580c,transparent:true,opacity:.05,side:THREE.BackSide}));
+  atm.position.copy(planet.position); scene.add(atm);
+
+  const mkRing=(r,tube,op,col)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,6,80),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));m.position.copy(planet.position);m.rotation.x=Math.PI*.35;scene.add(m);return m;};
+  const ring=mkRing(1.95,.055,.55,0xf97316), ring2=mkRing(1.95,.14,.07,0xf97316);
+
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(.19,16,16),new THREE.MeshPhongMaterial({color:0x1a0800,emissive:0x0d0400,shininess:40,specular:0xf97316}));
+  scene.add(moon);
+
+  const sat=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),new THREE.MeshBasicMaterial({color:0xf97316,wireframe:true,transparent:true,opacity:.75}));
+  scene.add(sat);
+
+  const nodes=[];
+  [[-2.5,1.5,0],[-3.2,-1,.5],[-1.8,-2,-.5],[.5,2.5,-1]].forEach((p,i)=>{
+    const n=new THREE.Mesh(new THREE.OctahedronGeometry(.07+i*.015,0),new THREE.MeshBasicMaterial({color:i%2?0xdc2626:0xf97316,wireframe:true,transparent:true,opacity:.65}));
+    n.position.set(...p); n._o=[...p]; n._ph=i*1.3; scene.add(n); nodes.push(n);
+  });
+
+  const lm=new THREE.LineBasicMaterial({color:0xf97316,transparent:true,opacity:.06});
+  for(let i=-3;i<=3;i++){const pts=[new THREE.Vector3(i*1.2,-3.5,-2),new THREE.Vector3(i*1.2,3.5,-2)];scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm));}
+  for(let i=-2;i<=2;i++){const pts=[new THREE.Vector3(-4,i*1.2,-2),new THREE.Vector3(4,i*1.2,-2)];scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm));}
+
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+
+  const clk=new THREE.Clock();
+  (function tick(){
+    requestAnimationFrame(tick); const t=clk.getElapsedTime();
+    planet.rotation.y=t*.09; pWire.rotation.y=-t*.04; atm.rotation.y=t*.05;
+    ring.rotation.z=t*.07; ring2.rotation.z=ring.rotation.z;
+    moon.position.set(planet.position.x+Math.cos(t*.4)*2.5,planet.position.y+Math.sin(t*.16)*.6,planet.position.z+Math.sin(t*.4)*2.5);
+    sat.position.set(planet.position.x+Math.cos(t*.9+2)*3.2,planet.position.y+Math.sin(t*1.1)*1,planet.position.z+Math.sin(t*.9+2)*3.2);
+    sat.rotation.x=t*1.5; sat.rotation.y=t*1.2;
+    nodes.forEach(n=>{n.position.y=n._o[1]+Math.sin(t*.6+n._ph)*.15;n.rotation.y=t*.5;n.rotation.x=t*.3;});
+    ptO.intensity=3.5+Math.sin(t*1.3)*.9; ptR.intensity=2.5+Math.cos(t*.95)*.7;
+    camera.position.x+=(mx*.5-camera.position.x)*.04;
+    camera.position.y+=(-my*.3-camera.position.y)*.04;
+    camera.lookAt(scene.position);
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ── 3. TYPING EFFECT ───────────────────────────────────────────────── */
+(function typeRole(){
+  const el=document.getElementById('typed-role');
+  const roles=['Full Stack Developer_','Backend Architect_','AI Systems Builder_','Cloud Engineer_','Blockchain Developer_'];
+  let ri=0,ci=0,del=false;
+  function type(){
+    el.textContent=del?roles[ri].slice(0,ci--):roles[ri].slice(0,ci++);
+    if(!del&&ci>roles[ri].length){del=true;setTimeout(type,1200);return;}
+    if(del&&ci<0){del=false;ri=(ri+1)%roles.length;ci=0;}
+    setTimeout(type,del?40:80);
+  }
+  type();
+})();
+
+/* ── 4. COUNTER ─────────────────────────────────────────────────────── */
+function countUp(el,target,dec,suffix,dur){
+  const s=performance.now();
+  (function step(now){const p=Math.min((now-s)/dur,1);el.textContent=(dec?(p*target).toFixed(1):Math.floor(p*target))+suffix;if(p<1)requestAnimationFrame(step);})(performance.now());
+}
+const cObs=new IntersectionObserver(es=>{
+  if(!es[0].isIntersecting)return;
+  countUp(document.getElementById('cnt-exp'),3,false,'+',1400);
+  countUp(document.getElementById('cnt-proj'),8,false,'+',1400);
+  countUp(document.getElementById('cnt-gpa'),8.5,true,'',1600);
+  cObs.disconnect();
+},{threshold:.3});
+cObs.observe(document.getElementById('hero'));
+
+/* ── 5. SCROLL REVEAL ───────────────────────────────────────────────── */
+const rObs=new IntersectionObserver(es=>{
+  es.forEach((e,i)=>{if(!e.isIntersecting)return;setTimeout(()=>e.target.classList.add('in'),i*100);rObs.unobserve(e.target);});
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
+
+/* ── 6. HAMBURGER ───────────────────────────────────────────────────── */
+const ham=document.getElementById('ham'),menu=document.getElementById('mob-menu');
+ham.addEventListener('click',()=>{
+  const open=menu.classList.toggle('open');
+  const sp=ham.querySelectorAll('span');
+  sp[0].style.transform=open?'translateY(7px) rotate(45deg)':'';
+  sp[1].style.opacity=open?'0':'1';
+  sp[2].style.transform=open?'translateY(-7px) rotate(-45deg)':'';
+});
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+  menu.classList.remove('open');
+  ham.querySelectorAll('span').forEach(s=>{s.style.transform='';s.style.opacity='1';});
+}));
+</script>
+</body>
+</html>
