@@ -9,24 +9,22 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  /* ── Kim hành palette ── */
-  --silver: #c8d6e5;      /* bạc sáng    */
-  --steel:  #7fa8c9;      /* thép xanh   */
-  --gold:   #a8c8dc;      /* bạc ánh kim */
-  --gold2:  #d8ecf8;      /* bạc sáng    */
-  --ice:    #a8d8ea;      /* băng Thủy   */
-  --deep:   #050a12;      /* nền cực tối */
+  --silver: #c8d6e5;
+  --steel:  #7fa8c9;
+  --gold:   #a8c8dc;
+  --gold2:  #d8ecf8;
+  --ice:    #a8d8ea;
+  --deep:   #050a12;
   --s1:     #080e18;
-  --gsi:    rgba(200,214,229,0.35);  /* silver glow */
-  --ggo:    rgba(168,200,220,0.35);  /* silver glow */
-  --gst:    rgba(127,168,201,0.3);   /* steel glow  */
+  --gsi:    rgba(200,214,229,0.35);
+  --ggo:    rgba(168,200,220,0.35);
+  --gst:    rgba(127,168,201,0.3);
 }
 html{scroll-behavior:smooth;}
 body{background:var(--deep);color:#b8ccd8;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;}
 
 #space-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-/* scanlines — cool steel tint */
 body::after{
   content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(127,168,201,0.018) 3px,rgba(127,168,201,0.018) 4px);
@@ -37,14 +35,12 @@ body::after{
 body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 28%,rgba(5,10,18,0.88) 100%);}
 
-/* ── NAV ── */
 nav{position:fixed;top:0;width:100%;z-index:100;
   background:rgba(5,10,18,0.78);backdrop-filter:blur(24px);
   border-bottom:1px solid rgba(200,214,229,0.1);}
 .nav-logo{background:linear-gradient(90deg,var(--silver),var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-/* ── METALLIC NAME ── */
 .name-metal{
   background:linear-gradient(105deg,
     #3a6480 0%,#7fa8c9 22%,#b8d0e4 40%,
@@ -60,7 +56,6 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   50%{background-position:-100% center;}
 }
 
-/* ── CURSOR ── */
 *{cursor:none!important;}
 #custom-cursor{position:fixed;z-index:9999;pointer-events:none;}
 #cursor-ring{width:32px;height:32px;border-radius:50%;border:1px solid rgba(200,214,229,0.6);
@@ -69,7 +64,6 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 #cursor-dot{width:4px;height:4px;border-radius:50%;background:var(--silver);
   position:absolute;top:-2px;left:-2px;box-shadow:0 0 8px var(--silver);}
 
-/* ── LOADER ── */
 #loader{position:fixed;inset:0;background:var(--deep);z-index:999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   transition:opacity .9s ease;}
@@ -83,19 +77,16 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 .loader-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--steel),var(--silver),var(--gold));animation:load 1.6s ease forwards;}
 @keyframes load{to{width:100%;}}
 
-/* ── TEXT HELPERS ── */
 .text-si{color:var(--silver);}
 .text-st{color:var(--steel);}
 .text-go{color:var(--gold);}
 .text-si-glow{color:var(--silver);text-shadow:0 0 16px var(--gsi),0 0 32px var(--gsi);}
 .text-go-glow{color:var(--gold);text-shadow:0 0 14px var(--ggo),0 0 28px var(--ggo);}
 
-/* ── STAT ── */
 .stat-val{font-size:2.4rem;font-weight:900;line-height:1;
   background:linear-gradient(135deg,var(--steel),var(--silver),var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-/* ── HUD CARD ── */
 .hud-card{
   position:relative;background:rgba(5,10,18,0.68);
   border:1px solid rgba(200,214,229,0.1);backdrop-filter:blur(18px);
@@ -108,21 +99,18 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   box-shadow:0 0 28px rgba(200,214,229,0.08),0 0 60px rgba(127,168,201,0.06),inset 0 0 20px rgba(200,214,229,0.03);
   transform:translateY(-5px);}
 
-/* ── BRACKET CORNERS ── */
 .bracket::before,.bracket::after{content:'';position:absolute;width:13px;height:13px;
   border-color:var(--silver);border-style:solid;opacity:.4;transition:opacity .3s;}
 .bracket::before{top:-1px;left:-1px;border-width:1.5px 0 0 1.5px;}
 .bracket::after{bottom:-1px;right:-1px;border-width:0 1.5px 1.5px 0;}
 .hud-card:hover .bracket::before,.hud-card:hover .bracket::after{opacity:.9;}
 
-/* ── TAG ── */
 .tag{display:inline-block;padding:2px 9px;border-radius:3px;font-size:.7rem;
   font-family:'Courier New',monospace;background:rgba(127,168,201,0.08);
   border:1px solid rgba(127,168,201,0.22);color:var(--steel);letter-spacing:.03em;
   transition:background .2s,border-color .2s;}
 .tag:hover{background:rgba(200,214,229,0.14);border-color:rgba(200,214,229,0.45);color:var(--silver);}
 
-/* ── TIMELINE ── */
 .tl-dot{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;
   background:var(--silver);box-shadow:0 0 12px var(--silver),0 0 28px var(--gsi);
   animation:pulse-dot 2.2s ease-in-out infinite;}
@@ -132,7 +120,6 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 }
 .tl-line{border-left:1px solid rgba(200,214,229,0.12);}
 
-/* ── SECTION ── */
 .sec-label{font-family:'Courier New',monospace;font-size:.7rem;color:var(--steel);
   letter-spacing:.18em;text-transform:uppercase;opacity:.75;}
 .hud-line::after{content:'';display:block;margin-top:6px;width:40px;height:1.5px;
@@ -140,12 +127,10 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(200,214,229,0.2),transparent);}
 .hud-data{font-family:'Courier New',monospace;font-size:.62rem;color:rgba(200,214,229,0.28);letter-spacing:.06em;line-height:1.8;}
 
-/* ── PROGRESS BAR ── */
 .prog-wrap{height:2px;background:rgba(200,214,229,0.08);border-radius:2px;overflow:hidden;margin-top:6px;}
 .prog-bar{height:100%;background:linear-gradient(90deg,var(--steel),var(--silver));
   border-radius:2px;width:0%;transition:width 1.5s ease;box-shadow:0 0 8px var(--gsi);}
 
-/* ── BUTTONS ── */
 .btn-metal{
   position:relative;overflow:hidden;background:transparent;
   border:1px solid rgba(200,214,229,0.4);color:var(--silver);
@@ -167,30 +152,36 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
 .btn-ghost:hover{border-color:rgba(200,214,229,0.35);color:var(--silver);transform:translateY(-2px);box-shadow:0 0 18px rgba(200,214,229,0.1);}
 
-/* ── ORBIT ── */
 .orbit{position:absolute;border-radius:50%;border:1px solid rgba(200,214,229,0.06);animation:spin linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── REVEAL ── */
 .reveal{opacity:0;transform:translateY(36px);transition:opacity .8s ease,transform .8s ease;}
 .reveal.in{opacity:1;transform:translateY(0);}
 
-/* ── FLICKER ── */
 @keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.55}94%{opacity:1}97%{opacity:.75}98%{opacity:1}}
 .flicker{animation:flicker 7s infinite;}
 
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:var(--deep);}
 ::-webkit-scrollbar-thumb{background:linear-gradient(to bottom,var(--steel),var(--silver));border-radius:2px;}
 
-/* ── MOBILE ── */
 #mob-menu{max-height:0;overflow:hidden;transition:max-height .4s ease;}
 #mob-menu.open{max-height:400px;}
 
-/* ── SILVER BADGE (education) ── */
 .gold-badge{background:linear-gradient(135deg,rgba(168,200,220,0.18),rgba(200,214,229,0.12));
   border:1px solid rgba(200,214,229,0.35);}
+
+/* ── LANG TOGGLE ── */
+.lang-btn{
+  font-family:'Courier New',monospace;font-size:.65rem;letter-spacing:.1em;
+  border:1px solid rgba(200,214,229,0.2);color:rgba(200,214,229,0.35);
+  background:transparent;padding:3px 9px;border-radius:2px;
+  transition:border-color .2s,color .2s;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.lang-btn:hover{border-color:rgba(200,214,229,0.5);color:var(--silver);}
+.lang-active{color:var(--silver);font-weight:700;}
+.lang-sep{opacity:.25;}
 </style>
 </head>
 <body>
@@ -217,33 +208,41 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <nav>
   <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
     <span class="font-mono font-bold text-sm tracking-widest nav-logo flicker">DVH<span style="color:#2a3a4a;">.dev</span></span>
-    <div class="hidden md:flex items-center gap-8">
+    <div class="hidden md:flex items-center gap-6">
       <ul class="flex gap-8 text-xs font-mono tracking-widest" style="color:#3d5566;">
-        <li><a href="#about"      class="hover:text-slate-300 transition-colors duration-200">ABOUT</a></li>
-        <li><a href="#skills"     class="hover:text-slate-300 transition-colors duration-200">SKILLS</a></li>
-        <li><a href="#experience" class="hover:text-slate-300 transition-colors duration-200">EXP</a></li>
-        <li><a href="#projects"   class="hover:text-slate-300 transition-colors duration-200">PROJECTS</a></li>
-        <li><a href="#education"  class="hover:text-slate-300 transition-colors duration-200">EDU</a></li>
-        <li><a href="#contact"    class="hover:text-slate-300 transition-colors duration-200">CONTACT</a></li>
+        <li><a href="#about"      class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_about">ABOUT</a></li>
+        <li><a href="#skills"     class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_skills">SKILLS</a></li>
+        <li><a href="#experience" class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_exp">EXP</a></li>
+        <li><a href="#projects"   class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_projects">PROJECTS</a></li>
+        <li><a href="#education"  class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_edu">EDU</a></li>
+        <li><a href="#contact"    class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_contact">CONTACT</a></li>
       </ul>
-      <div class="hud-data text-right" style="color:rgba(200,214,229,0.4);">
-        <div id="nav-time">00:00:00</div>
+      <div class="flex items-center gap-3">
+        <div class="hud-data" style="color:rgba(200,214,229,0.4);"><div id="nav-time">00:00:00</div></div>
+        <button id="lang-toggle" class="lang-btn">
+          <span id="lang-en" class="lang-active">EN</span><span class="lang-sep">/</span><span id="lang-vi">VI</span>
+        </button>
       </div>
     </div>
-    <button id="ham" class="md:hidden flex flex-col gap-1.5 p-1">
-      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
-      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
-      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
-    </button>
+    <div class="flex items-center gap-3 md:hidden">
+      <button id="lang-toggle-mob" class="lang-btn">
+        <span id="lang-en-mob" class="lang-active">EN</span><span class="lang-sep">/</span><span id="lang-vi-mob">VI</span>
+      </button>
+      <button id="ham" class="flex flex-col gap-1.5 p-1">
+        <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+        <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+        <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+      </button>
+    </div>
   </div>
   <div id="mob-menu" class="md:hidden border-t" style="border-color:rgba(200,214,229,0.08);">
     <div class="max-w-5xl mx-auto px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest" style="color:#3d5566;">
-      <a href="#about"      class="hover:text-slate-300">ABOUT</a>
-      <a href="#skills"     class="hover:text-slate-300">SKILLS</a>
-      <a href="#experience" class="hover:text-slate-300">EXPERIENCE</a>
-      <a href="#projects"   class="hover:text-slate-300">PROJECTS</a>
-      <a href="#education"  class="hover:text-slate-300">EDUCATION</a>
-      <a href="#contact"    class="hover:text-slate-300">CONTACT</a>
+      <a href="#about"      class="hover:text-slate-300" data-i18n="mob_about">ABOUT</a>
+      <a href="#skills"     class="hover:text-slate-300" data-i18n="mob_skills">SKILLS</a>
+      <a href="#experience" class="hover:text-slate-300" data-i18n="mob_experience">EXPERIENCE</a>
+      <a href="#projects"   class="hover:text-slate-300" data-i18n="mob_projects">PROJECTS</a>
+      <a href="#education"  class="hover:text-slate-300" data-i18n="mob_education">EDUCATION</a>
+      <a href="#contact"    class="hover:text-slate-300" data-i18n="mob_contact">CONTACT</a>
     </div>
   </div>
 </nav>
@@ -259,7 +258,6 @@ nav{position:fixed;top:0;width:100%;z-index:100;
     NODE:ACTIVE<br>PING:&lt;1MS<br>ENC:AES-256<br>VER:2.0.26
   </div>
 
-  <!-- orbit rings — silver/steel -->
   <div class="orbit" style="width:540px;height:540px;right:-210px;top:50%;margin-top:-270px;animation-duration:38s;"></div>
   <div class="orbit" style="width:340px;height:340px;right:-85px;top:50%;margin-top:-170px;animation-duration:24s;border-color:rgba(201,168,76,0.08);"></div>
   <div class="orbit" style="width:165px;height:165px;right:72px;top:50%;margin-top:-82px;animation-duration:13s;border-color:rgba(127,168,201,0.14);"></div>
@@ -272,12 +270,11 @@ nav{position:fixed;top:0;width:100%;z-index:100;
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style="background:var(--silver);"></span>
           <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background:var(--silver);box-shadow:0 0 10px var(--silver);"></span>
         </span>
-        <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.45);">// SYSTEM ONLINE &nbsp;·&nbsp; AVAILABLE FOR HIRE</span>
+        <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.45);" data-i18n="hero_status">// SYSTEM ONLINE &nbsp;·&nbsp; AVAILABLE FOR HIRE</span>
       </div>
 
-      <div class="font-mono text-xs tracking-widest mb-2" style="color:rgba(127,168,201,0.55);">FULL STACK DEVELOPER</div>
+      <div class="font-mono text-xs tracking-widest mb-2" style="color:rgba(127,168,201,0.55);" data-i18n="hero_role_title">FULL STACK DEVELOPER</div>
 
-      <!-- METALLIC NAME — single color + shine -->
       <h1 class="font-black leading-none tracking-tight mb-5 name-metal"
           style="font-size:clamp(2.6rem,7vw,4.8rem);">Đinh Văn Hùng</h1>
 
@@ -287,26 +284,26 @@ nav{position:fixed;top:0;width:100%;z-index:100;
       </div>
       <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}</style>
 
-      <p class="text-sm leading-relaxed mb-8 max-w-lg" style="color:#4a6678;">
+      <p class="text-sm leading-relaxed mb-8 max-w-lg" style="color:#4a6678;" data-i18n-html="hero_desc">
         Building scalable APIs, cloud architectures, AI-powered systems and real-world production apps
         that serve <span style="color:#8aa8c0;font-weight:600;">thousands of users</span> — from backend to full-stack.
       </p>
 
       <div class="flex flex-wrap gap-3 mb-14">
-        <a href="#contact" class="btn-metal no-underline inline-flex items-center gap-2">CONTACT ME ›</a>
+        <a href="#contact" class="btn-metal no-underline inline-flex items-center gap-2" data-i18n="hero_contact">CONTACT ME ›</a>
         <a href="https://github.com/mrhungdinhdev" target="_blank" class="btn-ghost no-underline inline-flex items-center gap-2">⌥ GITHUB</a>
       </div>
 
       <div class="flex gap-10 flex-wrap">
-        <div><div class="stat-val" id="cnt-exp">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">YRS EXPERIENCE</div></div>
-        <div><div class="stat-val" id="cnt-proj">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">PROJECTS SHIPPED</div></div>
+        <div><div class="stat-val" id="cnt-exp">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;" data-i18n="hero_exp">YRS EXPERIENCE</div></div>
+        <div><div class="stat-val" id="cnt-proj">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;" data-i18n="hero_proj">PROJECTS SHIPPED</div></div>
         <div><div class="stat-val" id="cnt-gpa">0.0</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">GPA / 10</div></div>
       </div>
     </div>
   </div>
 
   <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-    <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.25);">SCROLL</span>
+    <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.25);" data-i18n="hero_scroll">SCROLL</span>
     <div class="w-px h-10" style="background:linear-gradient(to bottom,var(--silver),transparent);"></div>
   </div>
 </section>
@@ -316,20 +313,20 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <!-- ══ ABOUT ══ -->
 <section id="about" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Who I am</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="about_label">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="about_title">Who I am</h2></div>
     <div class="grid md:grid-cols-2 gap-12">
       <div class="space-y-4 leading-relaxed reveal" style="color:#4a6678;">
-        <p>I'm a <span style="color:#8aa8c0;font-weight:600;">Full Stack Developer</span> with 3 years of hands-on experience specialising in backend development and system design.</p>
-        <p>Core stack: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.</p>
-        <p>From scalable web systems to multi-agent AI — I ship full-stack systems that <span style="color:#8aa8c0;font-weight:600;">real users depend on</span>.</p>
+        <p data-i18n-html="about_p1">I'm a <span style="color:#8aa8c0;font-weight:600;">Full Stack Developer</span> with 3 years of hands-on experience specialising in backend development and system design.</p>
+        <p data-i18n-html="about_p2">Core stack: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.</p>
+        <p data-i18n-html="about_p3">From scalable web systems to multi-agent AI — I ship full-stack systems that <span style="color:#8aa8c0;font-weight:600;">real users depend on</span>.</p>
       </div>
       <ul class="space-y-3 reveal">
-        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📍</span>11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City</li>
-        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📅</span>Born 28 January 2002</li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📍</span><span data-i18n="about_address">11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City</span></li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📅</span><span data-i18n="about_born">Born 28 January 2002</span></li>
         <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📧</span><a href="mailto:manhhung.dvh@gmail.com" class="text-st hover:text-si hover:underline transition-colors">manhhung.dvh@gmail.com</a></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📱</span>034 256 8696</li>
         <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🐙</span><a href="https://github.com/mrhungdinhdev" target="_blank" class="text-st hover:text-si hover:underline transition-colors">github.com/mrhungdinhdev</a></li>
-        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🌐</span>Vietnamese (Native) · English (Intermediate)</li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🌐</span><span data-i18n="about_lang">Vietnamese (Native) · English (Intermediate)</span></li>
       </ul>
     </div>
   </div>
@@ -340,15 +337,15 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <!-- ══ SKILLS ══ -->
 <section id="skills" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2">02 — SKILLS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Technical Stack</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="skills_label">02 — SKILLS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="skills_title">Technical Stack</h2></div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">LANGUAGES</p><div class="prog-wrap"><div class="prog-bar" data-w="90"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">PHP</span><span class="tag">HTML</span><span class="tag">CSS</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">FRONTEND</p><div class="prog-wrap"><div class="prog-bar" data-w="80"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Vue.js</span><span class="tag">Tailwind</span><span class="tag">Bootstrap</span><span class="tag">jQuery</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">BACKEND</p><div class="prog-wrap"><div class="prog-bar" data-w="95"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">NestJS</span><span class="tag">Laravel</span><span class="tag">Node.js</span><span class="tag">ExpressJS</span><span class="tag">RESTful API</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">AI / DATA</p><div class="prog-wrap"><div class="prog-bar" data-w="75"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">OpenAI</span><span class="tag">Gemini API</span><span class="tag">ChromaDB</span><span class="tag">BullMQ</span><span class="tag">Socket.IO</span><span class="tag">Playwright</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">DATABASES</p><div class="prog-wrap"><div class="prog-bar" data-w="88"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">Redis Streams</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">DEVOPS / CLOUD</p><div class="prog-wrap"><div class="prog-bar" data-w="82"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">AWS EC2</span><span class="tag">S3</span><span class="tag">RDS</span><span class="tag">Route 53</span><span class="tag">IAM</span><span class="tag">CloudFront</span><span class="tag">Docker</span><span class="tag">GitHub Actions</span></div></div>
-      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">CMS / TOOLS</p><div class="prog-wrap"><div class="prog-bar" data-w="70"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">WordPress</span><span class="tag">Git</span><span class="tag">Jira</span><span class="tag">Figma</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_lang">LANGUAGES</p><div class="prog-wrap"><div class="prog-bar" data-w="90"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">PHP</span><span class="tag">HTML</span><span class="tag">CSS</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_fe">FRONTEND</p><div class="prog-wrap"><div class="prog-bar" data-w="80"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Vue.js</span><span class="tag">Tailwind</span><span class="tag">Bootstrap</span><span class="tag">jQuery</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_be">BACKEND</p><div class="prog-wrap"><div class="prog-bar" data-w="95"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">NestJS</span><span class="tag">Laravel</span><span class="tag">Node.js</span><span class="tag">ExpressJS</span><span class="tag">RESTful API</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_ai">AI / DATA</p><div class="prog-wrap"><div class="prog-bar" data-w="75"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">OpenAI</span><span class="tag">Gemini API</span><span class="tag">ChromaDB</span><span class="tag">BullMQ</span><span class="tag">Socket.IO</span><span class="tag">Playwright</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_db">DATABASES</p><div class="prog-wrap"><div class="prog-bar" data-w="88"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">Redis Streams</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_devops">DEVOPS / CLOUD</p><div class="prog-wrap"><div class="prog-bar" data-w="82"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">AWS EC2</span><span class="tag">S3</span><span class="tag">RDS</span><span class="tag">Route 53</span><span class="tag">IAM</span><span class="tag">CloudFront</span><span class="tag">Docker</span><span class="tag">GitHub Actions</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1" data-i18n="skill_cms">CMS / TOOLS</p><div class="prog-wrap"><div class="prog-bar" data-w="70"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">WordPress</span><span class="tag">Git</span><span class="tag">Jira</span><span class="tag">Figma</span></div></div>
     </div>
   </div>
 </section>
@@ -358,7 +355,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <!-- ══ EXPERIENCE ══ -->
 <section id="experience" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2">03 — EXPERIENCE</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Work History</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="exp_label">03 — EXPERIENCE</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="exp_title">Work History</h2></div>
     <div class="relative pl-6 tl-line space-y-10">
 
       <div class="relative reveal">
@@ -366,16 +363,16 @@ nav{position:fixed;top:0;width:100%;z-index:100;
         <div class="hud-card bracket rounded-xl p-6">
           <div class="flex justify-between items-start flex-wrap gap-2 mb-3">
             <div>
-              <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">AUG 2025 – PRESENT</p>
+              <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;" data-i18n="exp1_date">AUG 2025 – PRESENT</p>
               <h3 class="font-bold text-lg" style="color:#c8d6e5;">EXORA MEDIA COMPANY LIMITED</h3>
-              <p class="font-mono text-xs text-st">FULL STACK DEVELOPER</p>
+              <p class="font-mono text-xs text-st" data-i18n="exp_role_fsd">FULL STACK DEVELOPER</p>
             </div>
-            <span class="tag" style="border-color:rgba(74,222,128,0.35);color:#4ade80;background:rgba(74,222,128,0.07);">● CURRENT</span>
+            <span class="tag" style="border-color:rgba(74,222,128,0.35);color:#4ade80;background:rgba(74,222,128,0.07);" data-i18n="exp1_badge">● CURRENT</span>
           </div>
           <ul class="space-y-2 text-sm" style="color:#4a6678;">
-            <li class="flex gap-2"><span class="text-si">▸</span>Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Develop a distributed web crawling worker for automated social media data collection using Redis Streams.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp1_b1">Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp1_b2">Develop a distributed web crawling worker for automated social media data collection using Redis Streams.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp1_b3">Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management.</span></li>
           </ul>
         </div>
       </div>
@@ -383,13 +380,13 @@ nav{position:fixed;top:0;width:100%;z-index:100;
       <div class="relative reveal">
         <div class="tl-dot"></div>
         <div class="hud-card bracket rounded-xl p-6">
-          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">JAN 2025 – JUL 2025</p>
+          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;" data-i18n="exp2_date">JAN 2025 – JUL 2025</p>
           <h3 class="font-bold text-lg mb-0.5" style="color:#c8d6e5;">HIT GROUP COMPANY LIMITED</h3>
-          <p class="font-mono text-xs mb-4 text-st">FULL STACK DEVELOPER</p>
+          <p class="font-mono text-xs mb-4 text-st" data-i18n="exp_role_fsd">FULL STACK DEVELOPER</p>
           <ul class="space-y-2 text-sm" style="color:#4a6678;">
-            <li class="flex gap-2"><span class="text-si">▸</span>Design and maintain scalable web-based systems across multiple business domains.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Optimise and upgrade existing systems for performance, reliability, and security.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Collaborate with cross-functional teams to deploy features aligned with business goals.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp2_b1">Design and maintain scalable web-based systems across multiple business domains.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp2_b2">Optimise and upgrade existing systems for performance, reliability, and security.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp2_b3">Collaborate with cross-functional teams to deploy features aligned with business goals.</span></li>
           </ul>
         </div>
       </div>
@@ -397,13 +394,13 @@ nav{position:fixed;top:0;width:100%;z-index:100;
       <div class="relative reveal">
         <div class="tl-dot"></div>
         <div class="hud-card bracket rounded-xl p-6">
-          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">JAN 2024 – DEC 2024</p>
+          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;" data-i18n="exp3_date">JAN 2024 – DEC 2024</p>
           <h3 class="font-bold text-lg mb-0.5" style="color:#c8d6e5;">Liberation Technology JSC</h3>
-          <p class="font-mono text-xs mb-4 text-st">FULL STACK DEVELOPER</p>
+          <p class="font-mono text-xs mb-4 text-st" data-i18n="exp_role_fsd">FULL STACK DEVELOPER</p>
           <ul class="space-y-2 text-sm" style="color:#4a6678;">
-            <li class="flex gap-2"><span class="text-si">▸</span>Engineered and maintained full-stack web applications for various client projects.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Developed core system features with a focus on performance and scalability.</li>
-            <li class="flex gap-2"><span class="text-si">▸</span>Ensured code quality and security through testing and regular refactoring.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp3_b1">Engineered and maintained full-stack web applications for various client projects.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp3_b2">Developed core system features with a focus on performance and scalability.</span></li>
+            <li class="flex gap-2"><span class="text-si">▸</span><span data-i18n="exp3_b3">Ensured code quality and security through testing and regular refactoring.</span></li>
           </ul>
         </div>
       </div>
@@ -417,24 +414,24 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <!-- ══ PROJECTS ══ -->
 <section id="projects" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2">04 — PROJECTS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Highlighted Work</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="proj_label">04 — PROJECTS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="proj_title">Highlighted Work</h2></div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 01</p><span class="tag" style="font-size:.6rem;">AI · NODE.JS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🤖 AI Social Builder</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">AI-powered social media content generation platform with multi-tenant workspaces, multi-agent architecture (4 agents/fanpage), and adaptive MPE learning framework.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">BullMQ</span><span class="tag">ChromaDB</span><span class="tag">Gemini API</span><span class="tag">OpenAI</span><span class="tag">Socket.IO</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;">// Internal Platform</p></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 01</p><span class="tag" style="font-size:.6rem;">AI · NODE.JS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🤖 AI Social Builder</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj1_desc">AI-powered social media content generation platform with multi-tenant workspaces, multi-agent architecture (4 agents/fanpage), and adaptive MPE learning framework.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">BullMQ</span><span class="tag">ChromaDB</span><span class="tag">Gemini API</span><span class="tag">OpenAI</span><span class="tag">Socket.IO</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;" data-i18n="proj1_internal">// Internal Platform</p></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 02</p><span class="tag" style="font-size:.6rem;">DISTRIBUTED</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🕷️ Crawler Social Tool</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Distributed worker consuming crawl jobs from Redis Streams. Supports Facebook, X/Twitter, Instagram, TikTok with persistent Playwright browser sessions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Playwright</span><span class="tag">Redis Streams</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;">// Internal Tool</p></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 02</p><span class="tag" style="font-size:.6rem;">DISTRIBUTED</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🕷️ Crawler Social Tool</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj2_desc">Distributed worker consuming crawl jobs from Redis Streams. Supports Facebook, X/Twitter, Instagram, TikTok with persistent Playwright browser sessions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Playwright</span><span class="tag">Redis Streams</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;" data-i18n="proj2_internal">// Internal Tool</p></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 03</p><span class="tag" style="font-size:.6rem;">REALTIME</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">📚 XuatBanDienTu</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span></div><a href="https://docsach.com.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ docsach.com.vn</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 03</p><span class="tag" style="font-size:.6rem;">REALTIME</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">📚 XuatBanDienTu</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj3_desc">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span></div><a href="https://docsach.com.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ docsach.com.vn</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 04</p><span class="tag" style="font-size:.6rem;">MOBILE · WEB</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🥗 AnchayFood</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div><div class="flex gap-4"><a href="https://anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Web</a><a href="https://vendor.anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Vendor</a></div></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 04</p><span class="tag" style="font-size:.6rem;">MOBILE · WEB</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🥗 AnchayFood</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj4_desc">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div><div class="flex gap-4"><a href="https://anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Web</a><a href="https://vendor.anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Vendor</a></div></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 05</p><span class="tag" style="font-size:.6rem;">AI · AWS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">✅ CheckYay</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span></div><a href="https://app.checkyay.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ App</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 05</p><span class="tag" style="font-size:.6rem;">AI · AWS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">✅ CheckYay</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj5_desc">Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span></div><a href="https://app.checkyay.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ App</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 06</p><span class="tag" style="font-size:.6rem;">ENTERPRISE AI</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🧠 AiBC</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div><a href="https://ai-pro.pro/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 06</p><span class="tag" style="font-size:.6rem;">ENTERPRISE AI</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🧠 AiBC</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj6_desc">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div><a href="https://ai-pro.pro/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 07</p><span class="tag" style="font-size:.6rem;">BLOCKCHAIN</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🎬 Video NFT</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div><a href="https://videonft.live/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 07</p><span class="tag" style="font-size:.6rem;">BLOCKCHAIN</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🎬 Video NFT</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj7_desc">Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div><a href="https://videonft.live/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 08</p><span class="tag" style="font-size:.6rem;">E-COMMERCE</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🖥️ CyberMart</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div><a href="https://cybermart.io.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 08</p><span class="tag" style="font-size:.6rem;">E-COMMERCE</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🖥️ CyberMart</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj8_desc">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div><a href="https://cybermart.io.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
     </div>
   </div>
@@ -445,23 +442,23 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <!-- ══ EDUCATION ══ -->
 <section id="education" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2">05 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Academic Background</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="edu_label">05 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="edu_title">Academic Background</h2></div>
     <div class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
-        <h3 class="text-xl font-bold mb-1" style="color:#c8d6e5;">FPT Polytechnic College</h3>
-        <p class="font-mono text-xs mb-5 text-st tracking-widest">ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY</p>
+        <h3 class="text-xl font-bold mb-1" style="color:#c8d6e5;" data-i18n="edu_school">FPT Polytechnic College</h3>
+        <p class="font-mono text-xs mb-5 text-st tracking-widest" data-i18n="edu_degree">ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY</p>
         <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm" style="color:#3d5566;">
-          <span><span style="color:#8aa8c0;">Duration:</span> 2022 – 2024</span>
-          <span><span style="color:#8aa8c0;">Graduated:</span> Sep 30, 2024</span>
-          <span><span style="color:#8aa8c0;">GPA:</span> 8.5 / 10</span>
-          <span><span style="color:#8aa8c0;">Rank:</span> Top 10%</span>
-          <span><span style="color:#8aa8c0;">Credits:</span> 103</span>
-          <span><span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2</span>
+          <span data-i18n-html="edu_duration"><span style="color:#8aa8c0;">Duration:</span> 2022 – 2024</span>
+          <span data-i18n-html="edu_grad"><span style="color:#8aa8c0;">Graduated:</span> Sep 30, 2024</span>
+          <span data-i18n-html="edu_gpa"><span style="color:#8aa8c0;">GPA:</span> 8.5 / 10</span>
+          <span data-i18n-html="edu_rank"><span style="color:#8aa8c0;">Rank:</span> Top 10%</span>
+          <span data-i18n-html="edu_credits"><span style="color:#8aa8c0;">Credits:</span> 103</span>
+          <span data-i18n-html="edu_cert"><span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2</span>
         </div>
       </div>
       <div class="text-center px-8 py-5 rounded-xl flex-shrink-0 gold-badge">
         <div class="text-4xl font-black text-go-glow">8.5</div>
-        <div class="font-mono text-xs mt-1 tracking-widest" style="color:rgba(168,200,220,0.85);">DISTINCTION</div>
+        <div class="font-mono text-xs mt-1 tracking-widest" style="color:rgba(168,200,220,0.85);" data-i18n="edu_badge">DISTINCTION</div>
       </div>
     </div>
   </div>
@@ -473,25 +470,25 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <section id="contact" class="relative z-10 py-24 px-6 text-center">
   <div class="max-w-5xl mx-auto">
     <div class="reveal">
-      <p class="sec-label mb-2">06 — CONTACT</p>
-      <h2 class="text-3xl font-black mb-3 tracking-tight" style="color:#c8d6e5;">Let's work together</h2>
-      <p class="text-sm font-mono mb-10 tracking-wide" style="color:#2d4050;">// OPEN TO NEW OPPORTUNITIES</p>
+      <p class="sec-label mb-2" data-i18n="contact_label">06 — CONTACT</p>
+      <h2 class="text-3xl font-black mb-3 tracking-tight" style="color:#c8d6e5;" data-i18n="contact_title">Let's work together</h2>
+      <p class="text-sm font-mono mb-10 tracking-wide" style="color:#2d4050;" data-i18n="contact_sub">// OPEN TO NEW OPPORTUNITIES</p>
     </div>
     <div class="flex flex-wrap justify-center gap-4 mb-10 reveal">
       <a href="mailto:manhhung.dvh@gmail.com" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
         <span class="text-xl">📧</span>
-        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">EMAIL</div><div class="text-sm font-semibold" style="color:#c8d6e5;">manhhung.dvh@gmail.com</div></div>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;" data-i18n="contact_email_lbl">EMAIL</div><div class="text-sm font-semibold" style="color:#c8d6e5;">manhhung.dvh@gmail.com</div></div>
       </a>
       <a href="tel:0342568696" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
         <span class="text-xl">📱</span>
-        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">PHONE</div><div class="text-sm font-semibold" style="color:#c8d6e5;">034 256 8696</div></div>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;" data-i18n="contact_phone_lbl">PHONE</div><div class="text-sm font-semibold" style="color:#c8d6e5;">034 256 8696</div></div>
       </a>
       <a href="https://github.com/mrhungdinhdev" target="_blank" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
         <span class="text-xl">🐙</span>
-        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">GITHUB</div><div class="text-sm font-semibold" style="color:#c8d6e5;">mrhungdinhdev</div></div>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;" data-i18n="contact_github_lbl">GITHUB</div><div class="text-sm font-semibold" style="color:#c8d6e5;">mrhungdinhdev</div></div>
       </a>
     </div>
-    <a href="mailto:manhhung.dvh@gmail.com" class="btn-metal no-underline inline-flex items-center gap-2 reveal">SEND MESSAGE ›</a>
+    <a href="mailto:manhhung.dvh@gmail.com" class="btn-metal no-underline inline-flex items-center gap-2 reveal" data-i18n="contact_btn">SEND MESSAGE ›</a>
   </div>
 </section>
 
@@ -501,6 +498,151 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 
 <script>
 'use strict';
+
+/* ── I18N ── */
+const T = {
+  en: {
+    nav_about:'ABOUT', nav_skills:'SKILLS', nav_exp:'EXP', nav_projects:'PROJECTS', nav_edu:'EDU', nav_contact:'CONTACT',
+    mob_about:'ABOUT', mob_skills:'SKILLS', mob_experience:'EXPERIENCE', mob_projects:'PROJECTS', mob_education:'EDUCATION', mob_contact:'CONTACT',
+    hero_status:'// SYSTEM ONLINE  ·  AVAILABLE FOR HIRE',
+    hero_role_title:'FULL STACK DEVELOPER',
+    hero_desc:'Building scalable APIs, cloud architectures, AI-powered systems and real-world production apps that serve <span style="color:#8aa8c0;font-weight:600;">thousands of users</span> — from backend to full-stack.',
+    hero_contact:'CONTACT ME ›', hero_exp:'YRS EXPERIENCE', hero_proj:'PROJECTS SHIPPED', hero_scroll:'SCROLL',
+    about_label:'01 — ABOUT', about_title:'Who I am',
+    about_p1:'I\'m a <span style="color:#8aa8c0;font-weight:600;">Full Stack Developer</span> with 3 years of hands-on experience specialising in backend development and system design.',
+    about_p2:'Core stack: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.',
+    about_p3:'From scalable web systems to multi-agent AI — I ship full-stack systems that <span style="color:#8aa8c0;font-weight:600;">real users depend on</span>.',
+    about_address:'11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City',
+    about_born:'Born 28 January 2002',
+    about_lang:'Vietnamese (Native) · English (Intermediate)',
+    skills_label:'02 — SKILLS', skills_title:'Technical Stack',
+    skill_lang:'LANGUAGES', skill_fe:'FRONTEND', skill_be:'BACKEND', skill_ai:'AI / DATA', skill_db:'DATABASES', skill_devops:'DEVOPS / CLOUD', skill_cms:'CMS / TOOLS',
+    exp_label:'03 — EXPERIENCE', exp_title:'Work History', exp_role_fsd:'FULL STACK DEVELOPER',
+    exp1_date:'AUG 2025 – PRESENT', exp1_badge:'● CURRENT',
+    exp1_b1:'Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.',
+    exp1_b2:'Develop a distributed web crawling worker for automated social media data collection using Redis Streams.',
+    exp1_b3:'Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management.',
+    exp2_date:'JAN 2025 – JUL 2025',
+    exp2_b1:'Design and maintain scalable web-based systems across multiple business domains.',
+    exp2_b2:'Optimise and upgrade existing systems for performance, reliability, and security.',
+    exp2_b3:'Collaborate with cross-functional teams to deploy features aligned with business goals.',
+    exp3_date:'JAN 2024 – DEC 2024',
+    exp3_b1:'Engineered and maintained full-stack web applications for various client projects.',
+    exp3_b2:'Developed core system features with a focus on performance and scalability.',
+    exp3_b3:'Ensured code quality and security through testing and regular refactoring.',
+    proj_label:'04 — PROJECTS', proj_title:'Highlighted Work',
+    proj1_desc:'AI-powered social media content generation platform with multi-tenant workspaces, multi-agent architecture (4 agents/fanpage), and adaptive MPE learning framework.',
+    proj1_internal:'// Internal Platform',
+    proj2_desc:'Distributed worker consuming crawl jobs from Redis Streams. Supports Facebook, X/Twitter, Instagram, TikTok with persistent Playwright browser sessions.',
+    proj2_internal:'// Internal Tool',
+    proj3_desc:'Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.',
+    proj4_desc:'Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.',
+    proj5_desc:'Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).',
+    proj6_desc:'Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.',
+    proj7_desc:'Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.',
+    proj8_desc:'Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.',
+    edu_label:'05 — EDUCATION', edu_title:'Academic Background',
+    edu_school:'FPT Polytechnic College', edu_degree:'ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY',
+    edu_duration:'<span style="color:#8aa8c0;">Duration:</span> 2022 – 2024',
+    edu_grad:'<span style="color:#8aa8c0;">Graduated:</span> Sep 30, 2024',
+    edu_gpa:'<span style="color:#8aa8c0;">GPA:</span> 8.5 / 10',
+    edu_rank:'<span style="color:#8aa8c0;">Rank:</span> Top 10%',
+    edu_credits:'<span style="color:#8aa8c0;">Credits:</span> 103',
+    edu_cert:'<span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2',
+    edu_badge:'DISTINCTION',
+    contact_label:'06 — CONTACT', contact_title:"Let's work together", contact_sub:'// OPEN TO NEW OPPORTUNITIES',
+    contact_email_lbl:'EMAIL', contact_phone_lbl:'PHONE', contact_github_lbl:'GITHUB', contact_btn:'SEND MESSAGE ›',
+  },
+  vi: {
+    nav_about:'GIỚI THIỆU', nav_skills:'KỸ NĂNG', nav_exp:'KINH NGHIỆM', nav_projects:'DỰ ÁN', nav_edu:'HỌC VẤN', nav_contact:'LIÊN HỆ',
+    mob_about:'GIỚI THIỆU', mob_skills:'KỸ NĂNG', mob_experience:'KINH NGHIỆM', mob_projects:'DỰ ÁN', mob_education:'HỌC VẤN', mob_contact:'LIÊN HỆ',
+    hero_status:'// HỆ THỐNG ONLINE  ·  SẴN SÀNG NHẬN VIỆC',
+    hero_role_title:'LẬP TRÌNH VIÊN FULL STACK',
+    hero_desc:'Xây dựng APIs có khả năng mở rộng, kiến trúc cloud, hệ thống AI và ứng dụng thực tế phục vụ <span style="color:#8aa8c0;font-weight:600;">hàng nghìn người dùng</span> — từ backend đến full-stack.',
+    hero_contact:'LIÊN HỆ TÔI ›', hero_exp:'NĂM KINH NGHIỆM', hero_proj:'DỰ ÁN HOÀN THÀNH', hero_scroll:'CUỘN XUỐNG',
+    about_label:'01 — GIỚI THIỆU', about_title:'Tôi là ai',
+    about_p1:'Tôi là <span style="color:#8aa8c0;font-weight:600;">Lập Trình Viên Full Stack</span> với 3 năm kinh nghiệm thực tế, chuyên về phát triển backend và thiết kế hệ thống.',
+    about_p2:'Tech stack chính: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Có kinh nghiệm xây dựng RESTful APIs, nền tảng AI, hệ thống phân tán và kiến trúc cloud-native.',
+    about_p3:'Từ hệ thống web có khả năng mở rộng đến AI đa tác nhân — tôi xây dựng các hệ thống full-stack mà <span style="color:#8aa8c0;font-weight:600;">người dùng thực sự phụ thuộc vào</span>.',
+    about_address:'Đường 11, Phường Tam Bình, TP. Thủ Đức, TP. Hồ Chí Minh',
+    about_born:'Sinh ngày 28 tháng 01 năm 2002',
+    about_lang:'Tiếng Việt (Bản ngữ) · Tiếng Anh (Trung cấp)',
+    skills_label:'02 — KỸ NĂNG', skills_title:'Kỹ Năng Kỹ Thuật',
+    skill_lang:'NGÔN NGỮ', skill_fe:'FRONTEND', skill_be:'BACKEND', skill_ai:'AI / DỮ LIỆU', skill_db:'CƠ SỞ DỮ LIỆU', skill_devops:'DEVOPS / CLOUD', skill_cms:'CMS / CÔNG CỤ',
+    exp_label:'03 — KINH NGHIỆM', exp_title:'Lịch Sử Làm Việc', exp_role_fsd:'LẬP TRÌNH VIÊN FULL STACK',
+    exp1_date:'T8 2025 – HIỆN TẠI', exp1_badge:'● HIỆN TẠI',
+    exp1_b1:'Xây dựng và duy trì nền tảng tạo nội dung mạng xã hội bằng AI với hỗ trợ đa tenant workspace.',
+    exp1_b2:'Phát triển worker crawl web phân tán để tự động thu thập dữ liệu mạng xã hội bằng Redis Streams.',
+    exp1_b3:'Thiết kế và phát triển nền tảng xuất bản điện tử (docsach.com.vn) với tính năng đọc thời gian thực và quản lý e-book.',
+    exp2_date:'T1 2025 – T7 2025',
+    exp2_b1:'Thiết kế và duy trì các hệ thống web có khả năng mở rộng trên nhiều lĩnh vực kinh doanh.',
+    exp2_b2:'Tối ưu và nâng cấp các hệ thống hiện có để cải thiện hiệu suất, độ tin cậy và bảo mật.',
+    exp2_b3:'Phối hợp với các nhóm liên chức năng để triển khai tính năng phù hợp với mục tiêu kinh doanh.',
+    exp3_date:'T1 2024 – T12 2024',
+    exp3_b1:'Xây dựng và duy trì các ứng dụng web full-stack cho nhiều dự án khách hàng.',
+    exp3_b2:'Phát triển các tính năng hệ thống cốt lõi với trọng tâm là hiệu suất và khả năng mở rộng.',
+    exp3_b3:'Đảm bảo chất lượng code và bảo mật thông qua kiểm thử và tái cấu trúc định kỳ.',
+    proj_label:'04 — DỰ ÁN', proj_title:'Dự Án Nổi Bật',
+    proj1_desc:'Nền tảng tạo nội dung mạng xã hội bằng AI với đa tenant workspace, kiến trúc đa tác nhân (4 agent/fanpage) và framework học thích ứng MPE.',
+    proj1_internal:'// Nội Bộ',
+    proj2_desc:'Worker phân tán xử lý crawl job từ Redis Streams. Hỗ trợ Facebook, X/Twitter, Instagram, TikTok với phiên Playwright bền vững.',
+    proj2_internal:'// Công Cụ Nội Bộ',
+    proj3_desc:'Nền tảng xuất bản và đọc e-book đầy đủ tính năng với tiến trình đọc thời gian thực, luồng thanh toán và Socket.IO sidecar.',
+    proj4_desc:'Nền tảng ẩm thực chay và thuần chay cho Việt Nam — web + 3 app mobile cho người dùng, nhà cung cấp và shipper. Hệ sinh thái đặt hàng đầy đủ.',
+    proj5_desc:'Nền tảng quản lý công việc với AI chat (ChatGPT) được huấn luyện trên dữ liệu khách hàng. Web + mobile trên hạ tầng AWS đầy đủ.',
+    proj6_desc:'Áp dụng mô hình AI doanh nghiệp vào ChatGPT & Bard với cô lập dữ liệu hoàn toàn, học liên tục và hỗ trợ PDF/Word/XML.',
+    proj7_desc:'Tham gia dự án nền tảng kiếm crypto khi xem và tải video — ERC-20 & NFT trên BSC, marketplace và smart contract Solidity.',
+    proj8_desc:'Thương mại điện tử phụ kiện công nghệ với quản lý sản phẩm, danh mục, giỏ hàng và đơn hàng đầy đủ.',
+    edu_label:'05 — HỌC VẤN', edu_title:'Nền Tảng Học Vấn',
+    edu_school:'Cao Đẳng FPT Polytechnic', edu_degree:'CAO ĐẲNG CÔNG NGHỆ THÔNG TIN',
+    edu_duration:'<span style="color:#8aa8c0;">Thời gian:</span> 2022 – 2024',
+    edu_grad:'<span style="color:#8aa8c0;">Tốt nghiệp:</span> 30/09/2024',
+    edu_gpa:'<span style="color:#8aa8c0;">GPA:</span> 8.5 / 10',
+    edu_rank:'<span style="color:#8aa8c0;">Xếp hạng:</span> Top 10%',
+    edu_credits:'<span style="color:#8aa8c0;">Tín chỉ:</span> 103',
+    edu_cert:'<span style="color:#8aa8c0;">Chứng chỉ:</span> Tiếng Anh Học Thuật Lvl 3 – Topnotch 2',
+    edu_badge:'XUẤT SẮC',
+    contact_label:'06 — LIÊN HỆ', contact_title:'Hãy cùng hợp tác', contact_sub:'// SẴN SÀNG CƠ HỘI MỚI',
+    contact_email_lbl:'EMAIL', contact_phone_lbl:'ĐIỆN THOẠI', contact_github_lbl:'GITHUB', contact_btn:'GỬI TIN NHẮN ›',
+  }
+};
+
+const ROLES = {
+  en: ['Full Stack Developer_','Backend Architect_','AI Systems Builder_','Cloud Engineer_','API & Systems Developer_'],
+  vi: ['Lập Trình Viên Full Stack_','Kiến Trúc Sư Backend_','Xây Dựng Hệ Thống AI_','Kỹ Sư Cloud_','Phát Triển API & Hệ Thống_'],
+};
+
+let lang = localStorage.getItem('dvh_lang') || 'en';
+let resetTyping = function(){};
+
+function applyLang(l) {
+  const t = T[l];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (t[k] !== undefined) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const k = el.getAttribute('data-i18n-html');
+    if (t[k] !== undefined) el.innerHTML = t[k];
+  });
+  const isEn = l === 'en';
+  document.getElementById('lang-en').classList.toggle('lang-active', isEn);
+  document.getElementById('lang-vi').classList.toggle('lang-active', !isEn);
+  document.getElementById('lang-en-mob').classList.toggle('lang-active', isEn);
+  document.getElementById('lang-vi-mob').classList.toggle('lang-active', !isEn);
+  document.documentElement.lang = isEn ? 'en' : 'vi';
+  localStorage.setItem('dvh_lang', l);
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'vi' : 'en';
+  applyLang(lang);
+  resetTyping();
+}
+
+applyLang(lang);
+document.getElementById('lang-toggle').addEventListener('click', toggleLang);
+document.getElementById('lang-toggle-mob').addEventListener('click', toggleLang);
 
 /* ── LOADER ── */
 window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hide'), 1800));
@@ -548,15 +690,10 @@ setInterval(() => {
   const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
   camera.position.z = 6;
 
-  /* Stars — silver / ice-blue / gold palette */
   const N = 3500, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
   const pal = [
-    [0.78,0.84,0.90],  // silver
-    [0.50,0.66,0.79],  // steel blue
-    [0.66,0.85,0.92],  // ice
-    [0.72,0.84,0.94],  // silver-blue
-    [0.88,0.92,0.96],  // pale silver
-    [0.95,0.97,1.00],  // white-blue
+    [0.78,0.84,0.90],[0.50,0.66,0.79],[0.66,0.85,0.92],
+    [0.72,0.84,0.94],[0.88,0.92,0.96],[0.95,0.97,1.00],
   ];
   for (let i=0;i<N;i++) {
     const r=14+Math.random()*70, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
@@ -569,19 +706,16 @@ setInterval(() => {
   const starPoints = new THREE.Points(sGeo, new THREE.PointsMaterial({size:.065, vertexColors:true, transparent:true, opacity:.88}));
   scene.add(starPoints);
 
-  /* Nebula — deep steel/indigo tones */
   [{pos:[9,4,-22],col:0x080e18,r:9},{pos:[-11,-5,-26],col:0x050a12,r:11},{pos:[1,-9,-20],col:0x0a1020,r:8}]
     .forEach(d => {
       const m = new THREE.Mesh(new THREE.SphereGeometry(d.r,10,10), new THREE.MeshBasicMaterial({color:d.col,transparent:true,opacity:.28,side:THREE.BackSide}));
       m.position.set(...d.pos); scene.add(m);
     });
 
-  /* Grid — steel blue lines */
   const grid = new THREE.GridHelper(70,35,0x0a1828,0x060e18);
   grid.position.y = -10;
   scene.add(grid);
 
-  /* Warp lines — silver streaks */
   const WL = 120, wPos = new Float32Array(WL*6), wCol = new Float32Array(WL*6);
   for (let i=0;i<WL;i++) {
     const ang=i/WL*Math.PI*2, dist=8+Math.random()*60;
@@ -597,7 +731,6 @@ setInterval(() => {
   const warpLines = new THREE.LineSegments(wGeo, new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.3}));
   scene.add(warpLines);
 
-  /* Drifting rocks */
   const rocks = [];
   for (let i=0;i<10;i++) {
     const m = new THREE.Mesh(new THREE.IcosahedronGeometry(.05+Math.random()*.12,0), new THREE.MeshBasicMaterial({color:0x0a1828,wireframe:Math.random()>.4}));
@@ -623,7 +756,7 @@ setInterval(() => {
   })();
 })();
 
-/* ── 2. HERO 3D SCENE — silver metallic planet ── */
+/* ── 2. HERO 3D SCENE ── */
 (function heroScene() {
   const canvas   = document.getElementById('hero-canvas');
   const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
@@ -638,43 +771,37 @@ setInterval(() => {
   }
   resize(); window.addEventListener('resize', resize);
 
-  /* Lights — cool metallic */
   scene.add(new THREE.AmbientLight(0x050a12, 1));
-  const ptS  = new THREE.PointLight(0xc8d6e5, 4.5, 20);  ptS.position.set(3,3,4);   scene.add(ptS);   // silver
-  const ptSt = new THREE.PointLight(0x7fa8c9, 3.0, 20);  ptSt.position.set(-4,-2,3); scene.add(ptSt);  // steel
-  const ptG  = new THREE.PointLight(0xa8c8dc, 2.0, 16);  ptG.position.set(0,-4,2);  scene.add(ptG);   // silver rim
+  const ptS  = new THREE.PointLight(0xc8d6e5, 4.5, 20);  ptS.position.set(3,3,4);   scene.add(ptS);
+  const ptSt = new THREE.PointLight(0x7fa8c9, 3.0, 20);  ptSt.position.set(-4,-2,3); scene.add(ptSt);
+  const ptG  = new THREE.PointLight(0xa8c8dc, 2.0, 16);  ptG.position.set(0,-4,2);  scene.add(ptG);
 
-  /* Planet — polished steel */
   const planet = new THREE.Mesh(
     new THREE.SphereGeometry(1.2,64,64),
     new THREE.MeshPhongMaterial({color:0x0a1520,emissive:0x060c14,shininess:140,specular:0xc8d6e5})
   );
   planet.position.set(2.3,-.2,0); scene.add(planet);
 
-  /* Wireframe */
   const pWire = new THREE.Mesh(
     new THREE.SphereGeometry(1.23,22,22),
     new THREE.MeshBasicMaterial({color:0x7fa8c9,wireframe:true,transparent:true,opacity:.08})
   );
   pWire.position.copy(planet.position); scene.add(pWire);
 
-  /* Atmosphere — silver-ice glow */
   const atm = new THREE.Mesh(
     new THREE.SphereGeometry(1.46,28,28),
     new THREE.MeshBasicMaterial({color:0xa8d8ea,transparent:true,opacity:.055,side:THREE.BackSide})
   );
   atm.position.copy(planet.position); scene.add(atm);
 
-  /* Rings — silver + gold accent */
   const mkRing=(r,tube,op,col)=>{
     const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,6,80),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
     m.position.copy(planet.position); m.rotation.x=Math.PI*.35; scene.add(m); return m;
   };
-  const ring1 = mkRing(1.95,.055,.50, 0xc8d6e5);  // silver ring
+  const ring1 = mkRing(1.95,.055,.50, 0xc8d6e5);
   const ring2 = mkRing(1.95,.14, .06, 0xc8d6e5);
-  const ring3 = mkRing(2.35,.025,.28, 0xd0e8f8);  // silver accent ring
+  const ring3 = mkRing(2.35,.025,.28, 0xd0e8f8);
 
-  /* Moons */
   const moon1 = new THREE.Mesh(new THREE.SphereGeometry(.19,16,16),
     new THREE.MeshPhongMaterial({color:0x0a1828,emissive:0x060e18,shininess:80,specular:0x7fa8c9}));
   scene.add(moon1);
@@ -682,12 +809,10 @@ setInterval(() => {
     new THREE.MeshPhongMaterial({color:0x0d1520,emissive:0x080e14,shininess:60,specular:0xc8d6e5}));
   scene.add(moon2);
 
-  /* Satellite */
   const sat = new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),
     new THREE.MeshBasicMaterial({color:0xc8d6e5,wireframe:true,transparent:true,opacity:.75}));
   scene.add(sat);
 
-  /* Data nodes — silver + gold */
   const nodes=[];
   [[-2.5,1.5,0],[-3.2,-1,.5],[-1.8,-2,-.5],[.5,2.5,-1],[3.8,1.8,-.5]].forEach((p,i)=>{
     const n=new THREE.Mesh(
@@ -697,12 +822,10 @@ setInterval(() => {
     n.position.set(...p); n._o=[...p]; n._ph=i*1.3; scene.add(n); nodes.push(n);
   });
 
-  /* Laser grid — steel tint */
   const lm=new THREE.LineBasicMaterial({color:0x7fa8c9,transparent:true,opacity:.05});
   for(let i=-3;i<=3;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(i*1.2,-3.5,-2),new THREE.Vector3(i*1.2,3.5,-2)]),lm));
   for(let i=-2;i<=2;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-4,i*1.2,-2),new THREE.Vector3(4,i*1.2,-2)]),lm));
 
-  /* Energy ring — silver pulse */
   const eRing=new THREE.Mesh(new THREE.TorusGeometry(1.5,.008,4,120),
     new THREE.MeshBasicMaterial({color:0xc8d6e5,transparent:true,opacity:.55}));
   eRing.position.copy(planet.position); scene.add(eRing);
@@ -717,17 +840,13 @@ setInterval(() => {
     planet.rotation.y=t*.09; pWire.rotation.y=-t*.04; atm.rotation.y=t*.05;
     ring1.rotation.z=t*.07; ring2.rotation.z=ring1.rotation.z; ring3.rotation.z=-t*.04;
     eRing.material.opacity=.35+Math.sin(t*3)*.28; eRing.rotation.y=t*.2;
-
     moon1.position.set(planet.position.x+Math.cos(t*.4)*2.5,planet.position.y+Math.sin(t*.16)*.6,planet.position.z+Math.sin(t*.4)*2.5);
     moon2.position.set(planet.position.x+Math.cos(t*.72+1.5)*1.7,planet.position.y+Math.cos(t*.5)*.8,planet.position.z+Math.sin(t*.72+1.5)*1.7);
     sat.position.set(planet.position.x+Math.cos(t*.9+2)*3.3,planet.position.y+Math.sin(t*1.1)*1.1,planet.position.z+Math.sin(t*.9+2)*3.3);
     sat.rotation.x=t*1.5; sat.rotation.y=t*1.2;
-
     nodes.forEach(n=>{n.position.y=n._o[1]+Math.sin(t*.6+n._ph)*.15;n.rotation.y=t*.5;n.rotation.x=t*.3;});
-
     ptS.intensity  = 4.5+Math.sin(t*1.2)*.8;
     ptSt.intensity = 3.0+Math.cos(t*.9)*.7;
-
     camera.position.x+=(mx*.5-camera.position.x)*.04;
     camera.position.y+=(-my*.3-camera.position.y)*.04;
     camera.lookAt(scene.position);
@@ -737,15 +856,24 @@ setInterval(() => {
 
 /* ── 3. TYPING ── */
 (function(){
-  const el=document.getElementById('typed-role');
-  const roles=['Full Stack Developer_','Backend Architect_','AI Systems Builder_','Cloud Engineer_','API & Systems Developer_'];
-  let ri=0,ci=0,del=false;
+  const el = document.getElementById('typed-role');
+  let ri=0, ci=0, del=false, timer=null;
+
   function type(){
-    el.textContent=del?roles[ri].slice(0,ci--):roles[ri].slice(0,ci++);
-    if(!del&&ci>roles[ri].length){del=true;setTimeout(type,1200);return;}
-    if(del&&ci<0){del=false;ri=(ri+1)%roles.length;ci=0;}
-    setTimeout(type,del?40:80);
+    const roles = ROLES[lang];
+    el.textContent = del ? roles[ri].slice(0,ci--) : roles[ri].slice(0,ci++);
+    if(!del && ci > roles[ri].length){ del=true; timer=setTimeout(type,1200); return; }
+    if(del && ci < 0){ del=false; ri=(ri+1)%roles.length; ci=0; }
+    timer = setTimeout(type, del?40:80);
   }
+
+  resetTyping = function(){
+    clearTimeout(timer);
+    el.textContent='';
+    ri=0; ci=0; del=false;
+    type();
+  };
+
   type();
 })();
 
@@ -793,7 +921,7 @@ menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
   ham.querySelectorAll('span').forEach(s=>{s.style.transform='';s.style.opacity='1';});
 }));
 
-/* ── 8. CLICK BURST — silver sparks ── */
+/* ── 8. CLICK BURST ── */
 document.addEventListener('click',e=>{
   for(let i=0;i<8;i++){
     const p=document.createElement('div');
