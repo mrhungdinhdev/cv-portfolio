@@ -264,6 +264,13 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 @keyframes badge-pulse{0%,100%{box-shadow:0 0 20px rgba(168,200,220,0.12),0 0 40px rgba(168,200,220,0.06);}
   50%{box-shadow:0 0 30px rgba(168,200,220,0.25),0 0 60px rgba(168,200,220,0.12),0 0 90px rgba(168,200,220,0.05);}}
 .badge-pulse{animation:float-y 4s ease-in-out infinite, badge-pulse 3s ease-in-out infinite;}
+
+/* ── SCI-FI 3D CANVASES ── */
+.section-3d-canvas{
+  position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0.55;
+  transition:opacity .6s ease;
+}
+section:hover .section-3d-canvas{opacity:0.75;}
 </style>
 </head>
 <body>
@@ -393,7 +400,8 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ ABOUT ══ -->
-<section id="about" class="relative z-10 py-24 px-6">
+<section id="about" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <canvas id="about-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="about_label">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="about_title">Who I am</h2></div>
     <div class="grid md:grid-cols-2 gap-12">
@@ -417,7 +425,8 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ SKILLS ══ -->
-<section id="skills" class="relative z-10 py-24 px-6">
+<section id="skills" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <canvas id="skills-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="skills_label">02 — SKILLS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="skills_title">Technical Stack</h2></div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -435,7 +444,8 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ EXPERIENCE ══ -->
-<section id="experience" class="relative z-10 py-24 px-6">
+<section id="experience" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <canvas id="exp-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="exp_label">03 — EXPERIENCE</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="exp_title">Work History</h2></div>
     <div class="relative pl-6 tl-line space-y-10">
@@ -494,7 +504,8 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ PROJECTS ══ -->
-<section id="projects" class="relative z-10 py-24 px-6">
+<section id="projects" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <canvas id="projects-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="proj_label">04 — PROJECTS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="proj_title">Highlighted Work</h2></div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -549,7 +560,8 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ CONTACT ══ -->
-<section id="contact" class="relative z-10 py-24 px-6 text-center">
+<section id="contact" class="relative z-10 py-24 px-6 text-center" style="overflow:hidden;">
+  <canvas id="contact-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal">
       <p class="sec-label mb-2" data-i18n="contact_label">06 — CONTACT</p>
@@ -1055,6 +1067,9 @@ document.querySelectorAll('#contact .hud-card').forEach(card => {
 
 /* ── INIT LUCIDE ICONS ── */
 lucide.createIcons();
+
+/* ── 11. SCI-FI 3D SECTION SCENES (external) ── */
 </script>
+<script src="scenes3d.js"></script>
 </body>
 </html>
