@@ -1,1485 +1,817 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Đinh Văn Hùng — Full Stack Developer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Đinh Văn Hùng — Full Stack Developer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  /* ── Kim hành palette ── */
+  --silver: #c8d6e5;      /* bạc sáng    */
+  --steel:  #7fa8c9;      /* thép xanh   */
+  --gold:   #a8c8dc;      /* bạc ánh kim */
+  --gold2:  #d8ecf8;      /* bạc sáng    */
+  --ice:    #a8d8ea;      /* băng Thủy   */
+  --deep:   #050a12;      /* nền cực tối */
+  --s1:     #080e18;
+  --gsi:    rgba(200,214,229,0.35);  /* silver glow */
+  --ggo:    rgba(168,200,220,0.35);  /* silver glow */
+  --gst:    rgba(127,168,201,0.3);   /* steel glow  */
+}
+html{scroll-behavior:smooth;}
+body{background:var(--deep);color:#b8ccd8;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;}
 
-    :root {
-      --or: #f97316;
-      --or2: #ea580c;
-      --re: #dc2626;
-      --gd: #d97706;
-      --dk: #080808;
-      --glow-or: rgba(249, 115, 22, 0.4);
-      --glow-re: rgba(220, 38, 38, 0.35);
-    }
+#space-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
 
-    html {
-      scroll-behavior: smooth;
-    }
+/* scanlines — cool steel tint */
+body::after{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(127,168,201,0.018) 3px,rgba(127,168,201,0.018) 4px);
+  animation:scan 10s linear infinite;
+}
+@keyframes scan{0%{background-position:0 0;}100%{background-position:0 120px;}}
 
-    body {
-      background: var(--dk);
-      color: #d4d4d4;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      overflow-x: hidden;
-    }
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 28%,rgba(5,10,18,0.88) 100%);}
 
-    #space-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
+/* ── NAV ── */
+nav{position:fixed;top:0;width:100%;z-index:100;
+  background:rgba(5,10,18,0.78);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(200,214,229,0.1);}
+.nav-logo{background:linear-gradient(90deg,var(--silver),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: repeating-linear-gradient(0deg,
-          transparent,
-          transparent 2px,
-          rgba(249, 115, 22, 0.012) 2px,
-          rgba(249, 115, 22, 0.012) 4px);
-    }
+/* ── METALLIC NAME ── */
+.name-metal{
+  background:linear-gradient(105deg,
+    #3a6480 0%,#7fa8c9 22%,#b8d0e4 40%,
+    #e0eff8 50%,
+    #b8d0e4 60%,#7fa8c9 78%,#3a6480 100%);
+  background-size:240% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:metal-shine 6s ease-in-out infinite;
+  filter:drop-shadow(0 0 14px rgba(200,214,229,0.35)) drop-shadow(0 0 28px rgba(168,200,220,0.15));
+}
+@keyframes metal-shine{
+  0%,100%{background-position:200% center;}
+  50%{background-position:-100% center;}
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: radial-gradient(ellipse at center,
-          transparent 35%,
-          rgba(8, 8, 8, 0.75) 100%);
-    }
+/* ── CURSOR ── */
+*{cursor:none!important;}
+#custom-cursor{position:fixed;z-index:9999;pointer-events:none;}
+#cursor-ring{width:32px;height:32px;border-radius:50%;border:1px solid rgba(200,214,229,0.6);
+  position:absolute;top:-16px;left:-16px;transition:all .15s ease;
+  box-shadow:0 0 12px rgba(200,214,229,0.3);}
+#cursor-dot{width:4px;height:4px;border-radius:50%;background:var(--silver);
+  position:absolute;top:-2px;left:-2px;box-shadow:0 0 8px var(--silver);}
 
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-      background: rgba(8, 8, 8, 0.82);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(249, 115, 22, 0.18);
-    }
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:var(--deep);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .9s ease;}
+#loader.hide{opacity:0;pointer-events:none;}
+.loader-ring{width:60px;height:60px;border-radius:50%;
+  border:2px solid rgba(200,214,229,0.12);border-top:2px solid var(--silver);
+  animation:spin .85s linear infinite;box-shadow:0 0 24px var(--gsi);}
+.loader-text{font-family:'Courier New',monospace;font-size:.7rem;
+  color:rgba(200,214,229,0.5);margin-top:16px;letter-spacing:.2em;}
+.loader-bar-wrap{width:200px;height:2px;background:rgba(200,214,229,0.08);margin-top:20px;border-radius:1px;overflow:hidden;}
+.loader-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--steel),var(--silver),var(--gold));animation:load 1.6s ease forwards;}
+@keyframes load{to{width:100%;}}
 
-    .nav-logo {
-      background: linear-gradient(90deg, var(--or), var(--gd));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+/* ── TEXT HELPERS ── */
+.text-si{color:var(--silver);}
+.text-st{color:var(--steel);}
+.text-go{color:var(--gold);}
+.text-si-glow{color:var(--silver);text-shadow:0 0 16px var(--gsi),0 0 32px var(--gsi);}
+.text-go-glow{color:var(--gold);text-shadow:0 0 14px var(--ggo),0 0 28px var(--ggo);}
 
-    .glitch {
-      position: relative;
-      animation: gm 5s infinite;
-    }
+/* ── STAT ── */
+.stat-val{font-size:2.4rem;font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--steel),var(--silver),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-    .glitch::before,
-    .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-    }
+/* ── HUD CARD ── */
+.hud-card{
+  position:relative;background:rgba(5,10,18,0.68);
+  border:1px solid rgba(200,214,229,0.1);backdrop-filter:blur(18px);
+  transition:border-color .35s,box-shadow .35s,transform .35s;
+}
+.hud-card::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(135deg,rgba(127,168,201,0.05),transparent 55%);pointer-events:none;}
+.hud-card:hover{
+  border-color:rgba(200,214,229,0.35);
+  box-shadow:0 0 28px rgba(200,214,229,0.08),0 0 60px rgba(127,168,201,0.06),inset 0 0 20px rgba(200,214,229,0.03);
+  transform:translateY(-5px);}
 
-    .glitch::before {
-      color: var(--or);
-      animation: g1 5s infinite;
-      clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
-      transform: translate(-3px);
-      opacity: 0.6;
-    }
+/* ── BRACKET CORNERS ── */
+.bracket::before,.bracket::after{content:'';position:absolute;width:13px;height:13px;
+  border-color:var(--silver);border-style:solid;opacity:.4;transition:opacity .3s;}
+.bracket::before{top:-1px;left:-1px;border-width:1.5px 0 0 1.5px;}
+.bracket::after{bottom:-1px;right:-1px;border-width:0 1.5px 1.5px 0;}
+.hud-card:hover .bracket::before,.hud-card:hover .bracket::after{opacity:.9;}
 
-    .glitch::after {
-      color: var(--re);
-      animation: g2 5s infinite;
-      clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
-      transform: translate(3px);
-      opacity: 0.6;
-    }
+/* ── TAG ── */
+.tag{display:inline-block;padding:2px 9px;border-radius:3px;font-size:.7rem;
+  font-family:'Courier New',monospace;background:rgba(127,168,201,0.08);
+  border:1px solid rgba(127,168,201,0.22);color:var(--steel);letter-spacing:.03em;
+  transition:background .2s,border-color .2s;}
+.tag:hover{background:rgba(200,214,229,0.14);border-color:rgba(200,214,229,0.45);color:var(--silver);}
 
-    @keyframes gm {
+/* ── TIMELINE ── */
+.tl-dot{position:absolute;left:-5px;top:7px;width:10px;height:10px;border-radius:50%;
+  background:var(--silver);box-shadow:0 0 12px var(--silver),0 0 28px var(--gsi);
+  animation:pulse-dot 2.2s ease-in-out infinite;}
+@keyframes pulse-dot{
+  0%,100%{box-shadow:0 0 10px var(--silver),0 0 24px var(--gsi);}
+  50%{box-shadow:0 0 20px var(--silver),0 0 44px var(--gsi),0 0 70px rgba(200,214,229,0.15);}
+}
+.tl-line{border-left:1px solid rgba(200,214,229,0.12);}
 
-      0%,
-      88%,
-      100% {
-        transform: none;
-      }
+/* ── SECTION ── */
+.sec-label{font-family:'Courier New',monospace;font-size:.7rem;color:var(--steel);
+  letter-spacing:.18em;text-transform:uppercase;opacity:.75;}
+.hud-line::after{content:'';display:block;margin-top:6px;width:40px;height:1.5px;
+  background:linear-gradient(90deg,var(--silver),transparent);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(200,214,229,0.2),transparent);}
+.hud-data{font-family:'Courier New',monospace;font-size:.62rem;color:rgba(200,214,229,0.28);letter-spacing:.06em;line-height:1.8;}
 
-      89% {
-        transform: skewX(-1deg);
-      }
+/* ── PROGRESS BAR ── */
+.prog-wrap{height:2px;background:rgba(200,214,229,0.08);border-radius:2px;overflow:hidden;margin-top:6px;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--steel),var(--silver));
+  border-radius:2px;width:0%;transition:width 1.5s ease;box-shadow:0 0 8px var(--gsi);}
 
-      91% {
-        transform: skewX(1deg);
-      }
+/* ── BUTTONS ── */
+.btn-metal{
+  position:relative;overflow:hidden;background:transparent;
+  border:1px solid rgba(200,214,229,0.4);color:var(--silver);
+  font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.1em;
+  padding:.75rem 2rem;transition:color .3s,box-shadow .25s,transform .2s;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.btn-metal::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(200,214,229,0.15),rgba(127,168,201,0.25),rgba(168,200,220,0.2));
+  transform:translateX(-110%);transition:transform .35s ease;z-index:-1;
+}
+.btn-metal:hover{color:#fff;box-shadow:0 0 28px var(--gsi),0 0 60px rgba(200,214,229,0.15);transform:translateY(-2px);}
+.btn-metal:hover::before{transform:translateX(0);}
 
-      93% {
-        transform: none;
-      }
-    }
+.btn-ghost{border:1px solid rgba(200,214,229,0.1);color:#4a6070;
+  font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.08em;
+  padding:.75rem 2rem;transition:border-color .3s,color .3s,transform .2s,box-shadow .3s;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
+.btn-ghost:hover{border-color:rgba(200,214,229,0.35);color:var(--silver);transform:translateY(-2px);box-shadow:0 0 18px rgba(200,214,229,0.1);}
 
-    @keyframes g1 {
+/* ── ORBIT ── */
+.orbit{position:absolute;border-radius:50%;border:1px solid rgba(200,214,229,0.06);animation:spin linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-      0%,
-      88%,
-      100% {
-        transform: translate(-3px);
-      }
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .8s ease,transform .8s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
 
-      89% {
-        transform: translate(3px) skewX(3deg);
-      }
+/* ── FLICKER ── */
+@keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.55}94%{opacity:1}97%{opacity:.75}98%{opacity:1}}
+.flicker{animation:flicker 7s infinite;}
 
-      91% {
-        transform: translate(-3px);
-      }
-    }
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--deep);}
+::-webkit-scrollbar-thumb{background:linear-gradient(to bottom,var(--steel),var(--silver));border-radius:2px;}
 
-    @keyframes g2 {
+/* ── MOBILE ── */
+#mob-menu{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+#mob-menu.open{max-height:400px;}
 
-      0%,
-      88%,
-      100% {
-        transform: translate(3px);
-      }
-
-      89% {
-        transform: translate(-3px) skewX(-3deg);
-      }
-
-      91% {
-        transform: translate(3px);
-      }
-    }
-
-    .cursor {
-      display: inline-block;
-      width: 3px;
-      height: 0.9em;
-      background: var(--or);
-      margin-left: 3px;
-      vertical-align: middle;
-      animation: blink 0.65s infinite;
-      box-shadow: 0 0 8px var(--glow-or);
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0;
-      }
-    }
-
-    .text-or {
-      color: var(--or);
-    }
-
-    .text-or-glow {
-      color: var(--or);
-      text-shadow:
-        0 0 14px var(--glow-or),
-        0 0 28px var(--glow-or);
-    }
-
-    .stat-val {
-      font-size: 2.4rem;
-      font-weight: 900;
-      line-height: 1;
-      background: linear-gradient(135deg, var(--or), var(--gd));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hud-card {
-      position: relative;
-      background: rgba(8, 8, 8, 0.7);
-      border: 1px solid rgba(249, 115, 22, 0.14);
-      backdrop-filter: blur(14px);
-      transition:
-        border-color 0.3s,
-        box-shadow 0.3s,
-        transform 0.3s;
-    }
-
-    .hud-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(135deg,
-          rgba(249, 115, 22, 0.04),
-          transparent 60%);
-      pointer-events: none;
-    }
-
-    .hud-card:hover {
-      border-color: rgba(249, 115, 22, 0.45);
-      box-shadow:
-        0 0 28px rgba(249, 115, 22, 0.1),
-        inset 0 0 18px rgba(249, 115, 22, 0.03);
-      transform: translateY(-5px);
-    }
-
-    .bracket::before,
-    .bracket::after {
-      content: "";
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      border-color: var(--or);
-      border-style: solid;
-      opacity: 0.5;
-    }
-
-    .bracket::before {
-      top: -1px;
-      left: -1px;
-      border-width: 1.5px 0 0 1.5px;
-    }
-
-    .bracket::after {
-      bottom: -1px;
-      right: -1px;
-      border-width: 0 1.5px 1.5px 0;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 2px 9px;
-      border-radius: 3px;
-      font-size: 0.7rem;
-      font-family: "Courier New", monospace;
-      background: rgba(249, 115, 22, 0.08);
-      border: 1px solid rgba(249, 115, 22, 0.22);
-      color: #fb923c;
-      letter-spacing: 0.03em;
-    }
-
-    .tl-dot {
-      position: absolute;
-      left: -5px;
-      top: 7px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--or);
-      box-shadow:
-        0 0 12px var(--or),
-        0 0 24px var(--glow-or);
-    }
-
-    .tl-line {
-      border-left: 1px solid rgba(249, 115, 22, 0.15);
-    }
-
-    .sec-label {
-      font-family: "Courier New", monospace;
-      font-size: 0.7rem;
-      color: var(--or);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      opacity: 0.75;
-    }
-
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg,
-          transparent,
-          rgba(249, 115, 22, 0.3),
-          transparent);
-    }
-
-    .hud-line::after {
-      content: "";
-      display: block;
-      margin-top: 6px;
-      width: 40px;
-      height: 1.5px;
-      background: linear-gradient(90deg, var(--or), transparent);
-    }
-
-    .btn-fire {
-      position: relative;
-      overflow: hidden;
-      background: transparent;
-      border: 1px solid var(--or);
-      color: var(--or);
-      font-family: "Courier New", monospace;
-      font-size: 0.85rem;
-      letter-spacing: 0.1em;
-      padding: 0.75rem 2rem;
-      transition:
-        color 0.3s,
-        box-shadow 0.25s,
-        transform 0.2s;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    }
-
-    .btn-fire::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--or), var(--or2));
-      transform: translateX(-110%);
-      transition: transform 0.3s ease;
-      z-index: -1;
-    }
-
-    .btn-fire:hover {
-      color: #080808;
-      box-shadow: 0 0 22px var(--glow-or);
-      transform: translateY(-2px);
-    }
-
-    .btn-fire:hover::before {
-      transform: translateX(0);
-    }
-
-    .btn-ghost {
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #737373;
-      font-family: "Courier New", monospace;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      padding: 0.75rem 2rem;
-      transition:
-        border-color 0.3s,
-        color 0.3s,
-        transform 0.2s;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    }
-
-    .btn-ghost:hover {
-      border-color: rgba(249, 115, 22, 0.5);
-      color: #fb923c;
-      transform: translateY(-2px);
-    }
-
-    .orbit {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(249, 115, 22, 0.07);
-      animation: spin linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(32px);
-      transition:
-        opacity 0.75s ease,
-        transform 0.75s ease;
-    }
-
-    .reveal.in {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    ::-webkit-scrollbar {
-      width: 3px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--dk);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--or);
-      border-radius: 2px;
-    }
-
-    #mob-menu {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease;
-    }
-
-    #mob-menu.open {
-      max-height: 400px;
-    }
-  </style>
+/* ── SILVER BADGE (education) ── */
+.gold-badge{background:linear-gradient(135deg,rgba(168,200,220,0.18),rgba(200,214,229,0.12));
+  border:1px solid rgba(200,214,229,0.35);}
+</style>
 </head>
-
 <body>
-  <canvas id="space-canvas"></canvas>
 
-  <!-- NAV -->
-  <nav>
-    <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
-      <span class="font-mono font-bold text-sm tracking-widest nav-logo">DVH<span
-          style="color: #525252">.dev</span></span>
-      <ul class="hidden md:flex gap-8 text-xs font-mono tracking-widest text-gray-600">
-        <li>
-          <a href="#about" class="hover:text-orange-400 transition-colors duration-200">ABOUT</a>
-        </li>
-        <li>
-          <a href="#skills" class="hover:text-orange-400 transition-colors duration-200">SKILLS</a>
-        </li>
-        <li>
-          <a href="#experience" class="hover:text-orange-400 transition-colors duration-200">EXP</a>
-        </li>
-        <li>
-          <a href="#projects" class="hover:text-orange-400 transition-colors duration-200">PROJECTS</a>
-        </li>
-        <li>
-          <a href="#education" class="hover:text-orange-400 transition-colors duration-200">EDU</a>
-        </li>
-        <li>
-          <a href="#contact" class="hover:text-orange-400 transition-colors duration-200">CONTACT</a>
-        </li>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">INITIALIZING SYSTEM...</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="hud-data" style="margin-top:12px;text-align:center;">
+    SYS :: DVH.DEV v2.0<br>ELEMENT :: 金 (KIM HÀNH)
+  </div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div id="custom-cursor">
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+</div>
+
+<canvas id="space-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
+    <span class="font-mono font-bold text-sm tracking-widest nav-logo flicker">DVH<span style="color:#2a3a4a;">.dev</span></span>
+    <div class="hidden md:flex items-center gap-8">
+      <ul class="flex gap-8 text-xs font-mono tracking-widest" style="color:#3d5566;">
+        <li><a href="#about"      class="hover:text-slate-300 transition-colors duration-200">ABOUT</a></li>
+        <li><a href="#skills"     class="hover:text-slate-300 transition-colors duration-200">SKILLS</a></li>
+        <li><a href="#experience" class="hover:text-slate-300 transition-colors duration-200">EXP</a></li>
+        <li><a href="#projects"   class="hover:text-slate-300 transition-colors duration-200">PROJECTS</a></li>
+        <li><a href="#education"  class="hover:text-slate-300 transition-colors duration-200">EDU</a></li>
+        <li><a href="#contact"    class="hover:text-slate-300 transition-colors duration-200">CONTACT</a></li>
       </ul>
-      <button id="ham" class="md:hidden flex flex-col gap-1.5 p-1">
-        <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
-        <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
-        <span class="block w-5 h-px bg-gray-500 transition-all duration-300"></span>
-      </button>
-    </div>
-    <div id="mob-menu" class="md:hidden border-t" style="border-color: rgba(249, 115, 22, 0.1)">
-      <div class="max-w-5xl mx-auto px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest text-gray-600">
-        <a href="#about" class="hover:text-orange-400">ABOUT</a>
-        <a href="#skills" class="hover:text-orange-400">SKILLS</a>
-        <a href="#experience" class="hover:text-orange-400">EXPERIENCE</a>
-        <a href="#projects" class="hover:text-orange-400">PROJECTS</a>
-        <a href="#education" class="hover:text-orange-400">EDUCATION</a>
-        <a href="#contact" class="hover:text-orange-400">CONTACT</a>
+      <div class="hud-data text-right" style="color:rgba(200,214,229,0.4);">
+        <div id="nav-time">00:00:00</div>
       </div>
     </div>
-  </nav>
+    <button id="ham" class="md:hidden flex flex-col gap-1.5 p-1">
+      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+      <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
+    </button>
+  </div>
+  <div id="mob-menu" class="md:hidden border-t" style="border-color:rgba(200,214,229,0.08);">
+    <div class="max-w-5xl mx-auto px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest" style="color:#3d5566;">
+      <a href="#about"      class="hover:text-slate-300">ABOUT</a>
+      <a href="#skills"     class="hover:text-slate-300">SKILLS</a>
+      <a href="#experience" class="hover:text-slate-300">EXPERIENCE</a>
+      <a href="#projects"   class="hover:text-slate-300">PROJECTS</a>
+      <a href="#education"  class="hover:text-slate-300">EDUCATION</a>
+      <a href="#contact"    class="hover:text-slate-300">CONTACT</a>
+    </div>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
-    <canvas id="hero-canvas" class="absolute inset-0 z-0"></canvas>
-    <div class="orbit" style="
-          width: 520px;
-          height: 520px;
-          right: -200px;
-          top: 50%;
-          margin-top: -260px;
-          animation-duration: 32s;
-        "></div>
-    <div class="orbit" style="
-          width: 330px;
-          height: 330px;
-          right: -80px;
-          top: 50%;
-          margin-top: -165px;
-          animation-duration: 20s;
-          border-color: rgba(220, 38, 38, 0.09);
-        "></div>
-    <div class="orbit" style="
-          width: 160px;
-          height: 160px;
-          right: 75px;
-          top: 50%;
-          margin-top: -80px;
-          animation-duration: 11s;
-          border-color: rgba(249, 115, 22, 0.14);
-        "></div>
+<!-- ══ HERO ══ -->
+<section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+  <canvas id="hero-canvas" class="absolute inset-0 z-0"></canvas>
 
-    <div class="relative z-10 max-w-5xl mx-auto px-6 pt-20 w-full">
-      <div class="max-w-2xl">
-        <div class="flex items-center gap-3 mb-7">
-          <span class="relative flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-60"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"
-              style="box-shadow: 0 0 8px #f97316"></span>
-          </span>
-          <span class="font-mono text-xs tracking-widest text-gray-600">// SYSTEM ONLINE · AVAILABLE FOR HIRE</span>
-        </div>
+  <div style="position:absolute;top:70px;left:20px;z-index:5;" class="hud-data">
+    SYS:ONLINE<br>五行:金 (METAL)<br>LAT:10.8°N<br>LON:106.7°E
+  </div>
+  <div style="position:absolute;top:70px;right:20px;z-index:5;text-align:right;" class="hud-data">
+    NODE:ACTIVE<br>PING:&lt;1MS<br>ENC:AES-256<br>VER:2.0.26
+  </div>
 
-        <div class="font-mono text-xs tracking-widest mb-2" style="color: rgba(249, 115, 22, 0.55)">
-          FULL STACK DEVELOPER
-        </div>
-        <h1 class="font-black leading-none tracking-tight mb-6 glitch" data-text="Đinh Văn Hùng"
-          style="font-size: clamp(2.6rem, 7vw, 4.8rem); color: #e5e5e5">
-          Đinh Văn Hùng
-        </h1>
-        <div class="font-mono text-sm mb-6" style="color: rgba(249, 115, 22, 0.65)">
-          <span id="typed-role"></span><span class="cursor"></span>
-        </div>
-        <p class="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
-          Building scalable APIs, cloud architectures, AI-powered systems and
-          real-world production apps that serve
-          <span class="text-gray-300 font-semibold">thousands of users</span>
-          — from backend to blockchain.
-        </p>
-        <div class="flex flex-wrap gap-3 mb-14">
-          <a href="#contact" class="btn-fire no-underline inline-flex items-center gap-2">CONTACT ME ›</a>
-          <a href="https://github.com/mrhungdinhdev" target="_blank"
-            class="btn-ghost no-underline inline-flex items-center gap-2">⌥ GITHUB</a>
-        </div>
-        <div class="flex gap-10 flex-wrap">
-          <div>
-            <div class="stat-val" id="cnt-exp">0+</div>
-            <div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">
-              YRS EXPERIENCE
+  <!-- orbit rings — silver/steel -->
+  <div class="orbit" style="width:540px;height:540px;right:-210px;top:50%;margin-top:-270px;animation-duration:38s;"></div>
+  <div class="orbit" style="width:340px;height:340px;right:-85px;top:50%;margin-top:-170px;animation-duration:24s;border-color:rgba(201,168,76,0.08);"></div>
+  <div class="orbit" style="width:165px;height:165px;right:72px;top:50%;margin-top:-82px;animation-duration:13s;border-color:rgba(127,168,201,0.14);"></div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-6 pt-20 w-full">
+    <div class="max-w-2xl">
+
+      <div class="flex items-center gap-3 mb-7">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style="background:var(--silver);"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background:var(--silver);box-shadow:0 0 10px var(--silver);"></span>
+        </span>
+        <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.45);">// SYSTEM ONLINE &nbsp;·&nbsp; AVAILABLE FOR HIRE</span>
+      </div>
+
+      <div class="font-mono text-xs tracking-widest mb-2" style="color:rgba(127,168,201,0.55);">FULL STACK DEVELOPER</div>
+
+      <!-- METALLIC NAME — single color + shine -->
+      <h1 class="font-black leading-none tracking-tight mb-5 name-metal"
+          style="font-size:clamp(2.6rem,7vw,4.8rem);">Đinh Văn Hùng</h1>
+
+      <div class="font-mono text-sm mb-6" style="color:rgba(127,168,201,0.7);">
+        <span id="typed-role"></span>
+        <span style="display:inline-block;width:3px;height:.9em;background:var(--silver);margin-left:3px;vertical-align:middle;animation:blink .65s infinite;box-shadow:0 0 10px var(--silver);"></span>
+      </div>
+      <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}</style>
+
+      <p class="text-sm leading-relaxed mb-8 max-w-lg" style="color:#4a6678;">
+        Building scalable APIs, cloud architectures, AI-powered systems and real-world production apps
+        that serve <span style="color:#8aa8c0;font-weight:600;">thousands of users</span> — from backend to full-stack.
+      </p>
+
+      <div class="flex flex-wrap gap-3 mb-14">
+        <a href="#contact" class="btn-metal no-underline inline-flex items-center gap-2">CONTACT ME ›</a>
+        <a href="https://github.com/mrhungdinhdev" target="_blank" class="btn-ghost no-underline inline-flex items-center gap-2">⌥ GITHUB</a>
+      </div>
+
+      <div class="flex gap-10 flex-wrap">
+        <div><div class="stat-val" id="cnt-exp">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">YRS EXPERIENCE</div></div>
+        <div><div class="stat-val" id="cnt-proj">0+</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">PROJECTS SHIPPED</div></div>
+        <div><div class="stat-val" id="cnt-gpa">0.0</div><div class="font-mono text-xs mt-1 tracking-widest" style="color:#2d4050;">GPA / 10</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
+    <span class="font-mono text-xs tracking-widest" style="color:rgba(200,214,229,0.25);">SCROLL</span>
+    <div class="w-px h-10" style="background:linear-gradient(to bottom,var(--silver),transparent);"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ ABOUT ══ -->
+<section id="about" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Who I am</h2></div>
+    <div class="grid md:grid-cols-2 gap-12">
+      <div class="space-y-4 leading-relaxed reveal" style="color:#4a6678;">
+        <p>I'm a <span style="color:#8aa8c0;font-weight:600;">Full Stack Developer</span> with 3 years of hands-on experience specialising in backend development and system design.</p>
+        <p>Core stack: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.</p>
+        <p>From scalable web systems to multi-agent AI — I ship full-stack systems that <span style="color:#8aa8c0;font-weight:600;">real users depend on</span>.</p>
+      </div>
+      <ul class="space-y-3 reveal">
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📍</span>11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City</li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📅</span>Born 28 January 2002</li>
+        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📧</span><a href="mailto:manhhung.dvh@gmail.com" class="text-st hover:text-si hover:underline transition-colors">manhhung.dvh@gmail.com</a></li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📱</span>034 256 8696</li>
+        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🐙</span><a href="https://github.com/mrhungdinhdev" target="_blank" class="text-st hover:text-si hover:underline transition-colors">github.com/mrhungdinhdev</a></li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🌐</span>Vietnamese (Native) · English (Intermediate)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ SKILLS ══ -->
+<section id="skills" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">02 — SKILLS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Technical Stack</h2></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">LANGUAGES</p><div class="prog-wrap"><div class="prog-bar" data-w="90"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">PHP</span><span class="tag">HTML</span><span class="tag">CSS</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">FRONTEND</p><div class="prog-wrap"><div class="prog-bar" data-w="80"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Vue.js</span><span class="tag">Tailwind</span><span class="tag">Bootstrap</span><span class="tag">jQuery</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">BACKEND</p><div class="prog-wrap"><div class="prog-bar" data-w="95"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">NestJS</span><span class="tag">Laravel</span><span class="tag">Node.js</span><span class="tag">ExpressJS</span><span class="tag">RESTful API</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">AI / DATA</p><div class="prog-wrap"><div class="prog-bar" data-w="75"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">OpenAI</span><span class="tag">Gemini API</span><span class="tag">ChromaDB</span><span class="tag">BullMQ</span><span class="tag">Socket.IO</span><span class="tag">Playwright</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">DATABASES</p><div class="prog-wrap"><div class="prog-bar" data-w="88"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">Redis Streams</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">DEVOPS / CLOUD</p><div class="prog-wrap"><div class="prog-bar" data-w="82"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">AWS EC2</span><span class="tag">S3</span><span class="tag">RDS</span><span class="tag">Route 53</span><span class="tag">IAM</span><span class="tag">CloudFront</span><span class="tag">Docker</span><span class="tag">GitHub Actions</span></div></div>
+      <div class="hud-card bracket rounded-xl p-5 reveal"><p class="sec-label mb-1">CMS / TOOLS</p><div class="prog-wrap"><div class="prog-bar" data-w="70"></div></div><div class="flex flex-wrap gap-2 mt-3"><span class="tag">WordPress</span><span class="tag">Git</span><span class="tag">Jira</span><span class="tag">Figma</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">03 — EXPERIENCE</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Work History</h2></div>
+    <div class="relative pl-6 tl-line space-y-10">
+
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card bracket rounded-xl p-6">
+          <div class="flex justify-between items-start flex-wrap gap-2 mb-3">
+            <div>
+              <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">AUG 2025 – PRESENT</p>
+              <h3 class="font-bold text-lg" style="color:#c8d6e5;">EXORA MEDIA COMPANY LIMITED</h3>
+              <p class="font-mono text-xs text-st">FULL STACK DEVELOPER</p>
             </div>
+            <span class="tag" style="border-color:rgba(74,222,128,0.35);color:#4ade80;background:rgba(74,222,128,0.07);">● CURRENT</span>
           </div>
-          <div>
-            <div class="stat-val" id="cnt-proj">0+</div>
-            <div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">
-              PROJECTS SHIPPED
-            </div>
-          </div>
-          <div>
-            <div class="stat-val" id="cnt-gpa">0.0</div>
-            <div class="font-mono text-xs text-gray-700 mt-1 tracking-widest">
-              GPA / 10
-            </div>
-          </div>
+          <ul class="space-y-2 text-sm" style="color:#4a6678;">
+            <li class="flex gap-2"><span class="text-si">▸</span>Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Develop a distributed web crawling worker for automated social media data collection using Redis Streams.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management.</li>
+          </ul>
         </div>
+      </div>
+
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card bracket rounded-xl p-6">
+          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">JAN 2025 – JUL 2025</p>
+          <h3 class="font-bold text-lg mb-0.5" style="color:#c8d6e5;">HIT GROUP COMPANY LIMITED</h3>
+          <p class="font-mono text-xs mb-4 text-st">FULL STACK DEVELOPER</p>
+          <ul class="space-y-2 text-sm" style="color:#4a6678;">
+            <li class="flex gap-2"><span class="text-si">▸</span>Design and maintain scalable web-based systems across multiple business domains.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Optimise and upgrade existing systems for performance, reliability, and security.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Collaborate with cross-functional teams to deploy features aligned with business goals.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="relative reveal">
+        <div class="tl-dot"></div>
+        <div class="hud-card bracket rounded-xl p-6">
+          <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;">JAN 2024 – DEC 2024</p>
+          <h3 class="font-bold text-lg mb-0.5" style="color:#c8d6e5;">Liberation Technology JSC</h3>
+          <p class="font-mono text-xs mb-4 text-st">FULL STACK DEVELOPER</p>
+          <ul class="space-y-2 text-sm" style="color:#4a6678;">
+            <li class="flex gap-2"><span class="text-si">▸</span>Engineered and maintained full-stack web applications for various client projects.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Developed core system features with a focus on performance and scalability.</li>
+            <li class="flex gap-2"><span class="text-si">▸</span>Ensured code quality and security through testing and regular refactoring.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ PROJECTS ══ -->
+<section id="projects" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">04 — PROJECTS</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Highlighted Work</h2></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 01</p><span class="tag" style="font-size:.6rem;">AI · NODE.JS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🤖 AI Social Builder</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">AI-powered social media content generation platform with multi-tenant workspaces, multi-agent architecture (4 agents/fanpage), and adaptive MPE learning framework.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag">Redis</span><span class="tag">BullMQ</span><span class="tag">ChromaDB</span><span class="tag">Gemini API</span><span class="tag">OpenAI</span><span class="tag">Socket.IO</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;">// Internal Platform</p></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 02</p><span class="tag" style="font-size:.6rem;">DISTRIBUTED</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🕷️ Crawler Social Tool</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Distributed worker consuming crawl jobs from Redis Streams. Supports Facebook, X/Twitter, Instagram, TikTok with persistent Playwright browser sessions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Playwright</span><span class="tag">Redis Streams</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;">// Internal Tool</p></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 03</p><span class="tag" style="font-size:.6rem;">REALTIME</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">📚 XuatBanDienTu</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span></div><a href="https://docsach.com.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ docsach.com.vn</a></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 04</p><span class="tag" style="font-size:.6rem;">MOBILE · WEB</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🥗 AnchayFood</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div><div class="flex gap-4"><a href="https://anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Web</a><a href="https://vendor.anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Vendor</a></div></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 05</p><span class="tag" style="font-size:.6rem;">AI · AWS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">✅ CheckYay</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span></div><a href="https://app.checkyay.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ App</a></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 06</p><span class="tag" style="font-size:.6rem;">ENTERPRISE AI</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🧠 AiBC</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div><a href="https://ai-pro.pro/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 07</p><span class="tag" style="font-size:.6rem;">BLOCKCHAIN</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🎬 Video NFT</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div><a href="https://videonft.live/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 08</p><span class="tag" style="font-size:.6rem;">E-COMMERCE</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;">🖥️ CyberMart</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div><a href="https://cybermart.io.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ EDUCATION ══ -->
+<section id="education" class="relative z-10 py-24 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2">05 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;">Academic Background</h2></div>
+    <div class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div>
+        <h3 class="text-xl font-bold mb-1" style="color:#c8d6e5;">FPT Polytechnic College</h3>
+        <p class="font-mono text-xs mb-5 text-st tracking-widest">ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY</p>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm" style="color:#3d5566;">
+          <span><span style="color:#8aa8c0;">Duration:</span> 2022 – 2024</span>
+          <span><span style="color:#8aa8c0;">Graduated:</span> Sep 30, 2024</span>
+          <span><span style="color:#8aa8c0;">GPA:</span> 8.5 / 10</span>
+          <span><span style="color:#8aa8c0;">Rank:</span> Top 10%</span>
+          <span><span style="color:#8aa8c0;">Credits:</span> 103</span>
+          <span><span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2</span>
+        </div>
+      </div>
+      <div class="text-center px-8 py-5 rounded-xl flex-shrink-0 gold-badge">
+        <div class="text-4xl font-black text-go-glow">8.5</div>
+        <div class="font-mono text-xs mt-1 tracking-widest" style="color:rgba(168,200,220,0.85);">DISTINCTION</div>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-      <span class="font-mono text-xs tracking-widest" style="color: rgba(249, 115, 22, 0.3)">SCROLL</span>
-      <div class="w-px h-10" style="background: linear-gradient(to bottom, var(--or), transparent)"></div>
+<div class="divider"></div>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact" class="relative z-10 py-24 px-6 text-center">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal">
+      <p class="sec-label mb-2">06 — CONTACT</p>
+      <h2 class="text-3xl font-black mb-3 tracking-tight" style="color:#c8d6e5;">Let's work together</h2>
+      <p class="text-sm font-mono mb-10 tracking-wide" style="color:#2d4050;">// OPEN TO NEW OPPORTUNITIES</p>
     </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ABOUT -->
-  <section id="about" class="relative z-10 py-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">01 — ABOUT</p>
-        <h2 class="text-3xl font-black mb-10 tracking-tight hud-line">
-          Who I am
-        </h2>
-      </div>
-      <div class="grid md:grid-cols-2 gap-12">
-        <div class="space-y-4 text-gray-500 leading-relaxed reveal">
-          <p>
-            I'm a
-            <span class="text-gray-200 font-semibold">Full Stack Developer</span>
-            with 3 years of hands-on experience specialising in backend
-            development and system design.
-          </p>
-          <p>
-            My core stack: <span class="text-or font-mono">Laravel</span> ·
-            <span class="text-or font-mono">NestJS</span> ·
-            <span class="text-or font-mono">Node.js</span> ·
-            <span class="text-or font-mono">AWS</span>. Experienced in
-            building RESTful APIs, AI-powered platforms, distributed systems,
-            and cloud-native architectures.
-          </p>
-          <p>
-            From scalable web systems to blockchain smart contracts and
-            multi-agent AI — I ship systems that
-            <span class="text-gray-200 font-semibold">real users depend on</span>.
-          </p>
-        </div>
-        <ul class="space-y-3 reveal">
-          <li class="flex items-center gap-3 text-sm text-gray-500">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📍</span>Tam
-            Binh Ward, Thu Duc City, Ho Chi Minh City
-          </li>
-          <li class="flex items-center gap-3 text-sm text-gray-500">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📅</span>Born
-            28 January 2002
-          </li>
-          <li class="flex items-center gap-3 text-sm">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📧</span><a
-              href="mailto:manhhung.dvh@gmail.com" class="text-or hover:underline">manhhung.dvh@gmail.com</a>
-          </li>
-          <li class="flex items-center gap-3 text-sm text-gray-500">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">📱</span>034
-            256 8696
-          </li>
-          <li class="flex items-center gap-3 text-sm">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🐙</span><a
-              href="https://github.com/mrhungdinhdev" target="_blank"
-              class="text-or hover:underline">github.com/mrhungdinhdev</a>
-          </li>
-          <li class="flex items-center gap-3 text-sm text-gray-500">
-            <span
-              class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0">🌐</span>Vietnamese
-            (Native) · English (Intermediate)
-          </li>
-        </ul>
-      </div>
+    <div class="flex flex-wrap justify-center gap-4 mb-10 reveal">
+      <a href="mailto:manhhung.dvh@gmail.com" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">📧</span>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">EMAIL</div><div class="text-sm font-semibold" style="color:#c8d6e5;">manhhung.dvh@gmail.com</div></div>
+      </a>
+      <a href="tel:0342568696" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">📱</span>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">PHONE</div><div class="text-sm font-semibold" style="color:#c8d6e5;">034 256 8696</div></div>
+      </a>
+      <a href="https://github.com/mrhungdinhdev" target="_blank" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+        <span class="text-xl">🐙</span>
+        <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;">GITHUB</div><div class="text-sm font-semibold" style="color:#c8d6e5;">mrhungdinhdev</div></div>
+      </a>
     </div>
-  </section>
+    <a href="mailto:manhhung.dvh@gmail.com" class="btn-metal no-underline inline-flex items-center gap-2 reveal">SEND MESSAGE ›</a>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<footer class="relative z-10 py-6 text-center border-t" style="border-color:rgba(200,214,229,0.07);">
+  <p class="font-mono text-xs tracking-widest" style="color:#1a2530;">ĐINH VĂN HÙNG © 2026 &nbsp;·&nbsp; HO CHI MINH CITY &nbsp;·&nbsp; 金 KIM HÀNH &nbsp;·&nbsp; THREE.JS + TAILWIND</p>
+</footer>
 
-  <!-- SKILLS -->
-  <section id="skills" class="relative z-10 py-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">02 — SKILLS</p>
-        <h2 class="text-3xl font-black mb-10 tracking-tight hud-line">
-          Technical Stack
-        </h2>
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">LANGUAGES</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">PHP</span><span
-              class="tag">HTML</span><span class="tag">CSS</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">FRONTEND</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Vue.js</span><span
-              class="tag">Tailwind CSS</span><span class="tag">Bootstrap</span><span class="tag">jQuery</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">BACKEND</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">NestJS</span><span class="tag">Laravel</span><span class="tag">Node.js</span><span
-              class="tag">ExpressJS</span><span class="tag">Phalcon</span><span class="tag">RESTful API</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">AI / DATA</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">OpenAI</span><span class="tag">Gemini API</span><span class="tag">ChromaDB</span><span
-              class="tag">BullMQ</span><span class="tag">Socket.IO</span><span class="tag">Playwright</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">DATABASES</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">MySQL</span><span class="tag">PostgreSQL</span><span class="tag">MongoDB</span><span
-              class="tag">Redis</span><span class="tag">Redis Streams</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">DEVOPS / CLOUD</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">AWS EC2</span><span class="tag">S3</span><span class="tag">RDS</span><span
-              class="tag">ECS</span><span class="tag">CloudFront</span><span class="tag">Docker</span><span
-              class="tag">CI/CD</span><span class="tag">Nginx</span>
-          </div>
-        </div>
-        <div class="hud-card bracket rounded-xl p-5 reveal">
-          <p class="sec-label mb-3">CMS / TOOLS</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="tag">WordPress</span><span class="tag">Git</span><span class="tag">Jira</span><span
-              class="tag">Figma</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<script>
+'use strict';
 
-  <div class="divider"></div>
+/* ── LOADER ── */
+window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hide'), 1800));
 
-  <!-- EXPERIENCE -->
-  <section id="experience" class="relative z-10 py-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">03 — EXPERIENCE</p>
-        <h2 class="text-3xl font-black mb-10 tracking-tight hud-line">
-          Work History
-        </h2>
-      </div>
-      <div class="relative pl-6 tl-line space-y-10">
-        <!-- Exora -->
-        <div class="relative reveal">
-          <div class="tl-dot"></div>
-          <div class="hud-card rounded-xl p-6">
-            <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">
-              AUG 2025 – PRESENT
-            </p>
-            <h3 class="font-bold text-lg text-gray-200 mb-0.5">
-              EXORA MEDIA COMPANY LIMITED
-            </h3>
-            <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
-            <ul class="space-y-2 text-sm text-gray-500">
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Build and maintain an AI-powered
-                social media content generation platform with multi-tenant
-                workspace support.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Develop a distributed web
-                crawling worker for automated social media data collection
-                using Redis Streams.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Design and develop a digital
-                publishing platform (docsach.com.vn) with real-time reading
-                features and e-book management.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- HIT GROUP -->
-        <div class="relative reveal">
-          <div class="tl-dot"></div>
-          <div class="hud-card rounded-xl p-6">
-            <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">
-              JAN 2025 – JUL 2025
-            </p>
-            <h3 class="font-bold text-lg text-gray-200 mb-0.5">
-              HIT GROUP COMPANY LIMITED
-            </h3>
-            <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
-            <ul class="space-y-2 text-sm text-gray-500">
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Design and maintain scalable
-                web-based systems across multiple business domains.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Optimise and upgrade existing
-                systems for performance, reliability, and security.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Collaborate with
-                cross-functional teams to deploy features aligned with
-                business goals.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Liberation -->
-        <div class="relative reveal">
-          <div class="tl-dot"></div>
-          <div class="hud-card rounded-xl p-6">
-            <p class="font-mono text-xs text-gray-700 mb-1 tracking-widest">
-              JAN 2024 – DEC 2024
-            </p>
-            <h3 class="font-bold text-lg text-gray-200 mb-0.5">
-              Liberation Technology JSC
-            </h3>
-            <p class="font-mono text-xs mb-4 text-or">FULL STACK DEVELOPER</p>
-            <ul class="space-y-2 text-sm text-gray-500">
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Engineered and maintained
-                full-stack web applications for various client projects.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Developed core system features
-                with a focus on performance and scalability.
-              </li>
-              <li class="flex gap-2">
-                <span class="text-or">▸</span>Ensured code quality and
-                security through testing and regular refactoring.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- PROJECTS -->
-  <section id="projects" class="relative z-10 py-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">04 — PROJECTS</p>
-        <h2 class="text-3xl font-black mb-10 tracking-tight hud-line">
-          Highlighted Work
-        </h2>
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- 01 AI Social Builder -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 01</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">
-            🤖 AI Social Builder
-          </h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            AI-powered social media content generation platform with
-            multi-tenant workspaces, multi-agent architecture, and adaptive
-            MPE learning framework.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span> <span
-              class="tag">Redis</span><span class="tag">BullMQ</span><span class="tag">ChromaDB</span>
-            <span class="tag">OpenAI</span><span class="tag">Socket.IO</span><span class="tag">Docker</span>
-          </div>
-          <p class="font-mono text-xs text-gray-700">Internal Platform</p>
-        </div>
-
-        <!-- 02 Crawler Social Tool -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 02</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">
-            🕷️ Crawler Social Tool
-          </h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Distributed Node.js worker that consumes crawl jobs from Redis
-            Streams. Supports Facebook, X, Instagram, TikTok with persistent
-            browser sessions.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Node.js</span><span class="tag">Playwright</span>
-            <span class="tag">Redis Streams</span><span class="tag">Docker</span>
-          </div>
-          <p class="font-mono text-xs text-gray-700">Internal Tool</p>
-        </div>
-
-        <!-- 03 Digital Publishing -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 03</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">
-            📚 XuatBanDienTu
-          </h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Full-featured e-book publishing & reading platform with real-time
-            reading progress, payment flows, and Socket.IO sidecar service.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span> <span
-              class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span
-              class="tag">Nginx</span>
-          </div>
-          <a href="https://docsach.com.vn" target="_blank" class="text-or text-xs font-mono hover:underline">↗
-            docsach.com.vn</a>
-        </div>
-
-        <!-- 04 AnchayFood -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 04</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">
-            🥗 AnchayFood
-          </h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for
-            users, vendors, and delivery. Full ordering ecosystem with
-            real-time exchange rates.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span>
-          </div>
-          <div class="flex gap-4">
-            <a href="https://anchayfood.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗
-              Web</a>
-            <a href="https://vendor.anchayfood.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗
-              Vendor</a>
-          </div>
-        </div>
-
-        <!-- 05 CheckYay -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 05</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">✅ CheckYay</h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Digital checklist & task management platform with AI chat
-            (ChatGPT) trained on customer data. Web + mobile on full AWS
-            infrastructure.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span
-              class="tag">AWS ECS</span><span class="tag">AI</span>
-          </div>
-          <a href="https://app.checkyay.com/" target="_blank" class="text-or text-xs font-mono hover:underline">↗
-            App</a>
-        </div>
-
-        <!-- 06 AiBC -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 06</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">🧠 AiBC</h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Apply enterprise AI learning models to ChatGPT & Bard with full
-            data isolation, perpetual learning, and support for PDF/Word/XML
-            inputs.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span>
-          </div>
-          <a href="https://ai-pro.pro/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
-        </div>
-
-        <!-- 07 Video NFT -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 07</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">🎬 Video NFT</h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Earn crypto watching & uploading videos. ERC-20 & NFT on Binance
-            Smart Chain, wallet system, NFT marketplace, Solidity smart
-            contracts.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span
-              class="tag">AWS</span><span class="tag">Flutter</span>
-          </div>
-          <a href="https://videonft.live/" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
-        </div>
-
-        <!-- 08 CyberMart -->
-        <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal">
-          <p class="font-mono text-gray-700 text-xs mb-2">// 08</p>
-          <h3 class="font-bold text-base text-gray-200 mb-2">🖥️ CyberMart</h3>
-          <p class="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
-            Tech accessories e-commerce with full product, category, cart, and
-            order management for smart purchasing decisions.
-          </p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span
-              class="tag">Bootstrap</span>
-          </div>
-          <a href="https://cybermart.io.vn" target="_blank" class="text-or text-xs font-mono hover:underline">↗ Live</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- EDUCATION -->
-  <section id="education" class="relative z-10 py-24 px-6">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">05 — EDUCATION</p>
-        <h2 class="text-3xl font-black mb-10 tracking-tight hud-line">
-          Academic Background
-        </h2>
-      </div>
-      <div
-        class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div>
-          <h3 class="text-xl font-bold text-gray-200 mb-1">
-            FPT Polytechnic College
-          </h3>
-          <p class="font-mono text-xs mb-5 text-or tracking-widest">
-            ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY
-          </p>
-          <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-            <span><span class="text-gray-300">Duration:</span> 2022 – 2024</span>
-            <span><span class="text-gray-300">Graduated:</span> Sep 30,
-              2024</span>
-            <span><span class="text-gray-300">GPA:</span> 8.5 / 10</span>
-            <span><span class="text-gray-300">Rank:</span> Top 10%</span>
-            <span><span class="text-gray-300">Credits:</span> 103</span>
-            <span><span class="text-gray-300">Cert:</span> Academic English Lvl 3
-              – Topnotch 2</span>
-          </div>
-        </div>
-        <div class="text-center px-8 py-5 rounded-xl flex-shrink-0" style="
-              background: linear-gradient(
-                135deg,
-                rgba(249, 115, 22, 0.15),
-                rgba(220, 38, 38, 0.12)
-              );
-              border: 1px solid rgba(249, 115, 22, 0.28);
-            ">
-          <div class="text-4xl font-black text-or-glow">8.5</div>
-          <div class="font-mono text-xs mt-1 tracking-widest" style="color: rgba(249, 115, 22, 0.6)">
-            DISTINCTION
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- CONTACT -->
-  <section id="contact" class="relative z-10 py-24 px-6 text-center">
-    <div class="max-w-5xl mx-auto">
-      <div class="reveal">
-        <p class="sec-label mb-2">06 — CONTACT</p>
-        <h2 class="text-3xl font-black mb-3 tracking-tight">
-          Let's work together
-        </h2>
-        <p class="text-gray-600 text-sm font-mono mb-10 tracking-wide">
-          // OPEN TO NEW OPPORTUNITIES
-        </p>
-      </div>
-      <div class="flex flex-wrap justify-center gap-4 mb-10 reveal">
-        <a href="mailto:manhhung.dvh@gmail.com"
-          class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
-          <span class="text-xl">📧</span>
-          <div>
-            <div class="font-mono text-xs text-gray-700 mb-0.5">EMAIL</div>
-            <div class="text-sm font-semibold text-gray-200">
-              manhhung.dvh@gmail.com
-            </div>
-          </div>
-        </a>
-        <a href="tel:0342568696"
-          class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
-          <span class="text-xl">📱</span>
-          <div>
-            <div class="font-mono text-xs text-gray-700 mb-0.5">PHONE</div>
-            <div class="text-sm font-semibold text-gray-200">
-              034 256 8696
-            </div>
-          </div>
-        </a>
-        <a href="https://github.com/mrhungdinhdev" target="_blank"
-          class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
-          <span class="text-xl">🐙</span>
-          <div>
-            <div class="font-mono text-xs text-gray-700 mb-0.5">GITHUB</div>
-            <div class="text-sm font-semibold text-gray-200">mrhungdinhdev</div>
-          </div>
-        </a>
-      </div>
-      <a href="mailto:manhhung.dvh@gmail.com" class="btn-fire no-underline inline-flex items-center gap-2 reveal">SEND
-        MESSAGE ›</a>
-    </div>
-  </section>
-
-  <footer class="relative z-10 py-6 text-center border-t" style="border-color: rgba(249, 115, 22, 0.08)">
-    <p class="font-mono text-xs text-gray-800 tracking-widest">
-      ĐINH VĂN HÙNG © 2026 · HO CHI MINH CITY · THREE.JS + TAILWIND
-    </p>
-  </footer>
-
-  <script>
-    "use strict";
-    if (typeof THREE !== "undefined") {
-      /* ── 1. SPACE BACKGROUND ─────────────────────────────────────────────── */
-      (function spaceScene() {
-        const canvas = document.getElementById("space-canvas");
-        const renderer = new THREE.WebGLRenderer({
-          canvas,
-          alpha: true,
-          antialias: false,
-        });
-        renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-        renderer.setSize(innerWidth, innerHeight);
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(
-          75,
-          innerWidth / innerHeight,
-          0.1,
-          200,
-        );
-        camera.position.z = 6;
-
-        const STARS = 3200,
-          sPos = new Float32Array(STARS * 3),
-          sCol = new Float32Array(STARS * 3);
-        const pal = [
-          [1, 0.55, 0.15],
-          [0.9, 0.75, 0.2],
-          [1, 0.25, 0.15],
-          [0.9, 0.9, 0.9],
-          [1, 0.4, 0.05],
-        ];
-        for (let i = 0; i < STARS; i++) {
-          const r = 14 + Math.random() * 65,
-            th = Math.random() * Math.PI * 2,
-            ph = Math.acos(2 * Math.random() - 1);
-          sPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
-          sPos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
-          sPos[i * 3 + 2] = r * Math.cos(ph);
-          const c = pal[Math.floor(Math.random() * pal.length)];
-          sCol[i * 3] = c[0];
-          sCol[i * 3 + 1] = c[1];
-          sCol[i * 3 + 2] = c[2];
-        }
-        const sGeo = new THREE.BufferGeometry();
-        sGeo.setAttribute("position", new THREE.BufferAttribute(sPos, 3));
-        sGeo.setAttribute("color", new THREE.BufferAttribute(sCol, 3));
-        scene.add(
-          new THREE.Points(
-            sGeo,
-            new THREE.PointsMaterial({
-              size: 0.065,
-              vertexColors: true,
-              transparent: true,
-              opacity: 0.9,
-            }),
-          ),
-        );
-
-        [
-          { pos: [9, 4, -22], col: 0x2a0c00, r: 9 },
-          { pos: [-11, -5, -26], col: 0x1a0500, r: 11 },
-          { pos: [1, -9, -20], col: 0x200800, r: 8 },
-        ].forEach((d) => {
-          const m = new THREE.Mesh(
-            new THREE.SphereGeometry(d.r, 10, 10),
-            new THREE.MeshBasicMaterial({
-              color: d.col,
-              transparent: true,
-              opacity: 0.22,
-              side: THREE.BackSide,
-            }),
-          );
-          m.position.set(...d.pos);
-          scene.add(m);
-        });
-
-        const grid = new THREE.GridHelper(60, 30, 0x1a0800, 0x0d0400);
-        grid.position.y = -9;
-        scene.add(grid);
-
-        const rocks = [];
-        for (let i = 0; i < 9; i++) {
-          const m = new THREE.Mesh(
-            new THREE.IcosahedronGeometry(0.05 + Math.random() * 0.1, 0),
-            new THREE.MeshBasicMaterial({
-              color: 0x1a0a00,
-              wireframe: Math.random() > 0.4,
-            }),
-          );
-          m.position.set(
-            (Math.random() - 0.5) * 20,
-            (Math.random() - 0.5) * 13,
-            (Math.random() - 0.5) * 8 - 4,
-          );
-          m._spd = {
-            rx: (Math.random() - 0.5) * 0.4,
-            ry: (Math.random() - 0.5) * 0.3,
-          };
-          m._oy = m.position.y;
-          m._ph = Math.random() * Math.PI * 2;
-          scene.add(m);
-          rocks.push(m);
-        }
-
-        let mx = 0,
-          my = 0;
-        document.addEventListener("mousemove", (e) => {
-          mx = (e.clientX / innerWidth - 0.5) * 0.6;
-          my = (e.clientY / innerHeight - 0.5) * 0.4;
-        });
-        window.addEventListener("resize", () => {
-          camera.aspect = innerWidth / innerHeight;
-          camera.updateProjectionMatrix();
-          renderer.setSize(innerWidth, innerHeight);
-        });
-
-        const clk = new THREE.Clock();
-        (function tick() {
-          requestAnimationFrame(tick);
-          const t = clk.getElapsedTime();
-          scene.rotation.y = t * 0.01;
-          scene.rotation.x = Math.sin(t * 0.007) * 0.035;
-          camera.position.x += (mx - camera.position.x) * 0.03;
-          camera.position.y += (-my - camera.position.y) * 0.03;
-          rocks.forEach((r) => {
-            r.rotation.x += r._spd.rx * 0.016;
-            r.rotation.y += r._spd.ry * 0.016;
-            r.position.y = r._oy + Math.sin(t * 0.38 + r._ph) * 0.22;
-          });
-          renderer.render(scene, camera);
-        })();
-      })();
-
-      /* ── 2. HERO 3D SCENE ───────────────────────────────────────────────── */
-      (function heroScene() {
-        const canvas = document.getElementById("hero-canvas");
-        const renderer = new THREE.WebGLRenderer({
-          canvas,
-          alpha: true,
-          antialias: true,
-        });
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-        camera.position.set(0, 0, 6);
-
-        function resize() {
-          const w = canvas.parentElement.clientWidth,
-            h = canvas.parentElement.clientHeight;
-          renderer.setSize(w, h);
-          renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-        }
-        resize();
-        window.addEventListener("resize", resize);
-
-        scene.add(new THREE.AmbientLight(0x100400, 1));
-        const ptO = new THREE.PointLight(0xf97316, 3.5, 18);
-        ptO.position.set(3, 3, 4);
-        scene.add(ptO);
-        const ptR = new THREE.PointLight(0xdc2626, 2.5, 18);
-        ptR.position.set(-4, -2, 3);
-        scene.add(ptR);
-        const ptG = new THREE.PointLight(0xd97706, 1.8, 14);
-        ptG.position.set(0, -4, 2);
-        scene.add(ptG);
-
-        const planet = new THREE.Mesh(
-          new THREE.SphereGeometry(1.2, 64, 64),
-          new THREE.MeshPhongMaterial({
-            color: 0x120600,
-            emissive: 0x0a0200,
-            shininess: 80,
-            specular: 0xf97316,
-          }),
-        );
-        planet.position.set(2.3, -0.2, 0);
-        scene.add(planet);
-
-        const pWire = new THREE.Mesh(
-          new THREE.SphereGeometry(1.22, 22, 22),
-          new THREE.MeshBasicMaterial({
-            color: 0xf97316,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.07,
-          }),
-        );
-        pWire.position.copy(planet.position);
-        scene.add(pWire);
-
-        const atm = new THREE.Mesh(
-          new THREE.SphereGeometry(1.42, 28, 28),
-          new THREE.MeshBasicMaterial({
-            color: 0xea580c,
-            transparent: true,
-            opacity: 0.05,
-            side: THREE.BackSide,
-          }),
-        );
-        atm.position.copy(planet.position);
-        scene.add(atm);
-
-        const mkRing = (r, tube, op, col) => {
-          const m = new THREE.Mesh(
-            new THREE.TorusGeometry(r, tube, 6, 80),
-            new THREE.MeshBasicMaterial({
-              color: col,
-              transparent: true,
-              opacity: op,
-            }),
-          );
-          m.position.copy(planet.position);
-          m.rotation.x = Math.PI * 0.35;
-          scene.add(m);
-          return m;
-        };
-        const ring = mkRing(1.95, 0.055, 0.55, 0xf97316),
-          ring2 = mkRing(1.95, 0.14, 0.07, 0xf97316);
-
-        const moon = new THREE.Mesh(
-          new THREE.SphereGeometry(0.19, 16, 16),
-          new THREE.MeshPhongMaterial({
-            color: 0x1a0800,
-            emissive: 0x0d0400,
-            shininess: 40,
-            specular: 0xf97316,
-          }),
-        );
-        scene.add(moon);
-
-        const sat = new THREE.Mesh(
-          new THREE.BoxGeometry(0.14, 0.14, 0.14),
-          new THREE.MeshBasicMaterial({
-            color: 0xf97316,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.75,
-          }),
-        );
-        scene.add(sat);
-
-        const nodes = [];
-        [
-          [-2.5, 1.5, 0],
-          [-3.2, -1, 0.5],
-          [-1.8, -2, -0.5],
-          [0.5, 2.5, -1],
-        ].forEach((p, i) => {
-          const n = new THREE.Mesh(
-            new THREE.OctahedronGeometry(0.07 + i * 0.015, 0),
-            new THREE.MeshBasicMaterial({
-              color: i % 2 ? 0xdc2626 : 0xf97316,
-              wireframe: true,
-              transparent: true,
-              opacity: 0.65,
-            }),
-          );
-          n.position.set(...p);
-          n._o = [...p];
-          n._ph = i * 1.3;
-          scene.add(n);
-          nodes.push(n);
-        });
-
-        const lm = new THREE.LineBasicMaterial({
-          color: 0xf97316,
-          transparent: true,
-          opacity: 0.06,
-        });
-        for (let i = -3; i <= 3; i++) {
-          const pts = [
-            new THREE.Vector3(i * 1.2, -3.5, -2),
-            new THREE.Vector3(i * 1.2, 3.5, -2),
-          ];
-          scene.add(
-            new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lm),
-          );
-        }
-        for (let i = -2; i <= 2; i++) {
-          const pts = [
-            new THREE.Vector3(-4, i * 1.2, -2),
-            new THREE.Vector3(4, i * 1.2, -2),
-          ];
-          scene.add(
-            new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lm),
-          );
-        }
-
-        let mx = 0,
-          my = 0;
-        document.addEventListener("mousemove", (e) => {
-          mx = e.clientX / innerWidth - 0.5;
-          my = e.clientY / innerHeight - 0.5;
-        });
-
-        const clk = new THREE.Clock();
-        (function tick() {
-          requestAnimationFrame(tick);
-          const t = clk.getElapsedTime();
-          planet.rotation.y = t * 0.09;
-          pWire.rotation.y = -t * 0.04;
-          atm.rotation.y = t * 0.05;
-          ring.rotation.z = t * 0.07;
-          ring2.rotation.z = ring.rotation.z;
-          moon.position.set(
-            planet.position.x + Math.cos(t * 0.4) * 2.5,
-            planet.position.y + Math.sin(t * 0.16) * 0.6,
-            planet.position.z + Math.sin(t * 0.4) * 2.5,
-          );
-          sat.position.set(
-            planet.position.x + Math.cos(t * 0.9 + 2) * 3.2,
-            planet.position.y + Math.sin(t * 1.1) * 1,
-            planet.position.z + Math.sin(t * 0.9 + 2) * 3.2,
-          );
-          sat.rotation.x = t * 1.5;
-          sat.rotation.y = t * 1.2;
-          nodes.forEach((n) => {
-            n.position.y = n._o[1] + Math.sin(t * 0.6 + n._ph) * 0.15;
-            n.rotation.y = t * 0.5;
-            n.rotation.x = t * 0.3;
-          });
-          ptO.intensity = 3.5 + Math.sin(t * 1.3) * 0.9;
-          ptR.intensity = 2.5 + Math.cos(t * 0.95) * 0.7;
-          camera.position.x += (mx * 0.5 - camera.position.x) * 0.04;
-          camera.position.y += (-my * 0.3 - camera.position.y) * 0.04;
-          camera.lookAt(scene.position);
-          renderer.render(scene, camera);
-        })();
-      })();
-    }
-    /* ── 3. TYPING EFFECT ───────────────────────────────────────────────── */
-    (function typeRole() {
-      const el = document.getElementById("typed-role");
-      const roles = [
-        "Full Stack Developer_",
-        "Backend Architect_",
-        "AI Systems Builder_",
-        "Cloud Engineer_",
-        "Blockchain Developer_",
-      ];
-      let ri = 0,
-        ci = 0,
-        del = false;
-      function type() {
-        el.textContent = del
-          ? roles[ri].slice(0, ci--)
-          : roles[ri].slice(0, ci++);
-        if (!del && ci > roles[ri].length) {
-          del = true;
-          setTimeout(type, 1200);
-          return;
-        }
-        if (del && ci < 0) {
-          del = false;
-          ri = (ri + 1) % roles.length;
-          ci = 0;
-        }
-        setTimeout(type, del ? 40 : 80);
-      }
-      type();
-    })();
-
-    /* ── 4. COUNTER ─────────────────────────────────────────────────────── */
-    function countUp(el, target, dec, suffix, dur) {
-      const s = performance.now();
-      (function step(now) {
-        const p = Math.min((now - s) / dur, 1);
-        el.textContent =
-          (dec ? (p * target).toFixed(1) : Math.floor(p * target)) + suffix;
-        if (p < 1) requestAnimationFrame(step);
-      })(performance.now());
-    }
-    const cObs = new IntersectionObserver(
-      (es) => {
-        if (!es[0].isIntersecting) return;
-        countUp(document.getElementById("cnt-exp"), 3, false, "+", 1400);
-        countUp(document.getElementById("cnt-proj"), 8, false, "+", 1400);
-        countUp(document.getElementById("cnt-gpa"), 8.5, true, "", 1600);
-        cObs.disconnect();
-      },
-      { threshold: 0.3 },
-    );
-    cObs.observe(document.getElementById("hero"));
-
-    /* ── 5. SCROLL REVEAL ───────────────────────────────────────────────── */
-    const rObs = new IntersectionObserver(
-      (es) => {
-        es.forEach((e, i) => {
-          if (!e.isIntersecting) return;
-          setTimeout(() => e.target.classList.add("in"), i * 100);
-          rObs.unobserve(e.target);
-        });
-      },
-      { threshold: 0.08 },
-    );
-    document.querySelectorAll(".reveal").forEach((el) => rObs.observe(el));
-
-    /* ── 6. HAMBURGER ───────────────────────────────────────────────────── */
-    const ham = document.getElementById("ham"),
-      menu = document.getElementById("mob-menu");
-    ham.addEventListener("click", () => {
-      const open = menu.classList.toggle("open");
-      const sp = ham.querySelectorAll("span");
-      sp[0].style.transform = open ? "translateY(7px) rotate(45deg)" : "";
-      sp[1].style.opacity = open ? "0" : "1";
-      sp[2].style.transform = open ? "translateY(-7px) rotate(-45deg)" : "";
+/* ── CUSTOM CURSOR ── */
+(function() {
+  const cur = document.getElementById('custom-cursor');
+  const ring = document.getElementById('cursor-ring');
+  let tx=0, ty=0, cx=0, cy=0;
+  document.addEventListener('mousemove', e => { tx=e.clientX; ty=e.clientY; });
+  document.querySelectorAll('a,button,.hud-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width='50px'; ring.style.height='50px';
+      ring.style.top='-25px'; ring.style.left='-25px';
+      ring.style.borderColor='rgba(200,214,229,0.9)';
+      ring.style.boxShadow='0 0 22px rgba(200,214,229,0.4), 0 0 44px rgba(201,168,76,0.2)';
     });
-    menu.querySelectorAll("a").forEach((a) =>
-      a.addEventListener("click", () => {
-        menu.classList.remove("open");
-        ham.querySelectorAll("span").forEach((s) => {
-          s.style.transform = "";
-          s.style.opacity = "1";
-        });
-      }),
-    );
-  </script>
-</body>
+    el.addEventListener('mouseleave', () => {
+      ring.style.width='32px'; ring.style.height='32px';
+      ring.style.top='-16px'; ring.style.left='-16px';
+      ring.style.borderColor='rgba(200,214,229,0.6)';
+      ring.style.boxShadow='0 0 12px rgba(200,214,229,0.3)';
+    });
+  });
+  (function loop() {
+    cx += (tx-cx)*.12; cy += (ty-cy)*.12;
+    cur.style.transform = `translate(${cx}px,${cy}px)`;
+    requestAnimationFrame(loop);
+  })();
+})();
 
+/* ── CLOCK ── */
+setInterval(() => {
+  const n=new Date(), p=v=>String(v).padStart(2,'0');
+  document.getElementById('nav-time').textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+}, 1000);
+
+/* ── 1. SPACE BACKGROUND ── */
+(function spaceScene() {
+  const canvas = document.getElementById('space-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.setSize(innerWidth, innerHeight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
+  camera.position.z = 6;
+
+  /* Stars — silver / ice-blue / gold palette */
+  const N = 3500, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
+  const pal = [
+    [0.78,0.84,0.90],  // silver
+    [0.50,0.66,0.79],  // steel blue
+    [0.66,0.85,0.92],  // ice
+    [0.72,0.84,0.94],  // silver-blue
+    [0.88,0.92,0.96],  // pale silver
+    [0.95,0.97,1.00],  // white-blue
+  ];
+  for (let i=0;i<N;i++) {
+    const r=14+Math.random()*70, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    sp[i*3]=r*Math.sin(ph)*Math.cos(th); sp[i*3+1]=r*Math.sin(ph)*Math.sin(th); sp[i*3+2]=r*Math.cos(ph);
+    const c=pal[Math.floor(Math.random()*pal.length)]; sc[i*3]=c[0]; sc[i*3+1]=c[1]; sc[i*3+2]=c[2];
+  }
+  const sGeo = new THREE.BufferGeometry();
+  sGeo.setAttribute('position', new THREE.BufferAttribute(sp,3));
+  sGeo.setAttribute('color',    new THREE.BufferAttribute(sc,3));
+  const starPoints = new THREE.Points(sGeo, new THREE.PointsMaterial({size:.065, vertexColors:true, transparent:true, opacity:.88}));
+  scene.add(starPoints);
+
+  /* Nebula — deep steel/indigo tones */
+  [{pos:[9,4,-22],col:0x080e18,r:9},{pos:[-11,-5,-26],col:0x050a12,r:11},{pos:[1,-9,-20],col:0x0a1020,r:8}]
+    .forEach(d => {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(d.r,10,10), new THREE.MeshBasicMaterial({color:d.col,transparent:true,opacity:.28,side:THREE.BackSide}));
+      m.position.set(...d.pos); scene.add(m);
+    });
+
+  /* Grid — steel blue lines */
+  const grid = new THREE.GridHelper(70,35,0x0a1828,0x060e18);
+  grid.position.y = -10;
+  scene.add(grid);
+
+  /* Warp lines — silver streaks */
+  const WL = 120, wPos = new Float32Array(WL*6), wCol = new Float32Array(WL*6);
+  for (let i=0;i<WL;i++) {
+    const ang=i/WL*Math.PI*2, dist=8+Math.random()*60;
+    wPos[i*6]=Math.cos(ang)*dist; wPos[i*6+1]=(Math.random()-.5)*30; wPos[i*6+2]=Math.sin(ang)*dist;
+    wPos[i*6+3]=Math.cos(ang)*(dist+2.5); wPos[i*6+4]=wPos[i*6+1]; wPos[i*6+5]=Math.sin(ang)*(dist+2.5);
+    const b=.15+Math.random()*.25;
+    wCol[i*6]=b*.8; wCol[i*6+1]=b; wCol[i*6+2]=b*1.1;
+    wCol[i*6+3]=b*.8; wCol[i*6+4]=b; wCol[i*6+5]=b*1.1;
+  }
+  const wGeo = new THREE.BufferGeometry();
+  wGeo.setAttribute('position', new THREE.BufferAttribute(wPos,3));
+  wGeo.setAttribute('color',    new THREE.BufferAttribute(wCol,3));
+  const warpLines = new THREE.LineSegments(wGeo, new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.3}));
+  scene.add(warpLines);
+
+  /* Drifting rocks */
+  const rocks = [];
+  for (let i=0;i<10;i++) {
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(.05+Math.random()*.12,0), new THREE.MeshBasicMaterial({color:0x0a1828,wireframe:Math.random()>.4}));
+    m.position.set((Math.random()-.5)*22,(Math.random()-.5)*14,(Math.random()-.5)*8-4);
+    m._spd={rx:(Math.random()-.5)*.4,ry:(Math.random()-.5)*.3}; m._oy=m.position.y; m._ph=Math.random()*Math.PI*2;
+    scene.add(m); rocks.push(m);
+  }
+
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.7;my=(e.clientY/innerHeight-.5)*.5;});
+  window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+  const clk=new THREE.Clock();
+  (function tick(){
+    requestAnimationFrame(tick);
+    const t=clk.getElapsedTime();
+    starPoints.rotation.y=t*.01; starPoints.rotation.x=Math.sin(t*.007)*.03;
+    warpLines.rotation.y=t*.008;
+    camera.position.x+=(mx-camera.position.x)*.03;
+    camera.position.y+=(-my-camera.position.y)*.03;
+    rocks.forEach(r=>{r.rotation.x+=r._spd.rx*.016;r.rotation.y+=r._spd.ry*.016;r.position.y=r._oy+Math.sin(t*.38+r._ph)*.22;});
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ── 2. HERO 3D SCENE — silver metallic planet ── */
+(function heroScene() {
+  const canvas   = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  const scene    = new THREE.Scene();
+  const camera   = new THREE.PerspectiveCamera(50, 1, .1, 100);
+  camera.position.set(0,0,6);
+
+  function resize(){
+    const w=canvas.parentElement.clientWidth, h=canvas.parentElement.clientHeight;
+    renderer.setSize(w,h); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  /* Lights — cool metallic */
+  scene.add(new THREE.AmbientLight(0x050a12, 1));
+  const ptS  = new THREE.PointLight(0xc8d6e5, 4.5, 20);  ptS.position.set(3,3,4);   scene.add(ptS);   // silver
+  const ptSt = new THREE.PointLight(0x7fa8c9, 3.0, 20);  ptSt.position.set(-4,-2,3); scene.add(ptSt);  // steel
+  const ptG  = new THREE.PointLight(0xa8c8dc, 2.0, 16);  ptG.position.set(0,-4,2);  scene.add(ptG);   // silver rim
+
+  /* Planet — polished steel */
+  const planet = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2,64,64),
+    new THREE.MeshPhongMaterial({color:0x0a1520,emissive:0x060c14,shininess:140,specular:0xc8d6e5})
+  );
+  planet.position.set(2.3,-.2,0); scene.add(planet);
+
+  /* Wireframe */
+  const pWire = new THREE.Mesh(
+    new THREE.SphereGeometry(1.23,22,22),
+    new THREE.MeshBasicMaterial({color:0x7fa8c9,wireframe:true,transparent:true,opacity:.08})
+  );
+  pWire.position.copy(planet.position); scene.add(pWire);
+
+  /* Atmosphere — silver-ice glow */
+  const atm = new THREE.Mesh(
+    new THREE.SphereGeometry(1.46,28,28),
+    new THREE.MeshBasicMaterial({color:0xa8d8ea,transparent:true,opacity:.055,side:THREE.BackSide})
+  );
+  atm.position.copy(planet.position); scene.add(atm);
+
+  /* Rings — silver + gold accent */
+  const mkRing=(r,tube,op,col)=>{
+    const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,6,80),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
+    m.position.copy(planet.position); m.rotation.x=Math.PI*.35; scene.add(m); return m;
+  };
+  const ring1 = mkRing(1.95,.055,.50, 0xc8d6e5);  // silver ring
+  const ring2 = mkRing(1.95,.14, .06, 0xc8d6e5);
+  const ring3 = mkRing(2.35,.025,.28, 0xd0e8f8);  // silver accent ring
+
+  /* Moons */
+  const moon1 = new THREE.Mesh(new THREE.SphereGeometry(.19,16,16),
+    new THREE.MeshPhongMaterial({color:0x0a1828,emissive:0x060e18,shininess:80,specular:0x7fa8c9}));
+  scene.add(moon1);
+  const moon2 = new THREE.Mesh(new THREE.SphereGeometry(.10,12,12),
+    new THREE.MeshPhongMaterial({color:0x0d1520,emissive:0x080e14,shininess:60,specular:0xc8d6e5}));
+  scene.add(moon2);
+
+  /* Satellite */
+  const sat = new THREE.Mesh(new THREE.BoxGeometry(.14,.14,.14),
+    new THREE.MeshBasicMaterial({color:0xc8d6e5,wireframe:true,transparent:true,opacity:.75}));
+  scene.add(sat);
+
+  /* Data nodes — silver + gold */
+  const nodes=[];
+  [[-2.5,1.5,0],[-3.2,-1,.5],[-1.8,-2,-.5],[.5,2.5,-1],[3.8,1.8,-.5]].forEach((p,i)=>{
+    const n=new THREE.Mesh(
+      new THREE.OctahedronGeometry(.07+i*.012,0),
+      new THREE.MeshBasicMaterial({color:i%2?0xa8c8dc:0x7fa8c9,wireframe:true,transparent:true,opacity:.7})
+    );
+    n.position.set(...p); n._o=[...p]; n._ph=i*1.3; scene.add(n); nodes.push(n);
+  });
+
+  /* Laser grid — steel tint */
+  const lm=new THREE.LineBasicMaterial({color:0x7fa8c9,transparent:true,opacity:.05});
+  for(let i=-3;i<=3;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(i*1.2,-3.5,-2),new THREE.Vector3(i*1.2,3.5,-2)]),lm));
+  for(let i=-2;i<=2;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-4,i*1.2,-2),new THREE.Vector3(4,i*1.2,-2)]),lm));
+
+  /* Energy ring — silver pulse */
+  const eRing=new THREE.Mesh(new THREE.TorusGeometry(1.5,.008,4,120),
+    new THREE.MeshBasicMaterial({color:0xc8d6e5,transparent:true,opacity:.55}));
+  eRing.position.copy(planet.position); scene.add(eRing);
+
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+
+  const clk=new THREE.Clock();
+  (function tick(){
+    requestAnimationFrame(tick);
+    const t=clk.getElapsedTime();
+    planet.rotation.y=t*.09; pWire.rotation.y=-t*.04; atm.rotation.y=t*.05;
+    ring1.rotation.z=t*.07; ring2.rotation.z=ring1.rotation.z; ring3.rotation.z=-t*.04;
+    eRing.material.opacity=.35+Math.sin(t*3)*.28; eRing.rotation.y=t*.2;
+
+    moon1.position.set(planet.position.x+Math.cos(t*.4)*2.5,planet.position.y+Math.sin(t*.16)*.6,planet.position.z+Math.sin(t*.4)*2.5);
+    moon2.position.set(planet.position.x+Math.cos(t*.72+1.5)*1.7,planet.position.y+Math.cos(t*.5)*.8,planet.position.z+Math.sin(t*.72+1.5)*1.7);
+    sat.position.set(planet.position.x+Math.cos(t*.9+2)*3.3,planet.position.y+Math.sin(t*1.1)*1.1,planet.position.z+Math.sin(t*.9+2)*3.3);
+    sat.rotation.x=t*1.5; sat.rotation.y=t*1.2;
+
+    nodes.forEach(n=>{n.position.y=n._o[1]+Math.sin(t*.6+n._ph)*.15;n.rotation.y=t*.5;n.rotation.x=t*.3;});
+
+    ptS.intensity  = 4.5+Math.sin(t*1.2)*.8;
+    ptSt.intensity = 3.0+Math.cos(t*.9)*.7;
+
+    camera.position.x+=(mx*.5-camera.position.x)*.04;
+    camera.position.y+=(-my*.3-camera.position.y)*.04;
+    camera.lookAt(scene.position);
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ── 3. TYPING ── */
+(function(){
+  const el=document.getElementById('typed-role');
+  const roles=['Full Stack Developer_','Backend Architect_','AI Systems Builder_','Cloud Engineer_','API & Systems Developer_'];
+  let ri=0,ci=0,del=false;
+  function type(){
+    el.textContent=del?roles[ri].slice(0,ci--):roles[ri].slice(0,ci++);
+    if(!del&&ci>roles[ri].length){del=true;setTimeout(type,1200);return;}
+    if(del&&ci<0){del=false;ri=(ri+1)%roles.length;ci=0;}
+    setTimeout(type,del?40:80);
+  }
+  type();
+})();
+
+/* ── 4. COUNTER ── */
+function countUp(el,target,dec,suffix,dur){
+  const s=performance.now();
+  (function step(now){const p=Math.min((now-s)/dur,1);el.textContent=(dec?(p*target).toFixed(1):Math.floor(p*target))+suffix;if(p<1)requestAnimationFrame(step);})(performance.now());
+}
+const cObs=new IntersectionObserver(es=>{
+  if(!es[0].isIntersecting)return;
+  countUp(document.getElementById('cnt-exp'),3,false,'+',1400);
+  countUp(document.getElementById('cnt-proj'),8,false,'+',1400);
+  countUp(document.getElementById('cnt-gpa'),8.5,true,'',1600);
+  cObs.disconnect();
+},{threshold:.3});
+cObs.observe(document.getElementById('hero'));
+
+/* ── 5. PROGRESS BARS ── */
+const pObs=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    e.target.querySelectorAll('.prog-bar').forEach(b=>setTimeout(()=>{b.style.width=b.dataset.w+'%';},300));
+    pObs.unobserve(e.target);
+  });
+},{threshold:.2});
+document.querySelectorAll('.hud-card').forEach(c=>pObs.observe(c));
+
+/* ── 6. SCROLL REVEAL ── */
+const rObs=new IntersectionObserver(es=>{
+  es.forEach((e,i)=>{if(!e.isIntersecting)return;setTimeout(()=>e.target.classList.add('in'),i*100);rObs.unobserve(e.target);});
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
+
+/* ── 7. HAMBURGER ── */
+const ham=document.getElementById('ham'),menu=document.getElementById('mob-menu');
+ham.addEventListener('click',()=>{
+  const open=menu.classList.toggle('open');
+  const sp=ham.querySelectorAll('span');
+  sp[0].style.transform=open?'translateY(7px) rotate(45deg)':'';
+  sp[1].style.opacity=open?'0':'1';
+  sp[2].style.transform=open?'translateY(-7px) rotate(-45deg)':'';
+});
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+  menu.classList.remove('open');
+  ham.querySelectorAll('span').forEach(s=>{s.style.transform='';s.style.opacity='1';});
+}));
+
+/* ── 8. CLICK BURST — silver sparks ── */
+document.addEventListener('click',e=>{
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');
+    const ang=i/8*Math.PI*2, dist=30+Math.random()*40;
+    Object.assign(p.style,{
+      position:'fixed',left:e.clientX+'px',top:e.clientY+'px',
+      width:'4px',height:'4px',borderRadius:'50%',
+      background:'#c8d6e5',pointerEvents:'none',zIndex:'9998',
+      boxShadow:'0 0 8px #c8d6e5, 0 0 16px rgba(127,168,201,0.5)',
+      transition:'all 0.55s ease',
+    });
+    document.body.appendChild(p);
+    requestAnimationFrame(()=>{
+      Object.assign(p.style,{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px)`,opacity:'0',width:'2px',height:'2px'});
+      setTimeout(()=>p.remove(),580);
+    });
+  }
+});
+</script>
+</body>
 </html>
