@@ -191,6 +191,79 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 .hud-card:hover .proj-icon{opacity:1;filter:drop-shadow(0 0 10px currentColor) drop-shadow(0 0 20px currentColor);}
 .contact-icon{filter:drop-shadow(0 0 8px currentColor);opacity:.85;transition:opacity .3s,filter .3s,transform .3s;}
 .hud-card:hover .contact-icon{opacity:1;filter:drop-shadow(0 0 14px currentColor) drop-shadow(0 0 28px currentColor);transform:scale(1.1);}
+
+/* ── SECTION 3D TRANSITIONS ── */
+#about .reveal{transform:perspective(800px) rotateY(-10deg) translateX(-40px);
+  transition:opacity .9s ease,transform .9s cubic-bezier(.25,.46,.45,.94);}
+#about .reveal.in{transform:perspective(800px) rotateY(0) translateX(0);}
+
+#skills .reveal{transform:scale(0.8) translateY(30px);
+  transition:opacity .7s ease,transform .7s cubic-bezier(.34,1.56,.64,1);}
+#skills .reveal.in{transform:scale(1) translateY(0);}
+#skills .grid>.reveal:nth-child(1){transition-delay:0s;}
+#skills .grid>.reveal:nth-child(2){transition-delay:.08s;}
+#skills .grid>.reveal:nth-child(3){transition-delay:.16s;}
+#skills .grid>.reveal:nth-child(4){transition-delay:.24s;}
+#skills .grid>.reveal:nth-child(5){transition-delay:.32s;}
+#skills .grid>.reveal:nth-child(6){transition-delay:.4s;}
+#skills .grid>.reveal:nth-child(7){transition-delay:.48s;}
+
+#experience .reveal{transform:translateX(-60px) skewX(-3deg);
+  transition:opacity .8s ease,transform .8s cubic-bezier(.25,.46,.45,.94);}
+#experience .reveal.in{transform:translateX(0) skewX(0);}
+#experience .tl-line>.reveal:nth-child(1){transition-delay:0s;}
+#experience .tl-line>.reveal:nth-child(2){transition-delay:.2s;}
+#experience .tl-line>.reveal:nth-child(3){transition-delay:.3s;}
+
+#projects .reveal{transform:perspective(600px) rotateX(15deg) translateY(50px);
+  transition:opacity .8s ease,transform .8s cubic-bezier(.25,.46,.45,.94);}
+#projects .reveal.in{transform:perspective(600px) rotateX(0) translateY(0);}
+#projects .grid>.reveal:nth-child(1){transition-delay:0s;}
+#projects .grid>.reveal:nth-child(2){transition-delay:.07s;}
+#projects .grid>.reveal:nth-child(3){transition-delay:.14s;}
+#projects .grid>.reveal:nth-child(4){transition-delay:.21s;}
+#projects .grid>.reveal:nth-child(5){transition-delay:.28s;}
+#projects .grid>.reveal:nth-child(6){transition-delay:.35s;}
+#projects .grid>.reveal:nth-child(7){transition-delay:.42s;}
+#projects .grid>.reveal:nth-child(8){transition-delay:.49s;}
+
+#education .reveal{transform:scale(0.65);
+  transition:opacity 1s ease,transform 1s cubic-bezier(.16,1,.3,1);}
+#education .reveal.in{transform:scale(1);}
+
+#contact .reveal{transform:perspective(800px) rotateX(-8deg) translateY(50px);
+  transition:opacity .9s ease,transform .9s cubic-bezier(.25,.46,.45,.94);}
+#contact .reveal.in{transform:perspective(800px) rotateX(0) translateY(0);}
+
+/* ── SECTION AMBIENT GLOW ── */
+#about::after{content:'';position:absolute;top:10%;right:-5%;width:250px;height:250px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,107,0.04),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
+#skills::after{content:'';position:absolute;bottom:10%;left:-5%;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,0.04),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
+#experience::after{content:'';position:absolute;top:20%;right:-3%;width:250px;height:250px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,0.04),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
+#projects::after{content:'';position:absolute;top:5%;left:-3%;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(251,146,60,0.04),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
+#education::after{content:'';position:absolute;top:30%;left:60%;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(168,200,220,0.06),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
+#contact::after{content:'';position:absolute;top:10%;left:50%;margin-left:-180px;width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,0.03),transparent 70%);filter:blur(50px);pointer-events:none;z-index:-1;}
+
+/* ── ANIMATED DIVIDERS ── */
+.divider-anim{position:relative;height:50px;overflow:hidden;z-index:10;}
+.divider-anim .dv-line{position:absolute;top:50%;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,transparent 5%,rgba(127,168,201,0.06) 20%,rgba(127,168,201,0.25) 50%,rgba(127,168,201,0.06) 80%,transparent 95%);}
+.divider-anim .dv-dot{position:absolute;top:50%;left:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;
+  background:var(--steel);box-shadow:0 0 10px var(--steel),0 0 20px rgba(127,168,201,0.3);animation:pulse-dot 2.5s ease-in-out infinite;}
+.divider-anim .dv-scan{position:absolute;top:calc(50%);height:1px;width:80px;
+  background:linear-gradient(90deg,transparent,var(--silver),transparent);animation:scanline 4s linear infinite;opacity:.6;}
+@keyframes scanline{0%{left:-80px;}100%{left:calc(100% + 80px);}}
+
+/* ── FLOATING & PULSE ── */
+@keyframes float-y{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes badge-pulse{0%,100%{box-shadow:0 0 20px rgba(168,200,220,0.12),0 0 40px rgba(168,200,220,0.06);}
+  50%{box-shadow:0 0 30px rgba(168,200,220,0.25),0 0 60px rgba(168,200,220,0.12),0 0 90px rgba(168,200,220,0.05);}}
+.badge-pulse{animation:float-y 4s ease-in-out infinite, badge-pulse 3s ease-in-out infinite;}
 </style>
 </head>
 <body>
@@ -317,7 +390,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ ABOUT ══ -->
 <section id="about" class="relative z-10 py-24 px-6">
@@ -341,7 +414,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ SKILLS ══ -->
 <section id="skills" class="relative z-10 py-24 px-6">
@@ -359,7 +432,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ EXPERIENCE ══ -->
 <section id="experience" class="relative z-10 py-24 px-6">
@@ -418,7 +491,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ PROJECTS ══ -->
 <section id="projects" class="relative z-10 py-24 px-6">
@@ -446,7 +519,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ EDUCATION ══ -->
 <section id="education" class="relative z-10 py-24 px-6">
@@ -465,7 +538,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
           <span data-i18n-html="edu_cert"><span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2</span>
         </div>
       </div>
-      <div class="text-center px-8 py-5 rounded-xl flex-shrink-0 gold-badge">
+      <div class="text-center px-8 py-5 rounded-xl flex-shrink-0 gold-badge badge-pulse">
         <div class="text-4xl font-black text-go-glow">8.5</div>
         <div class="font-mono text-xs mt-1 tracking-widest" style="color:rgba(168,200,220,0.85);" data-i18n="edu_badge">DISTINCTION</div>
       </div>
@@ -473,7 +546,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ CONTACT ══ -->
 <section id="contact" class="relative z-10 py-24 px-6 text-center">
@@ -948,6 +1021,36 @@ document.addEventListener('click',e=>{
       setTimeout(()=>p.remove(),580);
     });
   }
+});
+
+/* ── 9. 3D TILT ON CARDS ── */
+document.querySelectorAll('#skills .hud-card, #projects .hud-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateY(-8px)`;
+    card.style.transition = 'border-color .35s, box-shadow .35s, transform .08s ease';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'border-color .35s, box-shadow .35s, transform .45s ease';
+  });
+});
+
+/* ── 10. CONTACT MAGNETIC HOVER ── */
+document.querySelectorAll('#contact .hud-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-6px) scale(1.02)`;
+    card.style.transition = 'border-color .35s, box-shadow .35s, transform .1s ease';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'border-color .35s, box-shadow .35s, transform .5s cubic-bezier(.25,.46,.45,.94)';
+  });
 });
 
 /* ── INIT LUCIDE ICONS ── */
