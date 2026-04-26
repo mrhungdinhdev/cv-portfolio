@@ -57,13 +57,16 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   50%{background-position:-100% center;}
 }
 
-*{cursor:none!important;}
-#custom-cursor{position:fixed;z-index:9999;pointer-events:none;}
+#custom-cursor{position:fixed;z-index:9999;pointer-events:none;display:none;will-change:transform;transform:translate3d(-80px,-80px,0);}
 #cursor-ring{width:32px;height:32px;border-radius:50%;border:1px solid rgba(200,214,229,0.6);
-  position:absolute;top:-16px;left:-16px;transition:all .15s ease;
+  position:absolute;top:-16px;left:-16px;transition:width .15s ease,height .15s ease,top .15s ease,left .15s ease,border-color .15s ease,box-shadow .15s ease;
   box-shadow:0 0 12px rgba(200,214,229,0.3);}
 #cursor-dot{width:4px;height:4px;border-radius:50%;background:var(--silver);
   position:absolute;top:-2px;left:-2px;box-shadow:0 0 8px var(--silver);}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  *{cursor:none!important;}
+  #custom-cursor{display:block;}
+}
 
 #loader{position:fixed;inset:0;background:var(--deep);z-index:999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1257,12 +1260,66 @@ document.getElementById('lang-toggle-mob').addEventListener('click', toggleLang)
 /* ── LOADER ── */
 window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hide'), 1800));
 
+/* ── PERF HELPERS ── */
+const DVHPerf = (() => {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const state = {
+    reduceMotion: reduced.matches,
+    finePointer: fine.matches,
+  };
+  const listen = (media, cb) => {
+    if (media.addEventListener) media.addEventListener('change', cb);
+    else media.addListener(cb);
+  };
+  listen(reduced, e => { state.reduceMotion = e.matches; });
+  listen(fine, e => { state.finePointer = e.matches; });
+
+  function makeVisibility(el, rootMargin = '180px') {
+    const visible = { active: true };
+    if (!el || !('IntersectionObserver' in window)) return visible;
+    const io = new IntersectionObserver(entries => {
+      visible.active = entries.some(entry => entry.isIntersecting);
+    }, { rootMargin });
+    io.observe(el);
+    return visible;
+  }
+
+  function makeFrameGate(fps) {
+    const interval = 1000 / fps;
+    let last = 0;
+    return () => {
+      if (document.hidden) return false;
+      const now = performance.now();
+      if (now - last < interval) return false;
+      last = now;
+      return true;
+    };
+  }
+
+  return {
+    get reduceMotion() { return state.reduceMotion; },
+    get finePointer() { return state.finePointer; },
+    makeVisibility,
+    makeFrameGate,
+  };
+})();
+window.DVHPerf = DVHPerf;
+
 /* ── CUSTOM CURSOR ── */
 (function() {
   const cur = document.getElementById('custom-cursor');
   const ring = document.getElementById('cursor-ring');
-  let tx=0, ty=0, cx=0, cy=0;
-  document.addEventListener('mousemove', e => { tx=e.clientX; ty=e.clientY; });
+  if (!cur || !ring || !DVHPerf.finePointer || DVHPerf.reduceMotion) return;
+  let tx=-80, ty=-80, frame=0;
+  document.addEventListener('pointermove', e => {
+    tx=e.clientX; ty=e.clientY;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      cur.style.transform = `translate3d(${tx}px,${ty}px,0)`;
+      frame = 0;
+    });
+  }, {passive:true});
   document.querySelectorAll('a,button,.hud-card').forEach(el => {
     el.addEventListener('mouseenter', () => {
       ring.style.width='50px'; ring.style.height='50px';
@@ -1277,11 +1334,6 @@ window.addEventListener('load', () => setTimeout(() => document.getElementById('
       ring.style.boxShadow='0 0 12px rgba(200,214,229,0.3)';
     });
   });
-  (function loop() {
-    cx += (tx-cx)*.12; cy += (ty-cy)*.12;
-    cur.style.transform = `translate(${cx}px,${cy}px)`;
-    requestAnimationFrame(loop);
-  })();
 })();
 
 /* ── CLOCK ── */
@@ -1294,13 +1346,14 @@ setInterval(() => {
 (function spaceScene() {
   const canvas = document.getElementById('space-canvas');
   const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));
   renderer.setSize(innerWidth, innerHeight);
+  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : 30);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
   camera.position.z = 6;
 
-  const N = 3500, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
+  const N = DVHPerf.reduceMotion ? 900 : 2200, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
   const pal = [
     [0.78,0.84,0.90],[0.50,0.66,0.79],[0.66,0.85,0.92],
     [0.72,0.84,0.94],[0.88,0.92,0.96],[0.95,0.97,1.00],
@@ -1350,12 +1403,13 @@ setInterval(() => {
   }
 
   let mx=0,my=0;
-  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.7;my=(e.clientY/innerHeight-.5)*.5;});
+  document.addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5)*.7;my=(e.clientY/innerHeight-.5)*.5;},{passive:true});
   window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 
   const clk=new THREE.Clock();
   (function tick(){
     requestAnimationFrame(tick);
+    if (!canFrame()) return;
     const t=clk.getElapsedTime();
     starPoints.rotation.y=t*.01; starPoints.rotation.x=Math.sin(t*.007)*.03;
     warpLines.rotation.y=t*.008;
@@ -1370,13 +1424,15 @@ setInterval(() => {
 (function heroScene() {
   const canvas   = document.getElementById('hero-canvas');
   const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  const visible  = DVHPerf.makeVisibility(canvas.parentElement, '220px');
+  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : 30);
   const scene    = new THREE.Scene();
   const camera   = new THREE.PerspectiveCamera(50, 1, .1, 100);
   camera.position.set(0,0,6);
 
   function resize(){
     const w=canvas.parentElement.clientWidth, h=canvas.parentElement.clientHeight;
-    renderer.setSize(w,h); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.25)); renderer.setSize(w,h);
     camera.aspect=w/h; camera.updateProjectionMatrix();
   }
   resize(); window.addEventListener('resize', resize);
@@ -1441,11 +1497,12 @@ setInterval(() => {
   eRing.position.copy(planet.position); scene.add(eRing);
 
   let mx=0,my=0;
-  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+  document.addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);},{passive:true});
 
   const clk=new THREE.Clock();
   (function tick(){
     requestAnimationFrame(tick);
+    if (!visible.active || !canFrame()) return;
     const t=clk.getElapsedTime();
     planet.rotation.y=t*.09; pWire.rotation.y=-t*.04; atm.rotation.y=t*.05;
     ring1.rotation.z=t*.07; ring2.rotation.z=ring1.rotation.z; ring3.rotation.z=-t*.04;
@@ -1553,14 +1610,24 @@ document.addEventListener('click',e=>{
 
 /* ── 9. 3D TILT ON CARDS ── */
 document.querySelectorAll('#skills .hud-card, #projects .hud-card, #personal-project .hud-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateY(-8px)`;
+  let frame = 0, lastEvent = null;
+  card.addEventListener('pointerenter', () => {
     card.style.transition = 'border-color .35s, box-shadow .35s, transform .08s ease';
   });
+  card.addEventListener('pointermove', e => {
+    lastEvent = e;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      const rect = card.getBoundingClientRect();
+      const x = (lastEvent.clientX - rect.left) / rect.width - 0.5;
+      const y = (lastEvent.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateY(-8px)`;
+      frame = 0;
+    });
+  }, {passive:true});
   card.addEventListener('mouseleave', () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
     card.style.transform = '';
     card.style.transition = 'border-color .35s, box-shadow .35s, transform .45s ease';
   });
@@ -1568,14 +1635,24 @@ document.querySelectorAll('#skills .hud-card, #projects .hud-card, #personal-pro
 
 /* ── 10. CONTACT MAGNETIC HOVER ── */
 document.querySelectorAll('#contact .hud-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-6px) scale(1.02)`;
+  let frame = 0, lastEvent = null;
+  card.addEventListener('pointerenter', () => {
     card.style.transition = 'border-color .35s, box-shadow .35s, transform .1s ease';
   });
+  card.addEventListener('pointermove', e => {
+    lastEvent = e;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      const rect = card.getBoundingClientRect();
+      const x = (lastEvent.clientX - rect.left) / rect.width - 0.5;
+      const y = (lastEvent.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-6px) scale(1.02)`;
+      frame = 0;
+    });
+  }, {passive:true});
   card.addEventListener('mouseleave', () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
     card.style.transform = '';
     card.style.transition = 'border-color .35s, box-shadow .35s, transform .5s cubic-bezier(.25,.46,.45,.94)';
   });
@@ -2047,14 +2124,22 @@ document.querySelectorAll('#contact .hud-card').forEach(card => {
       sendMessage(prompt);
     });
   });
-  root.addEventListener('mousemove', e => {
-    const rect = companion.getBoundingClientRect();
-    const lookX = Math.max(-2.5, Math.min(2.5, ((e.clientX - rect.left) / rect.width - 0.5) * 5));
-    const lookY = Math.max(-1.5, Math.min(1.5, ((e.clientY - rect.top) / rect.height - 0.5) * 3));
-    companion.style.setProperty('--look-x', `${lookX}px`);
-    companion.style.setProperty('--look-y', `${lookY}px`);
-  });
+  let lookFrame = 0, lookEvent = null;
+  root.addEventListener('pointermove', e => {
+    lookEvent = e;
+    if (lookFrame) return;
+    lookFrame = requestAnimationFrame(() => {
+      const rect = companion.getBoundingClientRect();
+      const lookX = Math.max(-2.5, Math.min(2.5, ((lookEvent.clientX - rect.left) / rect.width - 0.5) * 5));
+      const lookY = Math.max(-1.5, Math.min(1.5, ((lookEvent.clientY - rect.top) / rect.height - 0.5) * 3));
+      companion.style.setProperty('--look-x', `${lookX}px`);
+      companion.style.setProperty('--look-y', `${lookY}px`);
+      lookFrame = 0;
+    });
+  }, {passive:true});
   root.addEventListener('mouseleave', () => {
+    if (lookFrame) cancelAnimationFrame(lookFrame);
+    lookFrame = 0;
     companion.style.setProperty('--look-x', '0px');
     companion.style.setProperty('--look-y', '0px');
   });

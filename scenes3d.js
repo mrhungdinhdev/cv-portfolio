@@ -5,11 +5,26 @@
    ═══════════════════════════════════════════════════════════════ */
 
 (function initSectionScenes() {
+  const PERF = window.DVHPerf || {
+    reduceMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    makeVisibility: () => ({ active: true }),
+    makeFrameGate: fps => {
+      const interval = 1000 / fps;
+      let last = 0;
+      return () => {
+        if (document.hidden) return false;
+        const now = performance.now();
+        if (now - last < interval) return false;
+        last = now;
+        return true;
+      };
+    },
+  };
   let gmx = 0, gmy = 0;
-  document.addEventListener('mousemove', e => {
+  document.addEventListener('pointermove', e => {
     gmx = (e.clientX / innerWidth - 0.5);
     gmy = (e.clientY / innerHeight - 0.5);
-  });
+  }, { passive: true });
 
   function makeCtx(id) {
     const c = document.getElementById(id);
@@ -18,14 +33,22 @@
       canvas: c,
       alpha: true,
       antialias: true,
-      preserveDrawingBuffer: id === 'personal-3d',
     });
-    r.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    r.setPixelRatio(Math.min(devicePixelRatio, PERF.reduceMotion ? 1 : 1.25));
     const sec = c.parentElement;
     function resize() { const w = sec.clientWidth, h = sec.clientHeight; r.setSize(w, h); return { w, h }; }
     const sz = resize();
     window.addEventListener('resize', resize);
-    return { r, sec, w: sz.w, h: sz.h, resize };
+    const visible = PERF.makeVisibility(sec, '220px');
+    const gate = PERF.makeFrameGate(PERF.reduceMotion ? 12 : 24);
+    return {
+      r,
+      sec,
+      w: sz.w,
+      h: sz.h,
+      resize,
+      canFrame: () => visible.active && gate(),
+    };
   }
 
   function qsa(selector) {
@@ -641,8 +664,9 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
-      const dt = prev ? t - prev : 0.016;
+      const dt = prev ? Math.min(t - prev, 0.05) : 0.016;
       prev = t;
 
       earthRoot.rotation.y = t * 0.085 + gmx * 0.12;
@@ -1137,6 +1161,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
 
       mapRoot.rotation.x += (gmy * 0.05 - mapRoot.rotation.x) * 0.03;
@@ -1302,6 +1327,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const target = activeSkill >= 0 ? skillTargets[activeSkill] : null;
       const burst = Math.max(0, (skillPulseUntil - performance.now()) / 950);
@@ -1485,6 +1511,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const activeMilestone = activeExp >= 0 ? milestoneVisuals[activeExp] : null;
       const expBurst = Math.max(0, (expPulseUntil - performance.now()) / 1200);
@@ -1672,6 +1699,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const activeScreen = activeProject >= 0 ? screens[activeProject] : null;
       const projectBurst = Math.max(0, (projectPulseUntil - performance.now()) / 1100);
@@ -2008,6 +2036,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const personalPulse = Math.max(0, (personalPulseUntil - performance.now()) / 1050);
       const askActive = activePersonal === 'ask';
@@ -2274,6 +2303,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const focus = focusTargets[activeEdu] || focusTargets.overview;
       const eduPulse = Math.max(0, (eduPulseUntil - performance.now()) / 1100);
@@ -2449,6 +2479,7 @@
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
+      if (!ctx.canFrame()) return;
       const t = clk.getElapsedTime();
       const activeEndpoint = activeContact >= 0 ? epMeshes[activeContact] : null;
       const contactBurst = Math.max(0, (contactPulseUntil - performance.now()) / 1200);
