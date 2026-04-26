@@ -1,0 +1,13 @@
+Privacy Policy - AI Sidebar Hub + Highlights
+
+AI Sidebar Hub + Highlights does not collect, sell, or share personal user data for advertising, profiling, or data resale.
+
+All highlights, notes, and settings are stored locally in the user's browser using Chrome storage. The extension does not store personal data on external servers.
+
+The extension may process user-selected text to provide core features such as highlighting, note-taking, and AI-powered assistance.
+
+When the user explicitly chooses to use AI features, such as Ask AI, selected text may be sent to third-party AI services including OpenAI ChatGPT, Google Gemini, or Anthropic Claude. This data is transmitted only after user action and is not stored by the extension.
+
+The extension does not track users across websites and does not collect browsing history beyond what is required to provide its core functionality.
+
+Contact: manhhung.dvh@gmail.com

@@ -227,6 +227,12 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 #projects .grid>.reveal:nth-child(7){transition-delay:.42s;}
 #projects .grid>.reveal:nth-child(8){transition-delay:.49s;}
 
+#personal-project .reveal{transform:perspective(700px) rotateY(8deg) translateY(44px);
+  transition:opacity .85s ease,transform .85s cubic-bezier(.25,.46,.45,.94);}
+#personal-project .reveal.in{transform:perspective(700px) rotateY(0) translateY(0);}
+#personal-project .grid>.reveal:nth-child(1){transition-delay:0s;}
+#personal-project .grid>.reveal:nth-child(2){transition-delay:.12s;}
+
 #education .reveal{transform:scale(0.65);
   transition:opacity 1s ease,transform 1s cubic-bezier(.16,1,.3,1);}
 #education .reveal.in{transform:scale(1);}
@@ -248,6 +254,13 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   background:radial-gradient(circle,rgba(168,200,220,0.06),transparent 70%);filter:blur(40px);pointer-events:none;z-index:-1;}
 #contact::after{content:'';position:absolute;top:10%;left:50%;margin-left:-180px;width:360px;height:360px;border-radius:50%;
   background:radial-gradient(circle,rgba(34,211,238,0.03),transparent 70%);filter:blur(50px);pointer-events:none;z-index:-1;}
+
+.personal-icon-wrap{position:relative;width:112px;height:112px;flex-shrink:0;}
+.personal-icon-wrap::before{content:'';position:absolute;inset:-8px;border:1px solid rgba(200,214,229,0.22);
+  clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+  box-shadow:0 0 24px rgba(200,214,229,0.08);}
+.personal-icon{position:relative;width:100%;height:100%;object-fit:cover;border:1px solid rgba(200,214,229,0.25);
+  box-shadow:0 0 22px rgba(127,168,201,0.18),inset 0 0 14px rgba(200,214,229,0.04);}
 
 /* ── ANIMATED DIVIDERS ── */
 .divider-anim{position:relative;height:50px;overflow:hidden;z-index:10;}
@@ -298,11 +311,12 @@ section:hover .section-3d-canvas{opacity:0.75;}
   <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
     <span class="font-mono font-bold text-sm tracking-widest nav-logo flicker">DVH<span style="color:#2a3a4a;">.dev</span></span>
     <div class="hidden md:flex items-center gap-6">
-      <ul class="flex gap-8 text-xs font-mono tracking-widest" style="color:#3d5566;">
+      <ul class="flex gap-5 lg:gap-8 text-xs font-mono tracking-widest" style="color:#3d5566;">
         <li><a href="#about"      class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_about">ABOUT</a></li>
         <li><a href="#skills"     class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_skills">SKILLS</a></li>
         <li><a href="#experience" class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_exp">EXP</a></li>
         <li><a href="#projects"   class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_projects">PROJECTS</a></li>
+        <li><a href="#personal-project" class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_personal">PERSONAL</a></li>
         <li><a href="#education"  class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_edu">EDU</a></li>
         <li><a href="#contact"    class="hover:text-slate-300 transition-colors duration-200" data-i18n="nav_contact">CONTACT</a></li>
       </ul>
@@ -330,6 +344,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
       <a href="#skills"     class="hover:text-slate-300" data-i18n="mob_skills">SKILLS</a>
       <a href="#experience" class="hover:text-slate-300" data-i18n="mob_experience">EXPERIENCE</a>
       <a href="#projects"   class="hover:text-slate-300" data-i18n="mob_projects">PROJECTS</a>
+      <a href="#personal-project" class="hover:text-slate-300" data-i18n="mob_personal">PERSONAL PROJECT</a>
       <a href="#education"  class="hover:text-slate-300" data-i18n="mob_education">EDUCATION</a>
       <a href="#contact"    class="hover:text-slate-300" data-i18n="mob_contact">CONTACT</a>
     </div>
@@ -532,10 +547,75 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
+<!-- ══ PERSONAL PROJECT ══ -->
+<section id="personal-project" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="personal_label">05 — PERSONAL PROJECT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="personal_title">Personal Project</h2></div>
+    <div class="grid lg:grid-cols-5 gap-6 items-stretch">
+      <div class="hud-card bracket rounded-xl p-6 lg:col-span-3 reveal flex flex-col">
+        <div class="flex justify-between items-start flex-wrap gap-3 mb-4">
+          <div>
+            <p class="font-mono text-xs tracking-widest mb-1" style="color:#2d4050;" data-i18n="personal_status">// PERSONAL BUILD</p>
+            <h3 class="font-bold text-xl mb-1" style="color:#c8d6e5;"><i data-lucide="panel-right-open" class="proj-icon" style="width:20px;height:20px;color:#22d3ee;"></i> AI Sidebar Hub + Highlights</h3>
+            <p class="font-mono text-xs text-st" data-i18n="personal_platform">BROWSER EXTENSION</p>
+          </div>
+          <span class="tag" style="border-color:rgba(34,211,238,0.35);color:#22d3ee;background:rgba(34,211,238,0.07);">AI · CHROME</span>
+        </div>
+
+        <p class="text-sm leading-relaxed mb-5" style="color:#4a6678;" data-i18n-html="personal_desc">
+          A privacy-focused Chrome extension for highlighting, note-taking, and opt-in AI assistance. Users can select text, save context locally, or trigger Ask AI through OpenAI, Google Gemini, or Anthropic Claude.
+        </p>
+
+        <div class="grid sm:grid-cols-3 gap-5 mb-6">
+          <div>
+            <i data-lucide="mouse-pointer-click" class="proj-icon mb-2" style="width:18px;height:18px;color:#fbbf24;"></i>
+            <p class="font-mono text-xs mb-1" style="color:#2d4050;" data-i18n="personal_feature1_title">ASK AI</p>
+            <p class="text-xs leading-relaxed" style="color:#3d5566;" data-i18n="personal_feature1_desc">Selected text is sent to AI services only after user action.</p>
+          </div>
+          <div>
+            <i data-lucide="highlighter" class="proj-icon mb-2" style="width:18px;height:18px;color:#a3e635;"></i>
+            <p class="font-mono text-xs mb-1" style="color:#2d4050;" data-i18n="personal_feature2_title">LOCAL STORAGE</p>
+            <p class="text-xs leading-relaxed" style="color:#3d5566;" data-i18n="personal_feature2_desc">Highlights, notes, and settings are stored with Chrome storage.</p>
+          </div>
+          <div>
+            <i data-lucide="shield-check" class="proj-icon mb-2" style="width:18px;height:18px;color:#38bdf8;"></i>
+            <p class="font-mono text-xs mb-1" style="color:#2d4050;" data-i18n="personal_feature3_title">NO TRACKING</p>
+            <p class="text-xs leading-relaxed" style="color:#3d5566;" data-i18n="personal_feature3_desc">No data selling, browsing-history collection, advertising, or profiling.</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 mb-6">
+          <span class="tag">JavaScript</span><span class="tag">Chrome Extension</span><span class="tag">OpenAI ChatGPT</span><span class="tag">Google Gemini</span><span class="tag">Anthropic Claude</span><span class="tag">Chrome Storage</span>
+        </div>
+
+        <div class="mt-auto flex flex-wrap gap-3">
+          <a href="AI%20Sidebar%20Hub%20%2B%20Highlights.txt" target="_blank" rel="noopener noreferrer" class="btn-ghost no-underline inline-flex items-center gap-2">
+            <i data-lucide="file-text" style="width:14px;height:14px;color:#22d3ee;"></i><span data-i18n="personal_privacy_link">PRIVACY POLICY</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hud-card bracket rounded-xl p-6 lg:col-span-2 reveal flex flex-col items-center text-center justify-center">
+        <div class="personal-icon-wrap mb-6">
+          <img src="icon.png" alt="AI Sidebar Hub + Highlights icon" class="personal-icon rounded-lg"/>
+        </div>
+        <p class="font-mono text-xs tracking-widest mb-2" style="color:#2d4050;" data-i18n="personal_role_label">ROLE</p>
+        <h3 class="font-bold text-lg mb-4" style="color:#c8d6e5;" data-i18n="personal_role">Solo Product Builder</h3>
+        <div class="divider w-full mb-4"></div>
+        <p class="text-sm leading-relaxed" style="color:#3d5566;" data-i18n="personal_side_desc">
+          Built from product idea to extension UX, AI-provider routing, highlight and note persistence, settings storage, and privacy policy.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
+
 <!-- ══ EDUCATION ══ -->
 <section id="education" class="relative z-10 py-24 px-6">
   <div class="max-w-5xl mx-auto">
-    <div class="reveal"><p class="sec-label mb-2" data-i18n="edu_label">05 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="edu_title">Academic Background</h2></div>
+    <div class="reveal"><p class="sec-label mb-2" data-i18n="edu_label">06 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="edu_title">Academic Background</h2></div>
     <div class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
         <h3 class="text-xl font-bold mb-1" style="color:#c8d6e5;" data-i18n="edu_school">FPT Polytechnic College</h3>
@@ -564,7 +644,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
   <canvas id="contact-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal">
-      <p class="sec-label mb-2" data-i18n="contact_label">06 — CONTACT</p>
+      <p class="sec-label mb-2" data-i18n="contact_label">07 — CONTACT</p>
       <h2 class="text-3xl font-black mb-3 tracking-tight" style="color:#c8d6e5;" data-i18n="contact_title">Let's work together</h2>
       <p class="text-sm font-mono mb-10 tracking-wide" style="color:#2d4050;" data-i18n="contact_sub">// OPEN TO NEW OPPORTUNITIES</p>
     </div>
@@ -596,8 +676,8 @@ section:hover .section-3d-canvas{opacity:0.75;}
 /* ── I18N ── */
 const T = {
   en: {
-    nav_about:'ABOUT', nav_skills:'SKILLS', nav_exp:'EXP', nav_projects:'PROJECTS', nav_edu:'EDU', nav_contact:'CONTACT',
-    mob_about:'ABOUT', mob_skills:'SKILLS', mob_experience:'EXPERIENCE', mob_projects:'PROJECTS', mob_education:'EDUCATION', mob_contact:'CONTACT',
+    nav_about:'ABOUT', nav_skills:'SKILLS', nav_exp:'EXP', nav_projects:'PROJECTS', nav_personal:'PERSONAL', nav_edu:'EDU', nav_contact:'CONTACT',
+    mob_about:'ABOUT', mob_skills:'SKILLS', mob_experience:'EXPERIENCE', mob_projects:'PROJECTS', mob_personal:'PERSONAL PROJECT', mob_education:'EDUCATION', mob_contact:'CONTACT',
     hero_status:'// SYSTEM ONLINE  ·  AVAILABLE FOR HIRE',
     hero_role_title:'FULL STACK DEVELOPER',
     hero_desc:'Building scalable APIs, cloud architectures, AI-powered systems and real-world production apps that serve <span style="color:#8aa8c0;font-weight:600;">thousands of users</span> — from backend to full-stack.',
@@ -635,7 +715,15 @@ const T = {
     proj6_desc:'Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.',
     proj7_desc:'Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.',
     proj8_desc:'Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.',
-    edu_label:'05 — EDUCATION', edu_title:'Academic Background',
+    personal_label:'05 — PERSONAL PROJECT', personal_title:'Personal Project',
+    personal_status:'// PERSONAL BUILD', personal_platform:'BROWSER EXTENSION',
+    personal_desc:'A privacy-focused Chrome extension for highlighting, note-taking, and opt-in AI assistance. Users can select text, save context locally, or trigger Ask AI through OpenAI, Google Gemini, or Anthropic Claude.',
+    personal_feature1_title:'ASK AI', personal_feature1_desc:'Selected text is sent to AI services only after user action.',
+    personal_feature2_title:'LOCAL STORAGE', personal_feature2_desc:'Highlights, notes, and settings are stored with Chrome storage.',
+    personal_feature3_title:'NO TRACKING', personal_feature3_desc:'No data selling, browsing-history collection, advertising, or profiling.',
+    personal_privacy_link:'PRIVACY POLICY', personal_role_label:'ROLE', personal_role:'Solo Product Builder',
+    personal_side_desc:'Built from product idea to extension UX, AI-provider routing, highlight and note persistence, settings storage, and privacy policy.',
+    edu_label:'06 — EDUCATION', edu_title:'Academic Background',
     edu_school:'FPT Polytechnic College', edu_degree:'ADVANCED DIPLOMA IN INFORMATION TECHNOLOGY',
     edu_duration:'<span style="color:#8aa8c0;">Duration:</span> 2022 – 2024',
     edu_grad:'<span style="color:#8aa8c0;">Graduated:</span> Sep 30, 2024',
@@ -644,12 +732,12 @@ const T = {
     edu_credits:'<span style="color:#8aa8c0;">Credits:</span> 103',
     edu_cert:'<span style="color:#8aa8c0;">Cert:</span> Academic English Lvl 3 – Topnotch 2',
     edu_badge:'DISTINCTION',
-    contact_label:'06 — CONTACT', contact_title:"Let's work together", contact_sub:'// OPEN TO NEW OPPORTUNITIES',
+    contact_label:'07 — CONTACT', contact_title:"Let's work together", contact_sub:'// OPEN TO NEW OPPORTUNITIES',
     contact_email_lbl:'EMAIL', contact_phone_lbl:'PHONE', contact_github_lbl:'GITHUB', contact_btn:'SEND MESSAGE ›',
   },
   vi: {
-    nav_about:'GIỚI THIỆU', nav_skills:'KỸ NĂNG', nav_exp:'KINH NGHIỆM', nav_projects:'DỰ ÁN', nav_edu:'HỌC VẤN', nav_contact:'LIÊN HỆ',
-    mob_about:'GIỚI THIỆU', mob_skills:'KỸ NĂNG', mob_experience:'KINH NGHIỆM', mob_projects:'DỰ ÁN', mob_education:'HỌC VẤN', mob_contact:'LIÊN HỆ',
+    nav_about:'GIỚI THIỆU', nav_skills:'KỸ NĂNG', nav_exp:'KINH NGHIỆM', nav_projects:'DỰ ÁN', nav_personal:'CÁ NHÂN', nav_edu:'HỌC VẤN', nav_contact:'LIÊN HỆ',
+    mob_about:'GIỚI THIỆU', mob_skills:'KỸ NĂNG', mob_experience:'KINH NGHIỆM', mob_projects:'DỰ ÁN', mob_personal:'DỰ ÁN CÁ NHÂN', mob_education:'HỌC VẤN', mob_contact:'LIÊN HỆ',
     hero_status:'// HỆ THỐNG ONLINE  ·  SẴN SÀNG NHẬN VIỆC',
     hero_role_title:'LẬP TRÌNH VIÊN FULL STACK',
     hero_desc:'Xây dựng APIs có khả năng mở rộng, kiến trúc cloud, hệ thống AI và ứng dụng thực tế phục vụ <span style="color:#8aa8c0;font-weight:600;">hàng nghìn người dùng</span> — từ backend đến full-stack.',
@@ -687,7 +775,15 @@ const T = {
     proj6_desc:'Áp dụng mô hình AI doanh nghiệp vào ChatGPT & Bard với cô lập dữ liệu hoàn toàn, học liên tục và hỗ trợ PDF/Word/XML.',
     proj7_desc:'Tham gia dự án nền tảng kiếm crypto khi xem và tải video — ERC-20 & NFT trên BSC, marketplace và smart contract Solidity.',
     proj8_desc:'Thương mại điện tử phụ kiện công nghệ với quản lý sản phẩm, danh mục, giỏ hàng và đơn hàng đầy đủ.',
-    edu_label:'05 — HỌC VẤN', edu_title:'Nền Tảng Học Vấn',
+    personal_label:'05 — DỰ ÁN CÁ NHÂN', personal_title:'Dự Án Cá Nhân',
+    personal_status:'// SẢN PHẨM CÁ NHÂN', personal_platform:'TIỆN ÍCH TRÌNH DUYỆT',
+    personal_desc:'Tiện ích Chrome tập trung vào quyền riêng tư cho highlight, ghi chú và hỗ trợ AI theo lựa chọn của người dùng. Người dùng có thể chọn văn bản, lưu ngữ cảnh cục bộ hoặc dùng Ask AI qua OpenAI, Google Gemini, hoặc Anthropic Claude.',
+    personal_feature1_title:'ASK AI', personal_feature1_desc:'Văn bản đã chọn chỉ được gửi tới dịch vụ AI khi người dùng chủ động thao tác.',
+    personal_feature2_title:'LƯU CỤC BỘ', personal_feature2_desc:'Highlight, ghi chú và cài đặt được lưu bằng Chrome storage.',
+    personal_feature3_title:'KHÔNG THEO DÕI', personal_feature3_desc:'Không bán dữ liệu, không thu thập lịch sử duyệt web, không quảng cáo hoặc profiling.',
+    personal_privacy_link:'CHÍNH SÁCH RIÊNG TƯ', personal_role_label:'VAI TRÒ', personal_role:'Người xây dựng sản phẩm độc lập',
+    personal_side_desc:'Tự xây dựng từ ý tưởng sản phẩm đến UX extension, điều phối nhà cung cấp AI, lưu highlight/ghi chú, lưu cài đặt và privacy policy.',
+    edu_label:'06 — HỌC VẤN', edu_title:'Nền Tảng Học Vấn',
     edu_school:'Cao Đẳng FPT Polytechnic', edu_degree:'CAO ĐẲNG CÔNG NGHỆ THÔNG TIN',
     edu_duration:'<span style="color:#8aa8c0;">Thời gian:</span> 2022 – 2024',
     edu_grad:'<span style="color:#8aa8c0;">Tốt nghiệp:</span> 30/09/2024',
@@ -696,7 +792,7 @@ const T = {
     edu_credits:'<span style="color:#8aa8c0;">Tín chỉ:</span> 103',
     edu_cert:'<span style="color:#8aa8c0;">Chứng chỉ:</span> Tiếng Anh Học Thuật Lvl 3 – Topnotch 2',
     edu_badge:'XUẤT SẮC',
-    contact_label:'06 — LIÊN HỆ', contact_title:'Hãy cùng hợp tác', contact_sub:'// SẴN SÀNG CƠ HỘI MỚI',
+    contact_label:'07 — LIÊN HỆ', contact_title:'Hãy cùng hợp tác', contact_sub:'// SẴN SÀNG CƠ HỘI MỚI',
     contact_email_lbl:'EMAIL', contact_phone_lbl:'ĐIỆN THOẠI', contact_github_lbl:'GITHUB', contact_btn:'GỬI TIN NHẮN ›',
   }
 };
@@ -979,7 +1075,7 @@ function countUp(el,target,dec,suffix,dur){
 const cObs=new IntersectionObserver(es=>{
   if(!es[0].isIntersecting)return;
   countUp(document.getElementById('cnt-exp'),3,false,'+',1400);
-  countUp(document.getElementById('cnt-proj'),8,false,'+',1400);
+  countUp(document.getElementById('cnt-proj'),9,false,'+',1400);
   countUp(document.getElementById('cnt-gpa'),8.5,true,'',1600);
   cObs.disconnect();
 },{threshold:.3});
@@ -1036,7 +1132,7 @@ document.addEventListener('click',e=>{
 });
 
 /* ── 9. 3D TILT ON CARDS ── */
-document.querySelectorAll('#skills .hud-card, #projects .hud-card').forEach(card => {
+document.querySelectorAll('#skills .hud-card, #projects .hud-card, #personal-project .hud-card').forEach(card => {
   card.addEventListener('mousemove', e => {
     const rect = card.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
