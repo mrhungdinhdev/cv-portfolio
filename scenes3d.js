@@ -14,7 +14,12 @@
   function makeCtx(id) {
     const c = document.getElementById(id);
     if (!c) return null;
-    const r = new THREE.WebGLRenderer({ canvas: c, alpha: true, antialias: true });
+    const r = new THREE.WebGLRenderer({
+      canvas: c,
+      alpha: true,
+      antialias: true,
+      preserveDrawingBuffer: id === 'personal-3d',
+    });
     r.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     const sec = c.parentElement;
     function resize() { const w = sec.clientWidth, h = sec.clientHeight; r.setSize(w, h); return { w, h }; }
@@ -1512,7 +1517,340 @@
   })();
 
   /* ────────────────────────────────────────────────────────────
-     E. CONTACT — Signal Broadcast Waves
+     E. PERSONAL PROJECT — AI Sidebar Extension Lab
+     Ý nghĩa: Browser extension, vùng highlight, AI sidebar, local storage, privacy shield
+     Vị trí: Hologram nổi phía sau card personal project
+     ──────────────────────────────────────────────────────────── */
+  (function() {
+    const ctx = makeCtx('personal-3d');
+    if (!ctx) return;
+
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(48, ctx.w / ctx.h, 0.1, 100);
+    const root = new THREE.Group();
+    const browser = new THREE.Group();
+    const providerLines = [];
+    const providers = [];
+    const storageLayers = [];
+    let camBase = new THREE.Vector3(0, 1.15, 7.8);
+
+    scene.add(root);
+    root.add(browser);
+    scene.add(new THREE.AmbientLight(0x0a1828, 0.9));
+
+    const key = new THREE.PointLight(0x22d3ee, 1.2, 10);
+    key.position.set(2.5, 2.4, 4);
+    scene.add(key);
+
+    function basicMat(color, opacity) {
+      return new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+    }
+
+    function plane(w, h, color, opacity) {
+      return new THREE.Mesh(new THREE.PlaneGeometry(w, h), basicMat(color, opacity));
+    }
+
+    function rectLine(w, h, color, opacity, z) {
+      const x = w / 2;
+      const y = h / 2;
+      const pts = [
+        new THREE.Vector3(-x, y, z || 0),
+        new THREE.Vector3(x, y, z || 0),
+        new THREE.Vector3(x, -y, z || 0),
+        new THREE.Vector3(-x, -y, z || 0),
+        new THREE.Vector3(-x, y, z || 0),
+      ];
+      return new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false })
+      );
+    }
+
+    function makeBar(w, h, color, opacity, x, y, z) {
+      const bar = plane(w, h, color, opacity);
+      bar.position.set(x, y, z || 0.04);
+      return bar;
+    }
+
+    const shell = plane(4.35, 2.65, 0x071522, 0.2);
+    shell.position.z = 0;
+    browser.add(shell);
+    browser.add(rectLine(4.35, 2.65, 0xc8d6e5, 0.2, 0.035));
+
+    const topBar = plane(4.35, 0.25, 0x7fa8c9, 0.07);
+    topBar.position.set(0, 1.2, 0.04);
+    browser.add(topBar);
+
+    [0xff6b6b, 0xfbbf24, 0x4ade80].forEach((color, i) => {
+      const dot = new THREE.Mesh(
+        new THREE.CircleGeometry(0.035, 16),
+        basicMat(color, 0.55)
+      );
+      dot.position.set(-1.95 + i * 0.13, 1.2, 0.08);
+      browser.add(dot);
+    });
+
+    const contentLines = [
+      [-1.42, 0.78, 1.35, 0x7fa8c9, 0.15],
+      [-1.36, 0.52, 1.72, 0xc8d6e5, 0.12],
+      [-1.44, 0.28, 1.62, 0xfbbf24, 0.18],
+      [-1.52, 0.05, 1.25, 0xc8d6e5, 0.1],
+      [-1.4, -0.18, 1.58, 0x7fa8c9, 0.1],
+      [-1.55, -0.42, 1.15, 0xc8d6e5, 0.08],
+    ];
+    contentLines.forEach(([x, y, w, color, opacity]) => browser.add(makeBar(w, 0.055, color, opacity, x, y, 0.07)));
+
+    const highlight = makeBar(1.72, 0.18, 0xfbbf24, 0.16, -1.12, 0.28, 0.085);
+    browser.add(highlight);
+    browser.add(rectLine(1.72, 0.18, 0xfbbf24, 0.26, 0.1).translateX(-1.12).translateY(0.28));
+
+    const sidebar = plane(1.17, 2.12, 0x22d3ee, 0.07);
+    sidebar.position.set(1.23, -0.02, 0.07);
+    browser.add(sidebar);
+    const sidebarFrame = rectLine(1.17, 2.12, 0x22d3ee, 0.28, 0.1);
+    sidebarFrame.position.set(1.23, -0.02, 0);
+    browser.add(sidebarFrame);
+
+    const iconHolder = plane(0.68, 0.68, 0x06101b, 0.36);
+    iconHolder.position.set(1.23, 0.68, 0.12);
+    browser.add(iconHolder);
+    browser.add(rectLine(0.68, 0.68, 0x22d3ee, 0.22, 0.14).translateX(1.23).translateY(0.68));
+
+    const iconMat = basicMat(0xffffff, 0.82);
+    const iconPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.54), iconMat);
+    iconPlane.position.set(1.23, 0.68, 0.16);
+    browser.add(iconPlane);
+    new THREE.TextureLoader().load('icon.png', tex => {
+      if (ctx.r.capabilities && ctx.r.capabilities.getMaxAnisotropy) {
+        tex.anisotropy = Math.min(ctx.r.capabilities.getMaxAnisotropy(), 4);
+      }
+      iconMat.map = tex;
+      iconMat.needsUpdate = true;
+    }, undefined, () => {
+      iconMat.color.set(0x22d3ee);
+      iconMat.opacity = 0.18;
+    });
+
+    const sideScan = plane(1.0, 0.035, 0x22d3ee, 0.4);
+    sideScan.position.set(1.23, 0.5, 0.19);
+    browser.add(sideScan);
+
+    [
+      [0.92, 0.18, 0.52],
+      [1.03, -0.05, 0.72],
+      [0.98, -0.28, 0.58],
+    ].forEach(([x, y, w], i) => {
+      const row = makeBar(w, 0.045, i === 1 ? 0xa3e635 : 0xc8d6e5, i === 1 ? 0.2 : 0.1, x, y, 0.14);
+      browser.add(row);
+    });
+
+    const askButton = plane(0.72, 0.2, 0x22d3ee, 0.16);
+    askButton.position.set(1.23, -0.62, 0.14);
+    browser.add(askButton);
+    browser.add(rectLine(0.72, 0.2, 0x22d3ee, 0.34, 0.16).translateX(1.23).translateY(-0.62));
+
+    const cursor = new THREE.Mesh(
+      new THREE.ConeGeometry(0.06, 0.18, 3),
+      basicMat(0xc8d6e5, 0.72)
+    );
+    cursor.rotation.z = -Math.PI / 5;
+    cursor.position.set(0.72, -0.55, 0.2);
+    browser.add(cursor);
+
+    const storage = new THREE.Group();
+    storage.position.set(-1.55, -0.95, 0.11);
+    browser.add(storage);
+    for (let i = 0; i < 4; i++) {
+      const layer = new THREE.Mesh(
+        new THREE.BoxGeometry(0.88 - i * 0.08, 0.08, 0.12),
+        basicMat(i % 2 ? 0x7fa8c9 : 0xc8d6e5, 0.16 + i * 0.035)
+      );
+      layer.position.y = i * 0.12;
+      storage.add(layer);
+      storageLayers.push(layer);
+    }
+    storage.add(rectLine(1.02, 0.62, 0x7fa8c9, 0.14, 0.1));
+
+    const shieldShape = new THREE.Shape();
+    shieldShape.moveTo(0, 0.43);
+    shieldShape.lineTo(0.34, 0.25);
+    shieldShape.lineTo(0.26, -0.24);
+    shieldShape.lineTo(0, -0.5);
+    shieldShape.lineTo(-0.26, -0.24);
+    shieldShape.lineTo(-0.34, 0.25);
+    shieldShape.lineTo(0, 0.43);
+
+    const shield = new THREE.Mesh(new THREE.ShapeGeometry(shieldShape), basicMat(0x38bdf8, 0.18));
+    shield.position.set(1.78, -0.78, 0.18);
+    browser.add(shield);
+    const shieldRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.46, 0.006, 4, 60),
+      basicMat(0x38bdf8, 0.35)
+    );
+    shieldRing.position.set(1.78, -0.78, 0.2);
+    browser.add(shieldRing);
+
+    const providerSpecs = [
+      { base: new THREE.Vector3(-2.35, 1.46, -0.45), color: 0x4ade80 },
+      { base: new THREE.Vector3(0.05, 1.92, -0.72), color: 0x38bdf8 },
+      { base: new THREE.Vector3(2.42, 1.25, -0.52), color: 0xfb923c },
+    ];
+    const providerAnchor = new THREE.Vector3(1.23, 0.06, 0.15);
+    providerSpecs.forEach((spec, i) => {
+      const group = new THREE.Group();
+      const node = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.14, 0),
+        basicMat(spec.color, 0.78)
+      );
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.34, 16, 16),
+        basicMat(spec.color, 0.08)
+      );
+      group.add(glow, node);
+      group.position.copy(spec.base);
+      root.add(group);
+
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+      const line = new THREE.Line(
+        lineGeo,
+        new THREE.LineBasicMaterial({ color: spec.color, transparent: true, opacity: 0.16, depthWrite: false })
+      );
+      root.add(line);
+      providerLines.push({ line, group, color: spec.color });
+      providers.push({ group, node, glow, base: spec.base, phase: i * 1.15 });
+    });
+
+    const orbitRingA = new THREE.Mesh(
+      new THREE.TorusGeometry(2.35, 0.006, 4, 120),
+      basicMat(0x22d3ee, 0.16)
+    );
+    orbitRingA.rotation.x = Math.PI * 0.55;
+    root.add(orbitRingA);
+
+    const orbitRingB = new THREE.Mesh(
+      new THREE.TorusGeometry(1.85, 0.005, 4, 100),
+      basicMat(0xc8d6e5, 0.1)
+    );
+    orbitRingB.rotation.x = Math.PI * 0.23;
+    orbitRingB.rotation.y = Math.PI * 0.38;
+    root.add(orbitRingB);
+
+    const pCount = 150;
+    const pPos = new Float32Array(pCount * 3);
+    const pData = [];
+    for (let i = 0; i < pCount; i++) {
+      pData.push({
+        a: Math.random() * Math.PI * 2,
+        r: 1.35 + Math.random() * 1.65,
+        y: -1.1 + Math.random() * 2.35,
+        speed: 0.002 + Math.random() * 0.004,
+      });
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    root.add(new THREE.Points(
+      pGeo,
+      new THREE.PointsMaterial({ color: 0x22d3ee, size: 0.035, transparent: true, opacity: 0.48, depthWrite: false })
+    ));
+
+    function layout(w) {
+      if (w < 768) {
+        root.position.set(0.12, -0.28, 0);
+        root.scale.setScalar(0.72);
+        camBase.set(0, 0.78, 8.45);
+      } else {
+        root.position.set(1.08, -0.02, 0);
+        root.scale.setScalar(1.05);
+        camBase.set(0, 1.15, 7.8);
+      }
+    }
+
+    function resize() {
+      const s = ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+      layout(s.w);
+      if (!cam.userData.ready) {
+        cam.position.copy(camBase);
+        cam.userData.ready = true;
+      }
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const clk = new THREE.Clock();
+    (function tick() {
+      requestAnimationFrame(tick);
+      const t = clk.getElapsedTime();
+
+      browser.position.y = Math.sin(t * 0.7) * 0.08;
+      browser.rotation.z = Math.sin(t * 0.42) * 0.018;
+      root.rotation.y += (gmx * 0.18 + Math.sin(t * 0.34) * 0.045 - root.rotation.y) * 0.035;
+      root.rotation.x += (-gmy * 0.08 - root.rotation.x) * 0.035;
+
+      const scanPhase = (t * 0.42) % 1;
+      sideScan.position.y = 0.86 - scanPhase * 1.55;
+      sideScan.material.opacity = 0.14 + Math.sin(scanPhase * Math.PI) * 0.34;
+      highlight.material.opacity = 0.12 + Math.sin(t * 2.4) * 0.05;
+      cursor.position.x = 0.72 + Math.sin(t * 1.5) * 0.08;
+      cursor.position.y = -0.55 + Math.cos(t * 1.2) * 0.04;
+
+      shield.rotation.z = Math.sin(t * 1.1) * 0.07;
+      shieldRing.rotation.z = t * 0.75;
+      shieldRing.material.opacity = 0.22 + Math.sin(t * 2.1) * 0.11;
+
+      orbitRingA.rotation.z = t * 0.18;
+      orbitRingB.rotation.z = -t * 0.12;
+
+      storageLayers.forEach((layer, i) => {
+        layer.position.z = Math.sin(t * 1.8 + i * 0.55) * 0.025;
+        layer.material.opacity = 0.14 + i * 0.035 + Math.sin(t * 2 + i) * 0.025;
+      });
+
+      providers.forEach((p, i) => {
+        p.group.position.x = p.base.x + Math.sin(t * 0.62 + p.phase) * 0.14;
+        p.group.position.y = p.base.y + Math.cos(t * 0.54 + p.phase) * 0.11;
+        p.group.position.z = p.base.z + Math.sin(t * 0.8 + p.phase) * 0.08;
+        p.node.rotation.x = t * 0.7 + i;
+        p.node.rotation.y = -t * 0.9 + i;
+        p.node.scale.setScalar(1 + Math.sin(t * 2.4 + i) * 0.12);
+        p.glow.material.opacity = 0.055 + Math.sin(t * 2.1 + i) * 0.025;
+      });
+
+      providerLines.forEach(({ line, group }) => {
+        const pos = line.geometry.attributes.position.array;
+        pos[0] = providerAnchor.x; pos[1] = providerAnchor.y; pos[2] = providerAnchor.z;
+        pos[3] = group.position.x; pos[4] = group.position.y; pos[5] = group.position.z;
+        line.geometry.attributes.position.needsUpdate = true;
+        line.material.opacity = 0.1 + Math.sin(t * 1.7 + group.position.x) * 0.045;
+      });
+
+      for (let i = 0; i < pCount; i++) {
+        const d = pData[i];
+        d.a += d.speed;
+        pPos[i * 3] = Math.cos(d.a) * d.r;
+        pPos[i * 3 + 1] = d.y + Math.sin(t * 0.8 + d.a) * 0.18;
+        pPos[i * 3 + 2] = Math.sin(d.a) * d.r * 0.42 - 0.2;
+      }
+      pGeo.attributes.position.needsUpdate = true;
+
+      cam.position.x += (camBase.x + gmx * 1.1 - cam.position.x) * 0.025;
+      cam.position.y += (camBase.y - gmy * 0.45 - cam.position.y) * 0.025;
+      cam.position.z += (camBase.z - cam.position.z) * 0.025;
+      cam.lookAt(root.position.x * 0.25, 0, 0);
+      ctx.r.render(scene, cam);
+    })();
+  })();
+
+  /* ────────────────────────────────────────────────────────────
+     F. CONTACT — Signal Broadcast Waves
      Ý nghĩa: Sóng tín hiệu phát ra = kết nối, liên lạc
      Vị trí: Trung tâm (phù hợp layout centered)
      ──────────────────────────────────────────────────────────── */
