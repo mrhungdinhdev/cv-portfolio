@@ -335,6 +335,224 @@ section:hover .section-3d-canvas{opacity:0.75;}
   #personal-project .section-3d-canvas{opacity:0.42;}
   #personal-project:hover .section-3d-canvas{opacity:0.55;}
 }
+
+/* ── PORTFOLIO AI CHAT ── */
+.portfolio-chat{
+  position:fixed;right:18px;bottom:18px;z-index:180;
+  width:min(390px,calc(100vw - 24px));pointer-events:none;
+}
+.portfolio-chat::before{
+  content:'';position:absolute;right:-34px;bottom:-34px;width:188px;height:188px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,0.18),rgba(127,168,201,0.08) 38%,transparent 70%);
+  filter:blur(16px);opacity:.8;pointer-events:none;animation:chat-launch-glow 3.8s ease-in-out infinite;
+}
+.portfolio-chat.open::before{opacity:.42;width:360px;height:360px;right:-80px;bottom:-80px;}
+.portfolio-chat.open{width:min(390px,calc(100vw - 24px));}
+.chat-toggle{
+  position:absolute;right:0;bottom:0;min-width:168px;height:62px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;gap:10px;pointer-events:auto;
+  border:1px solid rgba(34,211,238,0.52);
+  color:#c8d6e5;background:linear-gradient(135deg,rgba(5,10,18,0.9),rgba(9,28,42,0.86));backdrop-filter:blur(20px);
+  box-shadow:0 0 34px rgba(34,211,238,0.22),0 10px 34px rgba(0,0,0,0.28),inset 0 0 18px rgba(200,214,229,0.05);
+  transition:opacity .25s ease,transform .25s ease,border-color .25s ease;
+  overflow:hidden;
+}
+.chat-toggle::before{
+  content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent,rgba(200,214,229,0.16),transparent);
+  transform:translateX(-120%);animation:chat-toggle-shine 4s ease-in-out infinite;
+}
+.chat-toggle:hover{border-color:rgba(34,211,238,0.9);transform:translateY(-4px);box-shadow:0 0 48px rgba(34,211,238,0.32),0 12px 40px rgba(0,0,0,0.34);}
+.chat-toggle-icon{
+  position:relative;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(34,211,238,0.12);box-shadow:inset 0 0 14px rgba(34,211,238,0.1),0 0 18px rgba(34,211,238,0.2);
+}
+.chat-toggle-copy{position:relative;text-align:left;line-height:1.1;}
+.chat-toggle-title{display:block;font-family:'Courier New',monospace;font-size:.72rem;letter-spacing:.16em;color:#d8ecf8;}
+.chat-toggle-sub{display:block;margin-top:3px;font-size:.64rem;color:rgba(127,168,201,0.78);}
+.portfolio-chat.open .chat-toggle{opacity:0;transform:translateY(16px) scale(.88);pointer-events:none;}
+.chat-panel{
+  pointer-events:none;opacity:0;transform:translateY(18px) scale(.96);
+  max-height:min(680px,calc(100vh - 36px));display:flex;flex-direction:column;overflow:hidden;
+  background:linear-gradient(180deg,rgba(7,18,30,0.94),rgba(5,10,18,0.9));backdrop-filter:blur(24px);
+  border-color:rgba(34,211,238,0.28)!important;
+  box-shadow:0 22px 72px rgba(0,0,0,0.42),0 0 46px rgba(34,211,238,0.16),inset 0 0 28px rgba(34,211,238,0.035);
+  transition:opacity .25s ease,transform .25s ease;
+}
+.chat-panel::after{
+  content:'';position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,#22d3ee,#c8d6e5,#4ade80,transparent);
+  opacity:.72;animation:chat-top-scan 4.5s linear infinite;
+}
+.portfolio-chat.open .chat-panel{pointer-events:auto;opacity:1;transform:translateY(0) scale(1);}
+.chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 13px;border-bottom:1px solid rgba(34,211,238,0.14);background:linear-gradient(90deg,rgba(34,211,238,0.07),transparent);}
+.chat-identity{display:flex;align-items:center;gap:11px;min-width:0;}
+@keyframes chat-mouth{0%,100%{height:2px;bottom:12px;}50%{height:7px;bottom:9px;}}
+.chat-header-main{min-width:0;}
+.chat-title{font-family:'Courier New',monospace;font-size:.82rem;letter-spacing:.14em;color:#d8ecf8;text-shadow:0 0 14px rgba(34,211,238,0.18);}
+.chat-subtitle{font-family:'Courier New',monospace;font-size:.6rem;letter-spacing:.09em;color:rgba(127,168,201,0.7);margin-top:2px;}
+.chat-presence{display:flex;align-items:center;gap:6px;margin-top:6px;font-family:'Courier New',monospace;font-size:.55rem;letter-spacing:.08em;color:rgba(74,222,128,0.72);}
+.chat-presence-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 10px rgba(74,222,128,0.75);}
+.chat-mode-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px 0;}
+.chat-mode-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;
+  border:1px solid rgba(34,211,238,0.22);background:rgba(34,211,238,0.07);
+  font-family:'Courier New',monospace;font-size:.56rem;letter-spacing:.08em;color:rgba(200,214,229,0.64);
+}
+.chat-mode-pill strong{color:#d8ecf8;font-weight:700;}
+.chat-mode-dot{width:5px;height:5px;border-radius:50%;background:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,0.8);}
+.chat-voice-disclosure{padding:8px 14px 10px;font-family:'Courier New',monospace;font-size:.55rem;letter-spacing:.06em;color:rgba(200,214,229,0.38);}
+.chat-companion-stage{
+  display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center;
+  position:relative;margin:10px 14px 0;padding:14px;border:1px solid rgba(34,211,238,0.16);border-radius:10px;
+  background:
+    linear-gradient(90deg,rgba(34,211,238,0.09),transparent 58%),
+    radial-gradient(circle at 18% 24%,rgba(200,214,229,0.13),transparent 40%),
+    rgba(5,10,18,0.38);
+  box-shadow:inset 0 0 26px rgba(34,211,238,0.04),0 0 24px rgba(34,211,238,0.07);
+  overflow:hidden;
+}
+.chat-companion-stage::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(34,211,238,0.035) 8px,rgba(34,211,238,0.035) 9px);
+  pointer-events:none;opacity:.7;
+}
+.chat-companion{
+  --look-x:0px;--look-y:0px;
+  position:relative;width:74px;height:82px;justify-self:center;
+  animation:chat-breathe 4.5s ease-in-out infinite;
+}
+.chat-companion-aura{
+  position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(34,211,238,0.18);
+  transform:rotateX(66deg);box-shadow:0 0 22px rgba(34,211,238,0.1);
+}
+.chat-companion-head{
+  position:absolute;left:13px;top:6px;width:48px;height:56px;border-radius:46% 46% 48% 48%;
+  background:linear-gradient(155deg,#e4c0a6 0%,#c89276 62%,#8c5847 100%);
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:0 12px 26px rgba(0,0,0,0.28),inset -8px -10px 18px rgba(70,30,22,0.18),inset 7px 8px 14px rgba(255,255,255,0.12);
+  overflow:hidden;
+}
+.chat-companion-hair{
+  position:absolute;left:10px;top:2px;width:54px;height:28px;border-radius:50% 50% 36% 28%;
+  background:linear-gradient(145deg,#141923,#05070b 80%);
+  transform:rotate(-5deg);box-shadow:0 7px 10px rgba(0,0,0,0.28);z-index:2;
+}
+.chat-companion-hair::after{
+  content:'';position:absolute;right:0;bottom:-15px;width:14px;height:36px;border-radius:14px;background:#070a10;
+}
+.chat-eye{
+  position:absolute;top:25px;width:12px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,0.82);overflow:hidden;z-index:3;
+  animation:chat-blink 5.4s ease-in-out infinite;
+}
+.chat-eye.left{left:12px;}
+.chat-eye.right{right:12px;animation-delay:.1s;}
+.chat-eye::after{
+  content:'';position:absolute;left:4px;top:1px;width:4px;height:4px;border-radius:50%;background:#172536;
+  transform:translate(var(--look-x),var(--look-y));
+  box-shadow:0 0 4px rgba(34,211,238,0.45);
+}
+.chat-nose{
+  position:absolute;left:22px;top:31px;width:4px;height:8px;border-radius:4px;background:rgba(118,61,45,0.28);z-index:3;
+}
+.chat-companion-mouth{
+  position:absolute;left:18px;right:18px;bottom:14px;height:4px;border-radius:0 0 18px 18px;
+  border-bottom:2px solid rgba(89,37,40,0.7);z-index:3;
+}
+.chat-companion.is-speaking .chat-companion-mouth{height:9px;bottom:11px;border:0;background:rgba(74,25,34,0.78);animation:chat-human-mouth .28s ease-in-out infinite;}
+.chat-companion.is-thinking .chat-eye::after{animation:chat-eye-scan 1.2s ease-in-out infinite;}
+.chat-companion.is-listening .chat-companion-aura{border-color:rgba(74,222,128,0.5);box-shadow:0 0 22px rgba(74,222,128,0.18);}
+.chat-companion-neck{position:absolute;left:30px;top:56px;width:14px;height:13px;background:#b77b62;border-radius:2px;z-index:1;}
+.chat-companion-body{
+  position:absolute;left:8px;bottom:0;width:58px;height:27px;border-radius:28px 28px 10px 10px;
+  background:linear-gradient(145deg,rgba(34,211,238,0.26),rgba(7,13,22,0.95));
+  border:1px solid rgba(127,168,201,0.18);box-shadow:0 0 18px rgba(34,211,238,0.12);
+}
+.chat-vitals{min-width:0;position:relative;z-index:1;}
+.chat-state-label{font-family:'Courier New',monospace;font-size:.72rem;letter-spacing:.16em;color:#d8ecf8;text-shadow:0 0 14px rgba(34,211,238,0.24);}
+.chat-state-hint{font-size:.76rem;line-height:1.38;color:rgba(168,216,234,0.75);margin-top:5px;}
+.chat-wave{display:flex;align-items:end;gap:4px;height:20px;margin-top:9px;}
+.chat-wave span{display:block;width:4px;height:5px;border-radius:4px;background:rgba(34,211,238,0.68);box-shadow:0 0 9px rgba(34,211,238,0.26);opacity:.35;}
+.chat-companion-stage.is-active .chat-wave span{animation:chat-wave 1s ease-in-out infinite;}
+.chat-companion-stage.is-listening .chat-wave span{background:rgba(74,222,128,0.72);box-shadow:0 0 9px rgba(74,222,128,0.26);}
+.chat-companion-stage.is-thinking .chat-wave span{background:rgba(200,214,229,0.62);box-shadow:0 0 9px rgba(200,214,229,0.2);animation-duration:1.35s;}
+.chat-wave span:nth-child(2){animation-delay:.1s;}
+.chat-wave span:nth-child(3){animation-delay:.2s;}
+.chat-wave span:nth-child(4){animation-delay:.3s;}
+.chat-wave span:nth-child(5){animation-delay:.4s;}
+@keyframes chat-breathe{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-2px) scale(1.015);}}
+@keyframes chat-blink{0%,92%,100%{transform:scaleY(1);}95%{transform:scaleY(.08);}}
+@keyframes chat-eye-scan{0%,100%{transform:translate(-1px,0);}50%{transform:translate(2px,0);}}
+@keyframes chat-human-mouth{0%,100%{transform:scaleY(.65);}50%{transform:scaleY(1.14);}}
+@keyframes chat-wave{0%,100%{height:5px;opacity:.35;}50%{height:18px;opacity:1;}}
+@keyframes chat-launch-glow{0%,100%{transform:scale(.92);opacity:.52;}50%{transform:scale(1.06);opacity:.92;}}
+@keyframes chat-toggle-shine{0%,62%{transform:translateX(-120%);}100%{transform:translateX(120%);}}
+@keyframes chat-top-scan{0%{background-position:-390px 0;}100%{background-position:390px 0;}}
+.chat-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto;}
+.chat-close{
+  width:32px;height:32px;border:1px solid rgba(200,214,229,0.12);border-radius:6px;
+  color:rgba(200,214,229,0.62);display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
+}
+.chat-icon-btn{
+  width:32px;height:32px;border:1px solid rgba(200,214,229,0.12);border-radius:6px;
+  color:rgba(200,214,229,0.62);display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s ease,color .2s ease,background .2s ease,transform .2s ease;
+}
+.chat-icon-btn:hover,.chat-close:hover{border-color:rgba(200,214,229,0.38);color:#c8d6e5;background:rgba(200,214,229,0.06);}
+.chat-icon-btn.is-active{border-color:rgba(34,211,238,0.48);color:#22d3ee;background:rgba(34,211,238,0.08);}
+.chat-icon-btn.is-listening{border-color:rgba(74,222,128,0.56);color:#4ade80;background:rgba(74,222,128,0.08);animation:chat-listening 1s ease-in-out infinite;}
+@keyframes chat-listening{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.chat-messages{display:flex;flex-direction:column;gap:10px;min-height:220px;max-height:330px;overflow-y:auto;padding:14px;}
+.chat-message{
+  width:fit-content;max-width:88%;padding:10px 12px;border-radius:8px;
+  font-size:.84rem;line-height:1.55;white-space:pre-wrap;
+  animation:chat-bubble-in .24s ease both;
+}
+.chat-message.assistant{
+  align-self:flex-start;color:#c9dce6;background:linear-gradient(135deg,rgba(127,168,201,0.12),rgba(34,211,238,0.055));
+  border:1px solid rgba(34,211,238,0.18);box-shadow:0 0 20px rgba(34,211,238,0.045);
+}
+.chat-message.user{
+  align-self:flex-end;color:#eef7fb;background:rgba(34,211,238,0.13);
+  border:1px solid rgba(34,211,238,0.28);
+}
+@keyframes chat-bubble-in{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.chat-quick{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;}
+.chat-quick button{
+  min-height:30px;padding:6px 9px;border-radius:6px;border:1px solid rgba(127,168,201,0.18);
+  color:rgba(200,214,229,0.76);font-family:'Courier New',monospace;font-size:.62rem;letter-spacing:.06em;
+  background:linear-gradient(135deg,rgba(127,168,201,0.08),rgba(34,211,238,0.035));transition:border-color .2s ease,color .2s ease,background .2s ease,transform .2s ease;
+}
+.chat-quick button:hover{border-color:rgba(34,211,238,0.48);color:#d8ecf8;background:rgba(34,211,238,0.08);transform:translateY(-1px);}
+.chat-compose{border-top:1px solid rgba(34,211,238,0.12);padding:12px 14px 14px;background:linear-gradient(180deg,transparent,rgba(34,211,238,0.035));}
+.chat-input-row{display:grid;grid-template-columns:1fr 42px 42px;gap:8px;align-items:end;}
+#chat-input{
+  min-height:42px;max-height:120px;resize:none;border-radius:8px;padding:10px 11px;
+  color:#c8d6e5;background:rgba(5,10,18,0.62);border:1px solid rgba(127,168,201,0.18);
+  font-size:.84rem;line-height:1.35;outline:none;
+}
+#chat-input:focus{border-color:rgba(34,211,238,0.52);box-shadow:0 0 0 2px rgba(34,211,238,0.08);}
+#chat-send,#chat-mic{
+  width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(200,214,229,0.55);transition:transform .2s ease,opacity .2s ease,border-color .2s ease,color .2s ease,background .2s ease;
+}
+#chat-send{color:#06121c;background:linear-gradient(135deg,#a8d8ea,#c8d6e5);}
+#chat-mic{color:rgba(200,214,229,0.68);background:rgba(127,168,201,0.07);}
+#chat-mic:hover,#chat-mic.is-listening{border-color:rgba(74,222,128,0.55);color:#4ade80;background:rgba(74,222,128,0.08);}
+#chat-send:hover{transform:translateY(-2px);}
+#chat-send:disabled,#chat-mic:disabled{opacity:.55;transform:none;}
+.chat-typing{display:inline-flex;align-items:center;gap:5px;min-width:46px;}
+.chat-typing span{width:6px;height:6px;border-radius:50%;background:#c8d6e5;opacity:.35;animation:chat-typing-dot 1s ease-in-out infinite;}
+.chat-typing span:nth-child(2){animation-delay:.15s;}
+.chat-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes chat-typing-dot{0%,100%{transform:translateY(0);opacity:.28;}50%{transform:translateY(-4px);opacity:1;}}
+.chat-status{min-height:18px;margin-top:8px;font-family:'Courier New',monospace;font-size:.62rem;color:rgba(255,107,107,0.78);}
+@media (max-width:640px){
+  .portfolio-chat{right:12px;bottom:12px;width:calc(100vw - 24px);}
+  .chat-companion-stage{grid-template-columns:72px 1fr;}
+  .chat-messages{max-height:calc(100vh - 300px);}
+}
 </style>
 </head>
 <body>
@@ -353,6 +571,86 @@ section:hover .section-3d-canvas{opacity:0.75;}
 <div id="custom-cursor">
   <div id="cursor-ring"></div>
   <div id="cursor-dot"></div>
+</div>
+
+<!-- AI CHAT -->
+<div id="portfolio-chat" class="portfolio-chat">
+  <button id="chat-toggle" class="chat-toggle" type="button" aria-label="Open Hung AI Assistant" aria-controls="chat-panel" aria-expanded="false">
+    <span class="chat-toggle-icon"><i data-lucide="sparkles" style="width:21px;height:21px;"></i></span>
+    <span class="chat-toggle-copy">
+      <span class="chat-toggle-title" data-i18n="chat_launcher_title">AI GUIDE</span>
+      <span class="chat-toggle-sub" data-i18n="chat_launcher_sub">Ask about Hùng</span>
+    </span>
+  </button>
+
+  <div id="chat-panel" class="chat-panel hud-card bracket rounded-xl" role="dialog" aria-labelledby="chat-title" aria-hidden="true" inert>
+    <div class="chat-header">
+      <div class="chat-identity">
+        <div class="chat-header-main">
+          <div id="chat-title" class="chat-title" data-i18n="chat_title">HUNG AI ASSISTANT</div>
+          <div class="chat-subtitle" data-i18n="chat_subtitle">ASK ABOUT CV · SKILLS · PROJECTS</div>
+          <div class="chat-presence"><span class="chat-presence-dot"></span><span data-i18n="chat_presence">LIVE VOICE READY</span></div>
+        </div>
+      </div>
+      <div class="chat-actions">
+        <button id="chat-voice" class="chat-icon-btn" type="button" aria-label="Toggle voice" aria-pressed="true" title="Toggle voice">
+          <i data-lucide="volume-2" style="width:17px;height:17px;"></i>
+        </button>
+        <button id="chat-close" class="chat-close" type="button" aria-label="Close chat">
+          <i data-lucide="x" style="width:17px;height:17px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-mode-strip">
+      <span class="chat-mode-pill"><span class="chat-mode-dot"></span><strong>AI</strong><span data-i18n="chat_mode_cv">CV-grounded</span></span>
+      <span class="chat-mode-pill"><i data-lucide="audio-lines" style="width:12px;height:12px;"></i><span data-i18n="chat_mode_voice">Neural voice</span></span>
+    </div>
+
+    <div id="chat-companion-stage" class="chat-companion-stage">
+      <div id="chat-companion" class="chat-companion" aria-hidden="true">
+        <span class="chat-companion-aura"></span>
+        <span class="chat-companion-body"></span>
+        <span class="chat-companion-neck"></span>
+        <span class="chat-companion-head">
+          <span class="chat-eye left"></span>
+          <span class="chat-eye right"></span>
+          <span class="chat-nose"></span>
+          <span class="chat-companion-mouth"></span>
+        </span>
+        <span class="chat-companion-hair"></span>
+      </div>
+      <div class="chat-vitals">
+        <div id="chat-state-label" class="chat-state-label" data-i18n="chat_state_idle">ATTENTIVE</div>
+        <div id="chat-state-hint" class="chat-state-hint" data-i18n="chat_state_hint">AI-generated portfolio guide, ready to talk.</div>
+        <div id="chat-wave" class="chat-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div id="chat-messages" class="chat-messages" aria-live="polite">
+      <div class="chat-message assistant" data-i18n="chat_welcome">Hi, I can answer questions about Hùng's skills, experience, projects, and contact information.</div>
+    </div>
+    <div class="chat-voice-disclosure" data-i18n="chat_voice_disclosure">Voice is AI-generated.</div>
+
+    <div class="chat-quick">
+      <button type="button" data-chat-prompt-en="What are Hùng's strongest backend skills?" data-chat-prompt-vi="Hùng mạnh nhất ở những kỹ năng backend nào?" data-i18n="chat_quick_skills">BACKEND SKILLS</button>
+      <button type="button" data-chat-prompt-en="Summarize Hùng's highlighted projects." data-chat-prompt-vi="Tóm tắt các dự án nổi bật của Hùng." data-i18n="chat_quick_projects">PROJECTS</button>
+      <button type="button" data-chat-prompt-en="How can I contact Hùng?" data-chat-prompt-vi="Tôi có thể liên hệ Hùng bằng cách nào?" data-i18n="chat_quick_contact">CONTACT</button>
+    </div>
+
+    <div class="chat-compose">
+      <div class="chat-input-row">
+        <textarea id="chat-input" rows="1" data-i18n-placeholder="chat_placeholder" placeholder="Ask about skills, projects..."></textarea>
+        <button id="chat-mic" type="button" aria-label="Use voice input" title="Use voice input">
+          <i data-lucide="mic" style="width:18px;height:18px;"></i>
+        </button>
+        <button id="chat-send" type="button" aria-label="Send message">
+          <i data-lucide="send" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+      <p id="chat-status" class="chat-status" aria-live="polite"></p>
+    </div>
+  </div>
 </div>
 
 <canvas id="space-canvas"></canvas>
@@ -795,6 +1093,33 @@ const T = {
     edu_badge:'DISTINCTION',
     contact_label:'07 — CONTACT', contact_title:"Let's work together", contact_sub:'// OPEN TO NEW OPPORTUNITIES',
     contact_email_lbl:'EMAIL', contact_phone_lbl:'PHONE', contact_github_lbl:'GITHUB', contact_btn:'SEND MESSAGE ›',
+    chat_title:'HUNG AI ASSISTANT', chat_subtitle:'ASK ABOUT CV · SKILLS · PROJECTS',
+    chat_launcher_title:'AI GUIDE',
+    chat_launcher_sub:'Ask about Hùng',
+    chat_mode_cv:'CV-grounded',
+    chat_mode_voice:'Neural voice',
+    chat_welcome:'Hi, I can answer questions about Hùng\'s skills, experience, projects, and contact information.',
+    chat_placeholder:'Ask about skills, projects...',
+    chat_quick_skills:'BACKEND SKILLS', chat_quick_projects:'PROJECTS', chat_quick_contact:'CONTACT',
+    chat_presence:'LIVE VOICE READY',
+    chat_voice_on:'Voice on',
+    chat_voice_off:'Voice off',
+    chat_voice_disclosure:'Voice is AI-generated.',
+    chat_state_idle:'ATTENTIVE',
+    chat_state_thinking:'THINKING',
+    chat_state_speaking:'SPEAKING',
+    chat_state_listening:'LISTENING',
+    chat_state_hint:'AI-generated portfolio guide, ready to talk.',
+    chat_state_hint_thinking:'Reading CV context and composing a grounded answer.',
+    chat_state_hint_speaking:'Speaking the answer with neural voice when available.',
+    chat_state_hint_listening:'Voice input is active. Speak clearly near your microphone.',
+    chat_listening:'Listening...',
+    chat_mic_unavailable:'Voice input is not supported in this browser.',
+    chat_greeting:'Hi, I am Hùng\'s portfolio assistant. You can ask me about his skills, projects, experience, or contact details.',
+    chat_loading:'Thinking through the CV data...',
+    chat_empty:'Please enter a question.',
+    chat_error:'The AI assistant is unavailable right now.',
+    chat_unavailable:'No response.',
   },
   vi: {
     nav_about:'GIỚI THIỆU', nav_skills:'KỸ NĂNG', nav_exp:'KINH NGHIỆM', nav_projects:'DỰ ÁN', nav_personal:'CÁ NHÂN', nav_edu:'HỌC VẤN', nav_contact:'LIÊN HỆ',
@@ -856,6 +1181,33 @@ const T = {
     edu_badge:'XUẤT SẮC',
     contact_label:'07 — LIÊN HỆ', contact_title:'Hãy cùng hợp tác', contact_sub:'// SẴN SÀNG CƠ HỘI MỚI',
     contact_email_lbl:'EMAIL', contact_phone_lbl:'ĐIỆN THOẠI', contact_github_lbl:'GITHUB', contact_btn:'GỬI TIN NHẮN ›',
+    chat_title:'TRỢ LÝ AI CỦA HÙNG', chat_subtitle:'HỎI VỀ CV · KỸ NĂNG · DỰ ÁN',
+    chat_launcher_title:'AI GUIDE',
+    chat_launcher_sub:'Hỏi về Hùng',
+    chat_mode_cv:'Dựa trên CV',
+    chat_mode_voice:'Neural voice',
+    chat_welcome:'Xin chào, tôi có thể trả lời về kỹ năng, kinh nghiệm, dự án và thông tin liên hệ của Hùng.',
+    chat_placeholder:'Hỏi về kỹ năng, dự án...',
+    chat_quick_skills:'BACKEND', chat_quick_projects:'DỰ ÁN', chat_quick_contact:'LIÊN HỆ',
+    chat_presence:'SẴN SÀNG GIỌNG NÓI',
+    chat_voice_on:'Đã bật giọng nói',
+    chat_voice_off:'Đã tắt giọng nói',
+    chat_voice_disclosure:'Giọng nói được tạo bởi AI.',
+    chat_state_idle:'ĐANG CHỜ',
+    chat_state_thinking:'ĐANG SUY NGHĨ',
+    chat_state_speaking:'ĐANG NÓI',
+    chat_state_listening:'ĐANG NGHE',
+    chat_state_hint:'Trợ lý portfolio tạo bởi AI, sẵn sàng trò chuyện.',
+    chat_state_hint_thinking:'Đang đọc dữ liệu CV và soạn câu trả lời đúng ngữ cảnh.',
+    chat_state_hint_speaking:'Đang đọc câu trả lời bằng neural voice nếu có.',
+    chat_state_hint_listening:'Đang bật nhập giọng nói. Hãy nói rõ gần micro.',
+    chat_listening:'Đang nghe...',
+    chat_mic_unavailable:'Trình duyệt này chưa hỗ trợ nhập bằng giọng nói.',
+    chat_greeting:'Xin chào, tôi là trợ lý portfolio của Hùng. Bạn có thể hỏi tôi về kỹ năng, dự án, kinh nghiệm hoặc thông tin liên hệ của Hùng.',
+    chat_loading:'Đang đọc dữ liệu CV...',
+    chat_empty:'Vui lòng nhập câu hỏi.',
+    chat_error:'Trợ lý AI hiện chưa khả dụng.',
+    chat_unavailable:'Không có phản hồi.',
   }
 };
 
@@ -877,6 +1229,11 @@ function applyLang(l) {
     const k = el.getAttribute('data-i18n-html');
     if (t[k] !== undefined) el.innerHTML = t[k];
   });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (t[k] !== undefined) el.setAttribute('placeholder', t[k]);
+  });
+  if (window.lucide) lucide.createIcons();
   const isEn = l === 'en';
   document.getElementById('lang-en').classList.toggle('lang-active', isEn);
   document.getElementById('lang-vi').classList.toggle('lang-active', !isEn);
@@ -890,6 +1247,7 @@ function toggleLang() {
   lang = lang === 'en' ? 'vi' : 'en';
   applyLang(lang);
   resetTyping();
+  window.dispatchEvent(new CustomEvent('dvh:lang-change', { detail: { lang } }));
 }
 
 applyLang(lang);
@@ -1223,10 +1581,504 @@ document.querySelectorAll('#contact .hud-card').forEach(card => {
   });
 });
 
+/* ── 11. PORTFOLIO AI CHAT ── */
+(function portfolioChat() {
+  const root = document.getElementById('portfolio-chat');
+  if (!root) return;
+
+  const toggle = document.getElementById('chat-toggle');
+  const panel = document.getElementById('chat-panel');
+  const companionStage = document.getElementById('chat-companion-stage');
+  const companion = document.getElementById('chat-companion');
+  const stateLabel = document.getElementById('chat-state-label');
+  const stateHint = document.getElementById('chat-state-hint');
+  const voice = document.getElementById('chat-voice');
+  const close = document.getElementById('chat-close');
+  const messages = document.getElementById('chat-messages');
+  const input = document.getElementById('chat-input');
+  const mic = document.getElementById('chat-mic');
+  const send = document.getElementById('chat-send');
+  const status = document.getElementById('chat-status');
+  const quickButtons = root.querySelectorAll('[data-chat-prompt-en]');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let sending = false;
+  let voiceEnabled = localStorage.getItem('dvh_chat_voice') !== 'off';
+  let greeted = false;
+  let currentUtterance = null;
+  let currentAudio = null;
+  let currentAudioUrl = null;
+  let neuralTtsAvailable = true;
+  let speechRunId = 0;
+  let recognition = null;
+
+  const tr = key => (T[lang] && T[lang][key]) || T.en[key] || key;
+
+  function setPersonaState(state) {
+    const states = ['idle', 'thinking', 'speaking', 'listening'];
+    states.forEach(item => {
+      companion.classList.toggle(`is-${item}`, item === state);
+      companionStage.classList.toggle(`is-${item}`, item === state);
+    });
+    companionStage.classList.toggle('is-active', state === 'speaking' || state === 'listening' || state === 'thinking');
+    stateLabel.textContent = tr(`chat_state_${state}`);
+    stateHint.textContent = tr(state === 'idle' ? 'chat_state_hint' : `chat_state_hint_${state}`);
+  }
+
+  function setSpeaking(speaking) {
+    companion.classList.toggle('is-speaking', speaking);
+    if (speaking) setPersonaState('speaking');
+    else if (!sending) setPersonaState('idle');
+  }
+
+  function updateVoiceButton() {
+    voice.classList.toggle('is-active', voiceEnabled);
+    voice.setAttribute('aria-pressed', String(voiceEnabled));
+    voice.setAttribute('title', voiceEnabled ? tr('chat_voice_on') : tr('chat_voice_off'));
+    voice.setAttribute('aria-label', voiceEnabled ? tr('chat_voice_on') : tr('chat_voice_off'));
+    voice.innerHTML = `<i data-lucide="${voiceEnabled ? 'volume-2' : 'volume-x'}" style="width:17px;height:17px;"></i>`;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function stopSpeaking() {
+    speechRunId += 1;
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.removeAttribute('src');
+      currentAudio.load();
+      currentAudio = null;
+    }
+    if (currentAudioUrl) {
+      URL.revokeObjectURL(currentAudioUrl);
+      currentAudioUrl = null;
+    }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    currentUtterance = null;
+    setSpeaking(false);
+  }
+
+  function apiEndpoints(path) {
+    const endpoints = [path];
+    const isLocalPage = ['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol === 'file:';
+    const isPortfolioDevServer = isLocalPage && /^30\d\d$/.test(location.port || '');
+
+    if (isLocalPage && !isPortfolioDevServer) {
+      for (let port = 3000; port <= 3009; port++) {
+        endpoints.push(`http://localhost:${port}${path}`);
+      }
+    }
+
+    return endpoints;
+  }
+
+  function voiceScore(voiceItem) {
+    const targetLang = lang === 'vi' ? 'vi' : 'en';
+    const voiceLang = (voiceItem.lang || '').toLowerCase();
+    const voiceName = `${voiceItem.name || ''} ${voiceItem.voiceURI || ''}`.toLowerCase();
+    const premiumHints = ['natural', 'neural', 'premium', 'online'];
+    const engineHints = ['google', 'microsoft', 'apple', 'samantha', 'daniel', 'serena', 'karen', 'alex', 'aria', 'jenny', 'guy', 'zira'];
+    const viHints = ['vietnam', 'việt', 'tieng viet', 'hoai', 'nam', 'linh', 'an'];
+    let score = 0;
+
+    if (voiceLang === (targetLang === 'vi' ? 'vi-vn' : 'en-us')) score += 120;
+    else if (voiceLang.startsWith(targetLang)) score += 95;
+    else if (targetLang === 'en' && voiceLang.startsWith('en')) score += 70;
+    else return -1;
+
+    premiumHints.forEach(hint => { if (voiceName.includes(hint)) score += 20; });
+    engineHints.forEach(hint => { if (voiceName.includes(hint)) score += 12; });
+    if (targetLang === 'vi') viHints.forEach(hint => { if (voiceName.includes(hint)) score += 18; });
+    if (voiceName.includes('compact')) score -= 24;
+    if (voiceName.includes('novelty')) score -= 24;
+    if (voiceItem.default) score += 8;
+    if (!voiceItem.localService) score += 5;
+
+    return score;
+  }
+
+  function pickVoice() {
+    const voices = speechSynthesis.getVoices();
+    return voices
+      .map(voiceItem => ({ voiceItem, score: voiceScore(voiceItem) }))
+      .filter(item => item.score >= 0)
+      .sort((a, b) => b.score - a.score)[0]?.voiceItem || null;
+  }
+
+  function normalizeSpeechText(text) {
+    return text
+      .replace(/https?:\/\/\S+/g, lang === 'vi' ? 'một đường dẫn' : 'a link')
+      .replace(/[`*_#>{}\[\]]/g, '')
+      .replace(/[▸›↗•]/g, '. ')
+      .replace(/\s+-\s+/g, '. ')
+      .replace(/\bNode\.js\b/gi, 'Node J S')
+      .replace(/\bNext\.js\b/gi, 'Next J S')
+      .replace(/\bExpress\.js\b/gi, 'Express J S')
+      .replace(/\bSocket\.IO\b/gi, 'Socket I O')
+      .replace(/\bRESTful APIs\b/g, 'RESTful A P I s')
+      .replace(/\bAPIs\b/g, 'A P I s')
+      .replace(/\bAI\b/g, 'A I')
+      .replace(/\bAWS\b/g, 'A W S')
+      .replace(/\bJWT\b/g, 'J W T')
+      .replace(/\bRBAC\b/g, 'R B A C')
+      .replace(/\bCV\b/g, 'C V')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function splitSpeechText(text) {
+    const sentences = text.match(/[^.!?;:]+[.!?;:]?/g) || [text];
+    const chunks = [];
+    let current = '';
+
+    sentences.forEach(sentence => {
+      const next = `${current} ${sentence}`.trim();
+      if (next.length > 180 && current) {
+        chunks.push(current);
+        current = sentence.trim();
+      } else {
+        current = next;
+      }
+    });
+
+    if (current) chunks.push(current);
+    return chunks;
+  }
+
+  function speechSettings(opts) {
+    const isSlow = opts && opts.slow;
+    if (lang === 'vi') {
+      return { lang: 'vi-VN', rate: isSlow ? 0.86 : 0.91, pitch: 1.04, volume: 0.95 };
+    }
+    return { lang: 'en-US', rate: isSlow ? 0.88 : 0.94, pitch: 1.02, volume: 0.95 };
+  }
+
+  async function playNeuralTts(speechText, runId) {
+    if (!neuralTtsAvailable) return false;
+
+    for (const endpoint of apiEndpoints('/api/tts')) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: speechText,
+            language: lang,
+            pageLanguage: document.documentElement.lang || lang
+          })
+        });
+
+        if (!response.ok) {
+          if (response.status === 501) {
+            neuralTtsAvailable = false;
+            return false;
+          }
+          continue;
+        }
+
+        const audioBlob = await response.blob();
+        if (runId !== speechRunId) return true;
+
+        neuralTtsAvailable = true;
+        currentAudioUrl = URL.createObjectURL(audioBlob);
+        currentAudio = new Audio(currentAudioUrl);
+        currentAudio.preload = 'auto';
+        currentAudio.onplay = () => setSpeaking(true);
+        currentAudio.onended = () => stopSpeaking();
+        currentAudio.onerror = () => {
+          neuralTtsAvailable = false;
+          stopSpeaking();
+        };
+        await currentAudio.play();
+        return true;
+      } catch (error) {
+        // Try the next local endpoint, then fall back to browser speech.
+      }
+    }
+
+    return false;
+  }
+
+  function speakWithBrowserVoice(speechText, opts, runId) {
+    if (!('speechSynthesis' in window)) return;
+
+    const chunks = splitSpeechText(speechText);
+    const selectedVoice = pickVoice();
+    const settings = speechSettings(opts);
+    let index = 0;
+
+    function speakNext() {
+      if (runId !== speechRunId) return;
+      if (index >= chunks.length) {
+        currentUtterance = null;
+        setSpeaking(false);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(chunks[index]);
+      index += 1;
+      utterance.lang = settings.lang;
+      utterance.rate = settings.rate;
+      utterance.pitch = settings.pitch;
+      utterance.volume = settings.volume;
+      if (selectedVoice) utterance.voice = selectedVoice;
+      utterance.onstart = () => setSpeaking(true);
+      utterance.onend = () => {
+        if (runId !== speechRunId) return;
+        window.setTimeout(speakNext, opts && opts.slow ? 220 : 150);
+      };
+      utterance.onerror = () => setSpeaking(false);
+      currentUtterance = utterance;
+      speechSynthesis.speak(utterance);
+    }
+
+    speakNext();
+  }
+
+  function speak(text, opts) {
+    if (!voiceEnabled || !text) return false;
+
+    stopSpeaking();
+    const speechText = normalizeSpeechText(text);
+    if (!speechText) return false;
+    if (!neuralTtsAvailable && !('speechSynthesis' in window)) return false;
+    const runId = speechRunId;
+
+    playNeuralTts(speechText, runId).then(played => {
+      if (!played && runId === speechRunId) {
+        if ('speechSynthesis' in window) speakWithBrowserVoice(speechText, opts, runId);
+        else setPersonaState('idle');
+      }
+    });
+    return true;
+  }
+
+  function primeGreeting() {
+    if (greeted) return;
+    greeted = true;
+    speak(tr('chat_greeting'), { slow: true });
+  }
+
+  function setupFirstInteractionGreeting() {
+    const fire = () => {
+      primeGreeting();
+      document.removeEventListener('pointerdown', fire);
+      document.removeEventListener('keydown', fire);
+    };
+    document.addEventListener('pointerdown', fire, { once: true });
+    document.addEventListener('keydown', fire, { once: true });
+  }
+
+  function setListening(listening) {
+    mic.classList.toggle('is-listening', listening);
+    mic.disabled = listening;
+    setPersonaState(listening ? 'listening' : 'idle');
+  }
+
+  function setupSpeechRecognition() {
+    if (!SpeechRecognition) {
+      mic.disabled = true;
+      mic.title = tr('chat_mic_unavailable');
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = lang === 'vi' ? 'vi-VN' : 'en-US';
+
+    recognition.onstart = () => {
+      status.textContent = tr('chat_listening');
+      setListening(true);
+    };
+    recognition.onresult = event => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      input.value = transcript.trim();
+      autoGrow();
+    };
+    recognition.onerror = event => {
+      status.textContent = event.error || tr('chat_mic_unavailable');
+      setPersonaState('idle');
+    };
+    recognition.onend = () => {
+      setListening(false);
+      if (status.textContent === tr('chat_listening')) status.textContent = '';
+      if (input.value.trim()) input.focus();
+    };
+  }
+
+  function chatEndpoints() {
+    return apiEndpoints('/api/chat');
+  }
+
+  async function requestChat(message) {
+    let lastError = null;
+
+    for (const endpoint of chatEndpoints()) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            language: lang,
+            pageLanguage: document.documentElement.lang || lang
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          lastError = new Error(data.error || `${res.status} ${res.statusText}`.trim());
+          continue;
+        }
+
+        return data;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error(tr('chat_error'));
+  }
+
+  function setOpen(open) {
+    root.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    panel.toggleAttribute('inert', !open);
+    panel.setAttribute('aria-hidden', String(!open));
+    if (open) {
+      setTimeout(() => input.focus(), 220);
+      primeGreeting();
+    }
+  }
+
+  function addMessage(type, text, opts) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-message ${type}`;
+    if (opts && opts.typing) {
+      bubble.innerHTML = '<span class="chat-typing" aria-label="Typing"><span></span><span></span><span></span></span>';
+    } else {
+      bubble.textContent = text;
+    }
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+  }
+
+  function autoGrow() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  }
+
+  async function sendMessage(prompt) {
+    const message = (prompt || input.value).trim();
+    if (!message) {
+      status.textContent = tr('chat_empty');
+      input.focus();
+      return;
+    }
+    if (sending) return;
+
+    addMessage('user', message);
+    input.value = '';
+    autoGrow();
+    status.textContent = '';
+    sending = true;
+    send.disabled = true;
+    setPersonaState('thinking');
+
+    const pending = addMessage('assistant', '', { typing: true });
+    status.textContent = tr('chat_loading');
+
+    try {
+      const data = await requestChat(message);
+      pending.textContent = data.reply || tr('chat_unavailable');
+      setPersonaState('speaking');
+      if (!speak(pending.textContent)) window.setTimeout(() => setPersonaState('idle'), 900);
+    } catch (error) {
+      pending.textContent = tr('chat_error');
+      status.textContent = error.message && error.message !== tr('chat_error') ? error.message : '';
+      setPersonaState('speaking');
+      if (!speak(pending.textContent)) window.setTimeout(() => setPersonaState('idle'), 900);
+    } finally {
+      sending = false;
+      send.disabled = false;
+      if (status.textContent === tr('chat_loading')) {
+        status.textContent = '';
+        if (!voiceEnabled && !companion.classList.contains('is-speaking')) setPersonaState('idle');
+      }
+      input.focus();
+    }
+  }
+
+  toggle.addEventListener('click', () => setOpen(true));
+  close.addEventListener('click', () => {
+    stopSpeaking();
+    setOpen(false);
+  });
+  voice.addEventListener('click', () => {
+    voiceEnabled = !voiceEnabled;
+    localStorage.setItem('dvh_chat_voice', voiceEnabled ? 'on' : 'off');
+    if (!voiceEnabled) stopSpeaking();
+    updateVoiceButton();
+    status.textContent = voiceEnabled ? tr('chat_voice_on') : tr('chat_voice_off');
+    if (voiceEnabled) speak(status.textContent);
+  });
+  mic.addEventListener('click', () => {
+    if (!recognition) {
+      status.textContent = tr('chat_mic_unavailable');
+      return;
+    }
+    recognition.lang = lang === 'vi' ? 'vi-VN' : 'en-US';
+    recognition.start();
+  });
+  send.addEventListener('click', () => sendMessage());
+  input.addEventListener('input', autoGrow);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  quickButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prompt = btn.dataset[lang === 'vi' ? 'chatPromptVi' : 'chatPromptEn'];
+      sendMessage(prompt);
+    });
+  });
+  root.addEventListener('mousemove', e => {
+    const rect = companion.getBoundingClientRect();
+    const lookX = Math.max(-2.5, Math.min(2.5, ((e.clientX - rect.left) / rect.width - 0.5) * 5));
+    const lookY = Math.max(-1.5, Math.min(1.5, ((e.clientY - rect.top) / rect.height - 0.5) * 3));
+    companion.style.setProperty('--look-x', `${lookX}px`);
+    companion.style.setProperty('--look-y', `${lookY}px`);
+  });
+  root.addEventListener('mouseleave', () => {
+    companion.style.setProperty('--look-x', '0px');
+    companion.style.setProperty('--look-y', '0px');
+  });
+  window.addEventListener('dvh:lang-change', () => {
+    updateVoiceButton();
+    setPersonaState(companionStage.classList.contains('is-listening') ? 'listening' : companionStage.classList.contains('is-speaking') ? 'speaking' : companionStage.classList.contains('is-thinking') ? 'thinking' : 'idle');
+    if (recognition) recognition.lang = lang === 'vi' ? 'vi-VN' : 'en-US';
+  });
+  if ('speechSynthesis' in window && speechSynthesis.addEventListener) {
+    speechSynthesis.addEventListener('voiceschanged', () => {
+      const selectedVoice = pickVoice();
+      if (currentUtterance && selectedVoice) currentUtterance.voice = selectedVoice;
+    });
+  }
+  updateVoiceButton();
+  setPersonaState('idle');
+  setupSpeechRecognition();
+  setupFirstInteractionGreeting();
+})();
+
 /* ── INIT LUCIDE ICONS ── */
 lucide.createIcons();
 
-/* ── 11. SCI-FI 3D SECTION SCENES (external) ── */
+/* ── 12. SCI-FI 3D SECTION SCENES (external) ── */
 </script>
 <script src="scenes3d.js"></script>
 </body>

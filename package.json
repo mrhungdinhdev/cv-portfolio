@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "check": "node --check api/chat.js && node --check api/tts.js && node --check dev-server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

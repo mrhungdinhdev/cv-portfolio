@@ -1,0 +1,203 @@
+{
+  "name": "Đinh Văn Hùng",
+  "role": "Full Stack Developer",
+  "summary": "Full Stack Developer with 3 years of hands-on experience, specialising in backend development and system design. Strong experience in building RESTful APIs, scalable web systems, and cloud-based architectures using Laravel, NestJS, and AWS.",
+  "contact": {
+    "mobile": "0342568696",
+    "email": "manhhung.dvh@gmail.com",
+    "github": "https://github.com/mrhungdinhdev",
+    "address": "11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City, Vietnam"
+  },
+  "personal": {
+    "dateOfBirth": "28/01/2002",
+    "languages": [
+      {
+        "name": "Vietnamese",
+        "level": "Native"
+      },
+      {
+        "name": "English",
+        "level": "Intermediate, Academic Preparatory English Level 3 - Topnotch 2"
+      }
+    ]
+  },
+  "skills": {
+    "languages": ["JavaScript", "TypeScript", "PHP", "HTML", "CSS"],
+    "frontend": ["React", "Next.js", "Vue.js", "jQuery", "Tailwind CSS", "Bootstrap"],
+    "backend": ["Node.js", "ExpressJS", "NestJS", "Laravel", "RESTful APIs"],
+    "cms": ["WordPress Plugin Development", "Custom Post Types"],
+    "databases": ["MySQL", "PostgreSQL", "MongoDB", "Redis", "Redis Streams"],
+    "devopsCloud": ["AWS EC2", "AWS S3", "AWS RDS", "Route 53", "IAM", "CloudFront", "GitHub Actions", "Docker"],
+    "aiData": ["OpenAI", "Gemini API", "ChromaDB", "BullMQ", "Socket.IO", "Playwright"],
+    "tools": ["Git", "Jira", "Figma"]
+  },
+  "education": {
+    "school": "FPT Polytechnic College",
+    "duration": "2.5 years (2022 - 2024)",
+    "degree": "Advanced Diploma in Information Technology",
+    "graduationDate": "September 30, 2024",
+    "classification": "Distinction",
+    "gpa": "8.5/10",
+    "classRanking": "Top 10%",
+    "creditsCompleted": 103,
+    "certifications": ["Academic Preparatory English Level 3 - Topnotch 2 (October 2023)"]
+  },
+  "workExperience": [
+    {
+      "company": "EXORA MEDIA COMPANY LIMITED",
+      "role": "Full Stack Developer",
+      "period": "Aug 2025 - Present",
+      "highlights": [
+        "Build and maintain an AI-powered social media content generation platform with multi-tenant workspace support.",
+        "Develop a distributed web crawling worker for automated social media data collection using Redis Streams.",
+        "Design and develop a digital publishing platform (docsach.com.vn) with real-time reading features and e-book management."
+      ]
+    },
+    {
+      "company": "HIT GROUP COMPANY LIMITED",
+      "role": "Full Stack Developer",
+      "period": "Jan 2025 - Jul 2025",
+      "highlights": [
+        "Design and maintain scalable web-based systems across multiple business domains.",
+        "Optimise and upgrade existing systems to improve performance, reliability, and security.",
+        "Collaborate with cross-functional teams to develop and deploy new features aligned with business goals."
+      ]
+    },
+    {
+      "company": "Liberation Technology Joint Stock Company",
+      "role": "Full Stack Developer",
+      "period": "Jan 2024 - Dec 2024",
+      "highlights": [
+        "Engineered and maintained full-stack web applications for a variety of client projects.",
+        "Developed and enhanced core system features with a focus on performance and scalability.",
+        "Ensured code quality and security through testing and regular refactoring."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "AI Social Builder",
+      "description": "AI-powered social media content generation platform supporting multi-tenant workspaces, adaptive learning with the MPE framework, workflow automation, and a multi-agent architecture per fanpage.",
+      "role": "Full Stack Developer",
+      "techStack": ["Node.js 20", "Express.js", "MongoDB", "Redis", "BullMQ", "ChromaDB", "Gemini API", "OpenAI", "Socket.IO", "Docker"],
+      "features": [
+        "Architected a multi-agent AI system with 4 agents per fanpage for visuals, captions, social posts, and blog articles.",
+        "Implemented the Master Prompt Engineer framework to track user edits and synthesize adaptive style rules via BullMQ workers.",
+        "Integrated ChromaDB vector store for semantic deduplication with configurable similarity thresholds.",
+        "Built real-time update delivery using Socket.IO with Redis Pub/Sub and implemented multi-tenancy RBAC with JWT authentication."
+      ]
+    },
+    {
+      "name": "Crawler Social Tool",
+      "description": "Distributed Node.js worker service that consumes crawl jobs from Redis Streams and publishes normalised posts back to Redis.",
+      "role": "Full Stack Developer",
+      "techStack": ["Node.js ES Modules", "Playwright", "Redis Streams", "Docker"],
+      "features": [
+        "Designed platform-specific crawling adapters for Facebook, X/Twitter, Instagram, and TikTok.",
+        "Implemented persistent browser session management with Playwright for authenticated crawling.",
+        "Containerised the worker service with Docker for consistent deployment."
+      ]
+    },
+    {
+      "name": "XuatBanDienTu - Digital Publishing Platform",
+      "url": "https://docsach.com.vn",
+      "description": "Digital e-book publishing and reading platform with online reading, payment flows, authentication, real-time reading features, and e-book management.",
+      "role": "Full Stack Developer",
+      "techStack": ["PHP", "Laravel", "Phalcon", "MySQL", "Redis", "Socket.IO", "Docker", "Nginx"],
+      "features": [
+        "Developed an MVC-layered PHP backend with controllers, services, repositories, PSR-4 autoloading, and Volt templates.",
+        "Integrated a Socket.IO sidecar service for real-time reading progress and notifications.",
+        "Containerised the stack with Docker Compose for reproducible local and production environments."
+      ]
+    },
+    {
+      "name": "AnchayFood",
+      "urls": [
+        "https://anchayfood.com/",
+        "https://vendor.anchayfood.com/",
+        "https://apps.apple.com/ng/app/%C4%83n-chay-food/id6745926201",
+        "https://apps.apple.com/ng/app/acf-vendor/id6746072171",
+        "https://apps.apple.com/ng/app/acf-delivery/id6746063618",
+        "https://play.google.com/store/apps/details?id=com.anchayfood.app",
+        "https://play.google.com/store/apps/details?id=com.anchayfood.vendor",
+        "https://play.google.com/store/apps/details?id=com.anchayfood.delivery"
+      ],
+      "description": "Vegetarian and vegan cuisine platform in Vietnam with web and mobile apps for users, vendors, and delivery personnel.",
+      "role": "Full Stack Developer",
+      "techStack": ["Laravel", "Next.js", "Flutter"],
+      "features": [
+        "Developed RESTful APIs using Laravel for web and mobile clients.",
+        "Implemented the main website UI using Next.js.",
+        "Integrated browser-based auto-location detection and dynamic VND/USD currency conversion.",
+        "Debugged and optimised backend API functions for reliability and performance."
+      ]
+    },
+    {
+      "name": "CheckYay",
+      "urls": [
+        "https://app.checkyay.com/",
+        "https://api.checkyay.com/",
+        "https://apps.apple.com/vn/app/checkyay/id6476982346",
+        "https://play.google.com/store/apps/details?id=com.checkyay.app&hl=vi"
+      ],
+      "description": "Digital checklist platform for efficient task management with AI chat trained on customer data.",
+      "role": "Full Stack Developer",
+      "techStack": ["Node.js", "Next.js", "React", "Flutter", "AWS CDK", "ECS", "Elastic Cache", "S3", "Route53", "ALB", "AWS Secret Manager", "CloudWatch", "RDS"],
+      "features": [
+        "Developed APIs using Node.js for web and mobile clients.",
+        "Implemented advanced AI training features using customer data and conversational insights.",
+        "Enabled AI chat functionality trained on unique customer data for personalisation."
+      ]
+    },
+    {
+      "name": "AiBC - AI Business Connect",
+      "url": "https://ai-pro.pro/",
+      "description": "AI connection service that allows operators to apply enterprise learning models to natural language AI platforms such as ChatGPT and Bard.",
+      "role": "Full Stack Developer",
+      "techStack": ["Laravel", "jQuery", "Vue.js"],
+      "features": [
+        "Created multiple AI avatars reflecting enterprise-specific learning models.",
+        "Integrated external services and file learning for PDF, Word, and XML.",
+        "Kept enterprise learning data isolated and reusable through saved avatars and branch copying.",
+        "Provided APIs for integration with other applications."
+      ]
+    },
+    {
+      "name": "Video NFT",
+      "url": "https://videonft.live/",
+      "status": "In Development",
+      "description": "Platform where users can earn crypto by watching and uploading creator videos.",
+      "role": "Full Stack Developer",
+      "techStack": ["TypeScript", "NestJS", "Next.js", "Flutter", "Solidity", "AWS ECS", "S3", "CloudWatch", "Aurora MySQL"],
+      "features": [
+        "Developed ERC-20 and NFT token systems on Binance Smart Chain.",
+        "Implemented secure wallet deposits, withdrawals, and real-time balances.",
+        "Enabled NFT minting, buying, selling, and trading.",
+        "Integrated earn-to-watch rewards and video watch-time tracking."
+      ]
+    },
+    {
+      "name": "CyberMart",
+      "url": "https://cybermart.io.vn",
+      "description": "Technology accessories e-commerce site with product comparison, shopping cart, and order management.",
+      "role": "Full Stack Developer",
+      "techStack": ["Laravel", "MySQL", "jQuery", "Bootstrap"],
+      "features": [
+        "Managed categories and products, including listing, creating, updating, and deleting records.",
+        "Developed a complete shopping cart system.",
+        "Managed order details, listing, editing, and deletion."
+      ]
+    },
+    {
+      "name": "AI Sidebar Hub + Highlights",
+      "description": "Privacy-focused Chrome extension for highlighting, note-taking, and opt-in AI assistance.",
+      "role": "Solo Product Builder",
+      "techStack": ["JavaScript", "Chrome Extension", "OpenAI ChatGPT", "Google Gemini", "Anthropic Claude", "Chrome Storage"],
+      "features": [
+        "Selected text is sent to AI services only after explicit user action.",
+        "Highlights, notes, and settings are stored with Chrome storage.",
+        "No data selling, browsing-history collection, advertising, or profiling."
+      ]
+    }
+  ]
+}

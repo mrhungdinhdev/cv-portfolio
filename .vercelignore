@@ -1,0 +1,6 @@
+.env
+.env.*
+task.md
+cv-hung.md
+node_modules/
+.DS_Store
