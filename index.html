@@ -284,6 +284,22 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   transition:opacity .6s ease;
 }
 section:hover .section-3d-canvas{opacity:0.75;}
+.about-geo-readout{
+  position:absolute;right:clamp(18px,6vw,82px);bottom:28px;z-index:2;
+  width:min(270px,calc(100% - 36px));padding:12px 14px;pointer-events:auto;
+  background:rgba(5,10,18,0.58);
+}
+.about-geo-title{font-family:'Courier New',monospace;font-size:.62rem;letter-spacing:.18em;color:rgba(127,168,201,0.62);}
+.about-geo-status{font-family:'Courier New',monospace;font-size:.72rem;letter-spacing:.08em;color:#c8d6e5;margin-top:5px;}
+.about-geo-coords{font-family:'Courier New',monospace;font-size:.6rem;letter-spacing:.05em;color:rgba(127,168,201,0.55);margin-top:4px;}
+.gps-trigger{transition:color .25s ease,transform .25s ease;}
+.gps-trigger:focus{outline:1px solid rgba(34,211,238,0.45);outline-offset:5px;}
+.gps-trigger:hover{color:#7fa8c9!important;transform:translateX(3px);}
+@media (max-width:767px){
+  .about-geo-readout{display:none;}
+  #about .section-3d-canvas{opacity:0.38;}
+  #about:hover .section-3d-canvas{opacity:0.48;}
+}
 </style>
 </head>
 <body>
@@ -417,6 +433,11 @@ section:hover .section-3d-canvas{opacity:0.75;}
 <!-- ══ ABOUT ══ -->
 <section id="about" class="relative z-10 py-24 px-6" style="overflow:hidden;">
   <canvas id="about-3d" class="section-3d-canvas"></canvas>
+  <div class="about-geo-readout hud-card bracket" aria-live="polite">
+    <div class="about-geo-title">VN GEO TRACKER</div>
+    <div id="about-location-status" class="about-geo-status">GPS: WAITING</div>
+    <div id="about-location-coords" class="about-geo-coords">LAT 10.8499 · LON 106.7549</div>
+  </div>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="about_label">01 — ABOUT</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="about_title">Who I am</h2></div>
     <div class="grid md:grid-cols-2 gap-12">
@@ -427,6 +448,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
       </div>
       <ul class="space-y-3 reveal">
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="map-pin" class="icon-glow" style="width:16px;height:16px;color:#ff6b6b;"></i></span><span data-i18n="about_address">11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City</span></li>
+        <li id="about-location-trigger" class="gps-trigger flex items-center gap-3 text-sm" style="color:#4a6678;" role="button" tabindex="0" aria-label="Launch GPS finder spaceship"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="crosshair" class="icon-glow" style="width:16px;height:16px;color:#22d3ee;"></i></span><span id="about-live-location" data-i18n="about_tracking" aria-live="polite">GPS tracking on Vietnam map · waiting for permission</span></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="calendar" class="icon-glow" style="width:16px;height:16px;color:#fbbf24;"></i></span><span data-i18n="about_born">Born 28 January 2002</span></li>
         <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="mail" class="icon-glow" style="width:16px;height:16px;color:#22d3ee;"></i></span><a href="mailto:manhhung.dvh@gmail.com" class="text-st hover:text-si hover:underline transition-colors">manhhung.dvh@gmail.com</a></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="smartphone" class="icon-glow" style="width:16px;height:16px;color:#4ade80;"></i></span>034 256 8696</li>
@@ -687,6 +709,7 @@ const T = {
     about_p2:'Core stack: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Experienced in building RESTful APIs, AI-powered platforms, distributed systems, and cloud-native architectures.',
     about_p3:'From scalable web systems to multi-agent AI — I ship full-stack systems that <span style="color:#8aa8c0;font-weight:600;">real users depend on</span>.',
     about_address:'11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City',
+    about_tracking:'GPS tracker on rotating Earth · click to launch finder ship',
     about_born:'Born 28 January 2002',
     about_lang:'Vietnamese (Native) · English (Intermediate)',
     skills_label:'02 — SKILLS', skills_title:'Technical Stack',
@@ -747,6 +770,7 @@ const T = {
     about_p2:'Tech stack chính: <span class="text-st font-mono">Laravel</span> · <span class="text-st font-mono">NestJS</span> · <span class="text-st font-mono">Node.js</span> · <span class="text-st font-mono">AWS</span>. Có kinh nghiệm xây dựng RESTful APIs, nền tảng AI, hệ thống phân tán và kiến trúc cloud-native.',
     about_p3:'Từ hệ thống web có khả năng mở rộng đến AI đa tác nhân — tôi xây dựng các hệ thống full-stack mà <span style="color:#8aa8c0;font-weight:600;">người dùng thực sự phụ thuộc vào</span>.',
     about_address:'Đường 11, Phường Tam Bình, TP. Thủ Đức, TP. Hồ Chí Minh',
+    about_tracking:'Định vị GPS trên quả địa cầu · bấm để phóng phi thuyền tìm tôi',
     about_born:'Sinh ngày 28 tháng 01 năm 2002',
     about_lang:'Tiếng Việt (Bản ngữ) · Tiếng Anh (Trung cấp)',
     skills_label:'02 — KỸ NĂNG', skills_title:'Kỹ Năng Kỹ Thuật',

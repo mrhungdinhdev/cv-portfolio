@@ -24,153 +24,1129 @@
   }
 
   /* ────────────────────────────────────────────────────────────
-     A. ABOUT — 3D Earth Globe with HCM pin
-     Ý nghĩa: Thể hiện vị trí địa lý, bản sắc cá nhân
+     A. ABOUT — Rotating Earth with Vietnam GPS finder
+     Ý nghĩa: Trái đất xoay, Việt Nam nổi bật, phi thuyền tìm GPS
      Vị trí: Lệch phải để cân đối với text bên trái
      ──────────────────────────────────────────────────────────── */
   (function() {
     const ctx = makeCtx('about-3d');
     if (!ctx) return;
+
     const scene = new THREE.Scene();
     const cam = new THREE.PerspectiveCamera(45, ctx.w / ctx.h, 0.1, 100);
-    cam.position.set(3, 0.5, 6);
-    window.addEventListener('resize', () => { const s = ctx.resize(); cam.aspect = s.w / s.h; cam.updateProjectionMatrix(); });
+    cam.position.set(2.0, 0.55, 6.9);
 
-    // Ambient + directional light for realism
-    scene.add(new THREE.AmbientLight(0x1a2a3a, 0.8));
-    const dLight = new THREE.DirectionalLight(0xc8d6e5, 1.2);
-    dLight.position.set(5, 3, 5); scene.add(dLight);
+    scene.add(new THREE.AmbientLight(0x112334, 0.9));
+    const key = new THREE.DirectionalLight(0xc8d6e5, 1.2);
+    key.position.set(5, 3.5, 4.5);
+    scene.add(key);
+    const rim = new THREE.PointLight(0x22d3ee, 1.5, 14);
+    rim.position.set(-2, -2, 5);
+    scene.add(rim);
 
-    // Earth sphere
-    const earthGeo = new THREE.SphereGeometry(1.8, 48, 48);
-    const earthMat = new THREE.MeshPhongMaterial({
-      color: 0x0a1828, emissive: 0x050d15, shininess: 60, specular: 0x3a5a7a,
-      transparent: true, opacity: 0.9
-    });
-    const earth = new THREE.Mesh(earthGeo, earthMat);
-    earth.position.set(3, 0, 0);
-    scene.add(earth);
+    const readout = {
+      panel: document.querySelector('.about-geo-readout'),
+      status: document.getElementById('about-location-status'),
+      coords: document.getElementById('about-location-coords'),
+      inline: document.getElementById('about-live-location'),
+      trigger: document.getElementById('about-location-trigger'),
+    };
+    if (readout.inline) readout.inline.removeAttribute('data-i18n');
 
-    // Wireframe grid overlay (giống lưới kinh/vĩ tuyến)
-    const wireEarth = new THREE.Mesh(
-      new THREE.SphereGeometry(1.82, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0x7fa8c9, wireframe: true, transparent: true, opacity: 0.08 })
+    const DEG = Math.PI / 180;
+    const GEOJSON_URL = 'https://raw.githubusercontent.com/AshKyd/geojson-regions/main/public/countries/50m/VNM.geojson';
+    const VN_BOUNDS = { latMin: 6.0, latMax: 23.65, lonMin: 102.0, lonMax: 116.8 };
+    const HOME = { lat: 10.8499, lon: 106.7549, accuracy: null };
+    const EARTH_R = 1.72;
+    const SURFACE_R = 1.755;
+    const MARKER_R = 2.02;
+    const ORBIT_R = 3.55;
+    const VN_DISPLAY_CENTER = {
+      lat: (VN_BOUNDS.latMin + VN_BOUNDS.latMax) / 2,
+      lon: (VN_BOUNDS.lonMin + VN_BOUNDS.lonMax) / 2,
+    };
+    const VN_MAP_MAGNIFY = 3.15;
+    const FALLBACK_VIETNAM_POLYGONS = [
+      [mainFallbackRing()],
+      [makeRing(103.96, 10.22, 0.18, 0.26, 18)],
+      [makeRing(106.61, 8.70, 0.08, 0.08, 12)],
+      [makeRing(107.05, 10.38, 0.09, 0.07, 12)],
+      [makeRing(107.48, 20.9, 0.09, 0.07, 12)],
+      [makeRing(106.8, 20.84, 0.06, 0.05, 10)],
+    ];
+
+    const globeGroup = new THREE.Group();
+    globeGroup.position.set(2.48, -0.02, 0);
+    scene.add(globeGroup);
+
+    const earthRoot = new THREE.Group();
+    globeGroup.add(earthRoot);
+
+    const earth = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_R, 64, 64),
+      new THREE.MeshPhongMaterial({
+        color: 0x071522,
+        emissive: 0x03080f,
+        shininess: 90,
+        specular: 0x2f5b7a,
+        transparent: true,
+        opacity: 0.94,
+      })
     );
-    wireEarth.position.copy(earth.position);
-    scene.add(wireEarth);
+    earthRoot.add(earth);
 
-    // Atmosphere glow
-    const atm = new THREE.Mesh(
-      new THREE.SphereGeometry(2.0, 32, 32),
-      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.04, side: THREE.BackSide })
+    const wire = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_R + 0.012, 28, 28),
+      new THREE.MeshBasicMaterial({ color: 0x7fa8c9, wireframe: true, transparent: true, opacity: 0.085 })
     );
-    atm.position.copy(earth.position);
-    scene.add(atm);
+    earthRoot.add(wire);
 
-    // Meridian rings (kinh tuyến)
-    for (let i = 0; i < 3; i++) {
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(1.85, 0.005, 4, 80),
-        new THREE.MeshBasicMaterial({ color: 0x7fa8c9, transparent: true, opacity: 0.12 })
-      );
-      ring.position.copy(earth.position);
-      ring.rotation.y = (Math.PI / 3) * i;
-      scene.add(ring);
+    const atmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_R + 0.28, 40, 40),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.045, side: THREE.BackSide })
+    );
+    globeGroup.add(atmosphere);
+
+    const orbitRingMat = new THREE.MeshBasicMaterial({ color: 0xa8d8ea, transparent: true, opacity: 0.18, depthWrite: false });
+    const orbitRingA = new THREE.Mesh(new THREE.TorusGeometry(2.15, 0.008, 5, 120), orbitRingMat.clone());
+    orbitRingA.rotation.x = Math.PI * 0.58;
+    const orbitRingB = new THREE.Mesh(new THREE.TorusGeometry(2.48, 0.006, 5, 120), orbitRingMat.clone());
+    orbitRingB.rotation.x = Math.PI * 0.2;
+    orbitRingB.rotation.y = Math.PI * 0.35;
+    globeGroup.add(orbitRingA, orbitRingB);
+
+    const vnLayer = new THREE.Group();
+    const cityLayer = new THREE.Group();
+    const markerGroup = new THREE.Group();
+    earthRoot.add(vnLayer, cityLayer, markerGroup);
+
+    const ship = createFinderShip();
+    const trailGeo = new THREE.BufferGeometry();
+    const trailPos = new Float32Array(8 * 3);
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
+    const shipTrail = new THREE.Line(
+      trailGeo,
+      new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    );
+    earthRoot.add(shipTrail, ship);
+
+    let latestMode = 'waiting';
+    let latestLocation = HOME;
+    let countryLayer = null;
+    let finderMessageUntil = 0;
+    const markerTarget = geoToDisplayVector(HOME.lat, HOME.lon, MARKER_R, true);
+    const markerNormal = markerTarget.clone().normalize();
+    const trailPoints = [];
+    const shipState = {
+      active: false,
+      arrived: false,
+      progress: 0,
+      start: new THREE.Vector3(),
+      control: new THREE.Vector3(),
+      target: new THREE.Vector3(),
+      holdUntil: 0,
+    };
+
+    buildVietnamLayer(FALLBACK_VIETNAM_POLYGONS);
+    loadDetailedVietnamMap();
+    addCityPins();
+    addIslandClusters();
+    buildMarker();
+    updateReadout('waiting', HOME);
+    startLocationTracking();
+    bindFinderTrigger();
+
+    const langObserver = new MutationObserver(() => updateReadout(latestMode, latestLocation));
+    langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
     }
-    // Equator ring
-    const eqRing = new THREE.Mesh(
-      new THREE.TorusGeometry(1.85, 0.008, 4, 80),
-      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.2 })
-    );
-    eqRing.position.copy(earth.position);
-    eqRing.rotation.x = Math.PI / 2;
-    scene.add(eqRing);
 
-    // HCM City pin (lat:10.8N, lon:106.7E)
-    const latRad = (10.8 * Math.PI) / 180;
-    const lonRad = (106.7 * Math.PI) / 180;
-    const pinR = 1.84;
-    const pinPos = new THREE.Vector3(
-      pinR * Math.cos(latRad) * Math.cos(lonRad),
-      pinR * Math.sin(latRad),
-      pinR * Math.cos(latRad) * Math.sin(lonRad)
-    );
+    function isOnVietnamMap(lat, lon) {
+      return lat >= VN_BOUNDS.latMin && lat <= VN_BOUNDS.latMax && lon >= VN_BOUNDS.lonMin && lon <= VN_BOUNDS.lonMax;
+    }
 
-    // Glowing pin
-    const pin = new THREE.Mesh(
-      new THREE.SphereGeometry(0.06, 12, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff6b6b })
-    );
-    const pinGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.12, 12, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.3 })
-    );
+    function latLonToVector(lat, lon, radius) {
+      const latRad = lat * DEG;
+      const lonRad = lon * DEG;
+      // Flip the horizontal axis so east/west read correctly from the camera-facing globe.
+      return new THREE.Vector3(
+        -radius * Math.cos(latRad) * Math.cos(lonRad),
+        radius * Math.sin(latRad),
+        radius * Math.cos(latRad) * Math.sin(lonRad)
+      );
+    }
 
-    const pinGroup = new THREE.Group();
-    pinGroup.add(pin); pinGroup.add(pinGlow);
-    earth.add(pinGroup);
-    pinGroup.position.copy(pinPos);
+    function displayGeo(lat, lon, force) {
+      if (!force && !isOnVietnamMap(lat, lon)) return { lat, lon };
+      return {
+        lat: clamp(VN_DISPLAY_CENTER.lat + (lat - VN_DISPLAY_CENTER.lat) * VN_MAP_MAGNIFY, -70, 70),
+        lon: VN_DISPLAY_CENTER.lon + (lon - VN_DISPLAY_CENTER.lon) * VN_MAP_MAGNIFY,
+      };
+    }
 
-    // Pulse rings from pin
+    function geoToDisplayVector(lat, lon, radius, force) {
+      const geo = displayGeo(lat, lon, force);
+      return latLonToVector(geo.lat, geo.lon, radius);
+    }
+
+    function orientSurfaceGroup(group, normal) {
+      group.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1),
+        normal.clone().normalize()
+      ));
+    }
+
+    function makeRing(lon, lat, rx, ry, steps) {
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = (i / steps) * Math.PI * 2;
+        pts.push([lon + Math.cos(a) * rx, lat + Math.sin(a) * ry]);
+      }
+      return pts;
+    }
+
+    function toPolygons(data) {
+      const geom = data && data.type === 'Feature' ? data.geometry : data;
+      if (!geom) return FALLBACK_VIETNAM_POLYGONS;
+      if (geom.type === 'Polygon') return [geom.coordinates];
+      if (geom.type === 'MultiPolygon') return geom.coordinates;
+      return FALLBACK_VIETNAM_POLYGONS;
+    }
+
+    function disposeObject(obj) {
+      obj.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      });
+    }
+
+    function buildVietnamLayer(polygons) {
+      if (countryLayer) {
+        vnLayer.remove(countryLayer);
+        disposeObject(countryLayer);
+      }
+
+      countryLayer = new THREE.Group();
+      const outlineMat = new THREE.LineBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.9, depthWrite: false });
+      const glowMat = new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.38, depthWrite: false });
+      const coastDots = [];
+
+      polygons.forEach(poly => {
+        const outer = poly && poly[0];
+        if (!outer || outer.length < 4) return;
+        const pts = outer.map(([lon, lat]) => geoToDisplayVector(lat, lon, SURFACE_R, true));
+        const glowPts = outer.map(([lon, lat]) => geoToDisplayVector(lat, lon, SURFACE_R + 0.034, true));
+        countryLayer.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), outlineMat.clone()));
+        countryLayer.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(glowPts), glowMat.clone()));
+        outer.forEach(([lon, lat], i) => {
+          if (i % 3 === 0) coastDots.push(geoToDisplayVector(lat, lon, SURFACE_R + 0.05, true));
+        });
+      });
+
+      const fillPts = sampleVietnamPoints(polygons);
+      if (fillPts.length) {
+        countryLayer.add(new THREE.Points(
+          new THREE.BufferGeometry().setFromPoints(fillPts),
+          new THREE.PointsMaterial({ color: 0xff6b6b, size: 0.062, transparent: true, opacity: 0.68, depthWrite: false })
+        ));
+      }
+
+      if (coastDots.length) {
+        countryLayer.add(new THREE.Points(
+          new THREE.BufferGeometry().setFromPoints(coastDots),
+          new THREE.PointsMaterial({ color: 0xc8d6e5, size: 0.038, transparent: true, opacity: 0.78, depthWrite: false })
+        ));
+      }
+
+      vnLayer.add(countryLayer);
+    }
+
+    function sampleVietnamPoints(polygons) {
+      const pts = [];
+      polygons.forEach(poly => {
+        const ring = poly && poly[0];
+        if (!ring || ring.length < 4) return;
+        let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+        ring.forEach(([lon, lat]) => {
+          minLon = Math.min(minLon, lon);
+          maxLon = Math.max(maxLon, lon);
+          minLat = Math.min(minLat, lat);
+          maxLat = Math.max(maxLat, lat);
+        });
+        if ((maxLon - minLon) * (maxLat - minLat) < 0.1) return;
+        for (let lat = minLat; lat <= maxLat; lat += 0.5) {
+          for (let lon = minLon; lon <= maxLon; lon += 0.5) {
+            if (pointInRing(lon, lat, ring)) pts.push(geoToDisplayVector(lat, lon, SURFACE_R + 0.065, true));
+          }
+        }
+      });
+      return pts;
+    }
+
+    function pointInRing(lon, lat, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        const intersect = ((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi || 1e-9) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function loadDetailedVietnamMap() {
+      if (!window.fetch) return;
+      fetch(GEOJSON_URL)
+        .then(res => {
+          if (!res.ok) throw new Error('map request failed');
+          return res.json();
+        })
+        .then(data => buildVietnamLayer(toPolygons(data)))
+        .catch(() => {});
+    }
+
+    function addCityPins() {
+      [
+        { name: 'HA NOI', lat: 21.0278, lon: 105.8342, color: '#c8d6e5' },
+        { name: 'DA NANG', lat: 16.0471, lon: 108.2068, color: '#a8d8ea' },
+        { name: 'HCM', lat: HOME.lat, lon: HOME.lon, color: '#ff8a8a' },
+      ].forEach(city => {
+        const normal = geoToDisplayVector(city.lat, city.lon, 1, true).normalize();
+        const pin = new THREE.Mesh(
+          new THREE.SphereGeometry(0.05, 14, 14),
+          new THREE.MeshBasicMaterial({ color: city.color === '#ff8a8a' ? 0xff6b6b : 0xc8d6e5, transparent: true, opacity: 0.78, depthWrite: false })
+        );
+        pin.position.copy(normal.clone().multiplyScalar(SURFACE_R + 0.1));
+        const label = makeSpriteLabel(city.name, city.color);
+        label.position.copy(normal.clone().multiplyScalar(SURFACE_R + 0.46));
+        label.scale.set(0.5, 0.14, 1);
+        cityLayer.add(pin, label);
+      });
+    }
+
+    function addIslandClusters() {
+      [
+        { name: 'HOANG SA', label: [16.55, 112.25], dots: [[16.5, 111.65], [16.85, 112.25], [16.25, 112.75], [15.95, 113.08], [15.75, 111.95]] },
+        { name: 'TRUONG SA', label: [9.65, 114.2], dots: [[7.85, 112.75], [8.65, 113.55], [9.85, 114.25], [10.15, 115.25], [11.25, 116.05], [11.55, 114.85]] },
+      ].forEach(cluster => {
+        cluster.dots.forEach(([lat, lon]) => {
+          const dot = new THREE.Mesh(
+            new THREE.SphereGeometry(0.038, 10, 10),
+            new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.65, depthWrite: false })
+          );
+          dot.position.copy(geoToDisplayVector(lat, lon, SURFACE_R + 0.11, true));
+          cityLayer.add(dot);
+        });
+        const label = makeSpriteLabel(cluster.name, '#a8d8ea');
+        label.position.copy(geoToDisplayVector(cluster.label[0], cluster.label[1], SURFACE_R + 0.62, true));
+        label.scale.set(0.78, 0.18, 1);
+        cityLayer.add(label);
+      });
+    }
+
+    function makeSpriteLabel(text, color) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const x = c.getContext('2d');
+      x.clearRect(0, 0, c.width, c.height);
+      x.font = '700 24px Courier New, monospace';
+      x.textBaseline = 'middle';
+      x.fillStyle = 'rgba(5,10,18,0.55)';
+      x.fillRect(0, 13, c.width, 38);
+      x.fillStyle = color;
+      x.fillText(text, 12, 34);
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter;
+      return new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.82 }));
+    }
+
+    function buildMarker() {
+      const markerDot = new THREE.Mesh(
+        new THREE.SphereGeometry(0.09, 18, 18),
+        new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.96, depthWrite: false })
+      );
+      markerDot.userData.kind = 'dot';
+      const markerGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 18, 18),
+        new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.18, depthWrite: false })
+      );
+      markerGlow.userData.kind = 'glow';
+      const beam = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.075, 0.9, 14, 1, true),
+        new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.18, depthWrite: false })
+      );
+      beam.rotation.x = Math.PI / 2;
+      beam.position.z = 0.45;
+      markerGroup.add(markerGlow, markerDot, beam);
+
+      for (let i = 0; i < 3; i++) {
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.18 + i * 0.12, 0.188 + i * 0.12, 52),
+          new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.34, side: THREE.DoubleSide, depthWrite: false })
+        );
+        ring._i = i;
+        markerGroup.add(ring);
+      }
+      setMarkerLocation(HOME, 'home');
+    }
+
+    function setMarkerLocation(loc, mode) {
+      markerTarget.copy(geoToDisplayVector(loc.lat, loc.lon, MARKER_R, mode !== 'outside'));
+      markerNormal.copy(markerTarget).normalize();
+      markerGroup.position.copy(markerTarget);
+      orientSurfaceGroup(markerGroup, markerNormal);
+      const color = mode === 'outside' ? 0xfbbf24 : 0xff6b6b;
+      markerGroup.traverse(child => {
+        if (child.material && child.material.color) child.material.color.set(color);
+      });
+    }
+
+    function createFinderShip() {
+      const group = new THREE.Group();
+      group.visible = false;
+      const metal = new THREE.MeshBasicMaterial({ color: 0xc8d6e5, transparent: true, opacity: 0.92, wireframe: true, depthWrite: false });
+      const glow = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.82, depthWrite: false });
+      const body = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.64, 4), metal);
+      body.rotation.x = Math.PI / 2;
+      const cabin = new THREE.Mesh(new THREE.SphereGeometry(0.095, 12, 12), glow);
+      cabin.position.z = -0.1;
+      const aura = new THREE.Mesh(
+        new THREE.SphereGeometry(0.26, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.12, depthWrite: false })
+      );
+      const wingGeo = new THREE.BoxGeometry(0.62, 0.045, 0.16);
+      const wing = new THREE.Mesh(wingGeo, metal.clone());
+      wing.position.z = -0.14;
+      const engine = new THREE.Mesh(new THREE.ConeGeometry(0.078, 0.28, 12), glow.clone());
+      engine.rotation.x = -Math.PI / 2;
+      engine.position.z = -0.44;
+      group.add(aura, body, cabin, wing, engine);
+      group.scale.setScalar(2.05);
+      return group;
+    }
+
+    function launchFinder() {
+      const vi = document.documentElement.lang === 'vi';
+      const markerN = markerTarget.clone().normalize();
+      const startN = markerN.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), -1.35).add(new THREE.Vector3(0, 0.28, 0)).normalize();
+      shipState.start.copy(startN.multiplyScalar(ORBIT_R));
+      shipState.target.copy(markerN.multiplyScalar(MARKER_R + 0.68));
+      shipState.control.copy(shipState.start).add(shipState.target).multiplyScalar(0.5).normalize().multiplyScalar(ORBIT_R + 0.8);
+      shipState.progress = 0;
+      shipState.active = true;
+      shipState.arrived = false;
+      shipState.holdUntil = 0;
+      trailPoints.length = 0;
+      ship.position.copy(shipState.start);
+      ship.visible = true;
+      shipTrail.material.opacity = 0.78;
+      finderMessageUntil = performance.now() + 2200;
+      if (readout.status) readout.status.textContent = vi ? 'FINDER: DANG BAY' : 'FINDER: LAUNCHED';
+    }
+
+    function bindFinderTrigger() {
+      const targets = [readout.trigger, readout.panel].filter(Boolean);
+      targets.forEach(el => {
+        el.addEventListener('click', launchFinder);
+        el.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            launchFinder();
+          }
+        });
+      });
+      if (readout.trigger) {
+        readout.trigger.setAttribute('title', 'Click to launch GPS finder spaceship');
+      }
+    }
+
+    function updateReadout(mode, loc) {
+      latestMode = mode;
+      latestLocation = loc;
+      const vi = document.documentElement.lang === 'vi';
+      const accuracy = loc.accuracy ? ' · +/-' + Math.round(loc.accuracy) + 'M' : '';
+      const coordText = 'LAT ' + loc.lat.toFixed(4) + ' · LON ' + loc.lon.toFixed(4) + accuracy;
+      const statusText = {
+        waiting: vi ? 'GPS: DANG CHO QUYEN' : 'GPS: WAITING',
+        home: vi ? 'GPS: GHIM VI TRI NHA' : 'GPS: HOME PIN',
+        live: vi ? 'GPS: DANG THEO DOI' : 'GPS: LIVE TRACKING',
+        outside: vi ? 'GPS: NGOAI VIET NAM' : 'GPS: OUTSIDE VIETNAM',
+        denied: vi ? 'GPS: BI TU CHOI' : 'GPS: PERMISSION DENIED',
+        unavailable: vi ? 'GPS: KHONG KHA DUNG' : 'GPS: UNAVAILABLE',
+      }[mode] || (vi ? 'GPS: GHIM VI TRI NHA' : 'GPS: HOME PIN');
+      const hint = vi ? ' · bấm để phóng phi thuyền tìm tôi' : ' · click to launch finder ship';
+      const inlineText = {
+        waiting: vi ? 'Định vị GPS trên quả địa cầu · đang chờ quyền truy cập' : 'GPS tracker on rotating Earth · waiting for permission',
+        home: vi ? 'Đang ghim Thủ Đức / TP.HCM trên quả địa cầu' + hint : 'Showing Thu Duc / HCMC on Earth' + hint,
+        live: vi ? 'Live GPS marker trên Việt Nam · ' + coordText + hint : 'Live GPS marker on Vietnam map · ' + coordText + hint,
+        outside: vi ? 'GPS nằm ngoài Việt Nam · ' + coordText + hint : 'GPS is outside Vietnam · ' + coordText + hint,
+        denied: vi ? 'Bạn chưa cấp quyền định vị · đang ghim Thủ Đức / TP.HCM' + hint : 'Location permission denied · showing Thu Duc / HCMC' + hint,
+        unavailable: vi ? 'Trình duyệt không hỗ trợ định vị · đang ghim Thủ Đức / TP.HCM' + hint : 'Geolocation unavailable · showing Thu Duc / HCMC' + hint,
+      }[mode] || '';
+
+      if (readout.status && performance.now() > finderMessageUntil) readout.status.textContent = statusText;
+      if (readout.coords) readout.coords.textContent = coordText;
+      if (readout.inline) readout.inline.textContent = inlineText;
+    }
+
+    function startLocationTracking() {
+      setMarkerLocation(HOME, 'home');
+      if (!navigator.geolocation) {
+        updateReadout('unavailable', HOME);
+        return;
+      }
+      let hasFix = false;
+      try {
+        navigator.geolocation.watchPosition(
+          pos => {
+            hasFix = true;
+            const loc = {
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+              accuracy: pos.coords.accuracy || null,
+            };
+            const mode = isOnVietnamMap(loc.lat, loc.lon) ? 'live' : 'outside';
+            setMarkerLocation(loc, mode);
+            updateReadout(mode, loc);
+          },
+          err => {
+            if (hasFix) return;
+            updateReadout(err.code === 1 ? 'denied' : 'unavailable', HOME);
+          },
+          { enableHighAccuracy: true, maximumAge: 15000, timeout: 12000 }
+        );
+      } catch (err) {
+        updateReadout('unavailable', HOME);
+      }
+    }
+
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
+    }
+
+    function bezier(a, b, c, t) {
+      const ab = a.clone().lerp(b, t);
+      const bc = b.clone().lerp(c, t);
+      return ab.lerp(bc, t);
+    }
+
+    function updateShip(dt, now) {
+      if (!shipState.active && !shipState.arrived) return;
+
+      if (shipState.active) {
+        shipState.progress = Math.min(1, shipState.progress + dt / 2.35);
+        const eased = easeOutCubic(shipState.progress);
+        const pos = bezier(shipState.start, shipState.control, shipState.target, eased);
+        const future = bezier(shipState.start, shipState.control, shipState.target, Math.min(1, eased + 0.025));
+        ship.position.copy(pos);
+        ship.lookAt(future);
+        trailPoints.unshift(pos.clone());
+        if (trailPoints.length > 8) trailPoints.pop();
+
+        if (shipState.progress >= 1) {
+          const vi = document.documentElement.lang === 'vi';
+          shipState.active = false;
+          shipState.arrived = true;
+          shipState.holdUntil = now + 3.0;
+          finderMessageUntil = performance.now() + 2800;
+          if (readout.status) readout.status.textContent = vi ? 'FINDER: DA TIM THAY' : 'FINDER: TARGET LOCKED';
+        }
+      } else if (now > shipState.holdUntil) {
+        ship.visible = false;
+        shipState.arrived = false;
+      }
+
+      for (let i = 0; i < 8; i++) {
+        const p = trailPoints[i] || ship.position;
+        trailPos[i * 3] = p.x;
+        trailPos[i * 3 + 1] = p.y;
+        trailPos[i * 3 + 2] = p.z;
+      }
+      trailGeo.attributes.position.needsUpdate = true;
+      shipTrail.material.opacity += (((shipState.active || shipState.arrived) ? 0.78 : 0) - shipTrail.material.opacity) * 0.08;
+    }
+
+    function layout() {
+      const s = ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+      if (s.w < 768) {
+        cam.position.set(0.1, 0.35, 9.35);
+        globeGroup.position.set(1.05, -0.75, 0);
+        globeGroup.scale.setScalar(0.52);
+      } else {
+        cam.position.set(2.0, 0.55, 7.15);
+        globeGroup.position.set(2.72, -0.02, 0);
+        globeGroup.scale.setScalar(0.96);
+      }
+    }
+    window.addEventListener('resize', layout);
+    layout();
+
+    let prev = 0;
+    const clk = new THREE.Clock();
+    (function tick() {
+      requestAnimationFrame(tick);
+      const t = clk.getElapsedTime();
+      const dt = prev ? t - prev : 0.016;
+      prev = t;
+
+      earthRoot.rotation.y = t * 0.085 + gmx * 0.12;
+      earthRoot.rotation.x += (gmy * 0.08 - earthRoot.rotation.x) * 0.035;
+      wire.rotation.y = -t * 0.035;
+      atmosphere.rotation.y = t * 0.025;
+      orbitRingA.rotation.z = t * 0.08;
+      orbitRingB.rotation.z = -t * 0.055;
+
+      markerGroup.position.lerp(markerTarget, 0.08);
+      orientSurfaceGroup(markerGroup, markerGroup.position.clone().normalize());
+      markerGroup.children.forEach(child => {
+        if (child.geometry && child.geometry.type === 'RingGeometry') {
+          const phase = (t * 1.4 + child._i * 0.72) % 2.8;
+          child.scale.setScalar(1 + phase * 0.85);
+          child.material.opacity = Math.max(0, 0.38 - phase * 0.12);
+        } else if (child.userData.kind === 'glow') {
+          child.material.opacity = 0.18 + Math.sin(t * 3.2) * 0.08;
+        } else if (child.userData.kind === 'dot') {
+          child.material.opacity = 0.96;
+        }
+      });
+
+      updateShip(dt, t);
+      rim.intensity = 1.3 + Math.sin(t * 1.7) * 0.35;
+
+      const mobile = ctx.sec.clientWidth < 768;
+      cam.position.x += ((mobile ? 0.15 : 2.0) + gmx * 0.35 - cam.position.x) * 0.025;
+      cam.position.y += (0.55 - gmy * 0.3 - cam.position.y) * 0.025;
+      cam.lookAt(
+        globeGroup.position.x - (mobile ? 0.95 : 1.15),
+        globeGroup.position.y - 0.02,
+        globeGroup.position.z
+      );
+      ctx.r.render(scene, cam);
+    })();
+
+    function mainFallbackRing() {
+      return [
+        [105.32, 23.35], [104.65, 22.95], [103.88, 22.57], [103.25, 21.78],
+        [102.15, 22.42], [102.82, 21.17], [103.12, 20.25], [104.1, 19.28],
+        [104.62, 18.42], [105.03, 17.78], [105.78, 17.48], [106.55, 16.28],
+        [107.28, 15.34], [107.58, 14.72], [107.44, 14.1], [107.6, 13.5],
+        [107.34, 12.94], [106.95, 12.35], [106.86, 11.7], [106.55, 11.05],
+        [105.95, 10.75], [105.18, 10.7], [104.7, 10.42], [104.48, 9.86],
+        [104.86, 9.25], [105.18, 8.64], [105.75, 8.56], [106.45, 9.05],
+        [106.9, 9.78], [107.18, 10.48], [108.05, 11.1], [108.95, 11.7],
+        [109.4, 12.2], [109.28, 12.92], [109.05, 13.58], [109.25, 14.2],
+        [108.95, 15.0], [108.15, 15.8], [107.6, 16.55], [106.9, 17.1],
+        [106.55, 18.0], [106.25, 18.75], [106.05, 19.45], [106.65, 20.15],
+        [107.15, 20.78], [107.95, 21.42], [108.08, 21.82], [107.3, 21.95],
+        [106.55, 22.5], [105.85, 22.75], [105.32, 23.35],
+      ];
+    }
+  })();
+
+  /* ────────────────────────────────────────────────────────────
+     A. ABOUT — Legacy flat Vietnam map disabled
+     Ý nghĩa: Thể hiện vị trí địa lý, bản sắc Việt Nam, live GPS
+     Vị trí: Lệch phải để cân đối với text bên trái
+     ──────────────────────────────────────────────────────────── */
+  (function() {
+    return;
+    const ctx = makeCtx('about-3d');
+    if (!ctx) return;
+
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(44, ctx.w / ctx.h, 0.1, 100);
+    cam.position.set(0, 0.25, 8);
+    scene.add(new THREE.AmbientLight(0x0a1828, 1.15));
+
+    const pLight = new THREE.PointLight(0xc8d6e5, 1.7, 18);
+    pLight.position.set(2.8, 2.6, 5);
+    scene.add(pLight);
+
+    const readout = {
+      status: document.getElementById('about-location-status'),
+      coords: document.getElementById('about-location-coords'),
+      inline: document.getElementById('about-live-location'),
+    };
+    if (readout.inline) readout.inline.removeAttribute('data-i18n');
+
+    const DEG = Math.PI / 180;
+    const GEOJSON_URL = 'https://raw.githubusercontent.com/AshKyd/geojson-regions/main/public/countries/50m/VNM.geojson';
+    const VN_BOUNDS = { latMin: 6.0, latMax: 23.65, lonMin: 102.0, lonMax: 116.8 };
+    const VN_CENTER = {
+      lat: (VN_BOUNDS.latMin + VN_BOUNDS.latMax) / 2,
+      lon: (VN_BOUNDS.lonMin + VN_BOUNDS.lonMax) / 2,
+    };
+    const MAP_SCALE = 0.35;
+    const LON_SCALE = Math.cos(VN_CENTER.lat * DEG);
+    const HOME = { lat: 10.8499, lon: 106.7549, accuracy: null };
+    const FALLBACK_VIETNAM_POLYGONS = [
+      [mainFallbackRing()],
+      [makeRing(103.96, 10.22, 0.18, 0.26, 18)],
+      [makeRing(106.61, 8.70, 0.08, 0.08, 12)],
+      [makeRing(107.05, 10.38, 0.09, 0.07, 12)],
+      [makeRing(107.48, 20.9, 0.09, 0.07, 12)],
+      [makeRing(106.8, 20.84, 0.06, 0.05, 10)],
+    ];
+
+    const mapGroup = new THREE.Group();
+    mapGroup.position.set(2.25, -0.1, 0);
+    scene.add(mapGroup);
+
+    const mapRoot = new THREE.Group();
+    mapRoot.rotation.y = -0.24;
+    mapGroup.add(mapRoot);
+
+    const gridGroup = new THREE.Group();
+    const islandGroup = new THREE.Group();
+    const cityGroup = new THREE.Group();
+    const markerGroup = new THREE.Group();
+    mapRoot.add(gridGroup, islandGroup, cityGroup, markerGroup);
+
+    const sw = projectGeo(VN_BOUNDS.latMin, VN_BOUNDS.lonMin, false);
+    const ne = projectGeo(VN_BOUNDS.latMax, VN_BOUNDS.lonMax, false);
+    const panelW = Math.abs(ne.x - sw.x) + 0.52;
+    const panelH = Math.abs(ne.y - sw.y) + 0.5;
+    const panel = new THREE.Mesh(
+      new THREE.PlaneGeometry(panelW, panelH),
+      new THREE.MeshBasicMaterial({ color: 0x07131f, transparent: true, opacity: 0.16, depthWrite: false })
+    );
+    panel.position.z = -0.08;
+    gridGroup.add(panel);
+
+    const gridMat = new THREE.LineBasicMaterial({ color: 0x7fa8c9, transparent: true, opacity: 0.08, depthWrite: false });
+    for (let lat = 8; lat <= 22; lat += 2) {
+      gridGroup.add(makeLine([projectGeo(lat, VN_BOUNDS.lonMin, false), projectGeo(lat, VN_BOUNDS.lonMax, false)], gridMat));
+    }
+    for (let lon = 104; lon <= 116; lon += 2) {
+      gridGroup.add(makeLine([projectGeo(VN_BOUNDS.latMin, lon, false), projectGeo(VN_BOUNDS.latMax, lon, false)], gridMat));
+    }
+
+    const borderMat = new THREE.LineBasicMaterial({ color: 0xc8d6e5, transparent: true, opacity: 0.24, depthWrite: false });
+    const borderPts = [
+      new THREE.Vector3(sw.x - 0.26, sw.y - 0.25, -0.04),
+      new THREE.Vector3(ne.x + 0.26, sw.y - 0.25, -0.04),
+      new THREE.Vector3(ne.x + 0.26, ne.y + 0.25, -0.04),
+      new THREE.Vector3(sw.x - 0.26, ne.y + 0.25, -0.04),
+    ];
+    const border = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(borderPts), borderMat);
+    gridGroup.add(border);
+
+    const scan = new THREE.Mesh(
+      new THREE.PlaneGeometry(panelW, 0.018),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.22, depthWrite: false })
+    );
+    scan.position.z = 0.14;
+    mapRoot.add(scan);
+
+    let countryLayer = null;
+    buildCountryLayer(FALLBACK_VIETNAM_POLYGONS);
+    loadDetailedVietnamMap();
+    addIslandClusters();
+    addCityPins();
+
+    const homePos = projectGeo(HOME.lat, HOME.lon, true);
+    const markerTarget = new THREE.Vector3(homePos.x, homePos.y, 0.22);
+    markerGroup.position.copy(markerTarget);
+
+    const markerDot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.95, depthWrite: false })
+    );
+    const markerGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.16, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.18, depthWrite: false })
+    );
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.055, 0.82, 14, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.18, depthWrite: false })
+    );
+    beam.rotation.x = Math.PI / 2;
+    beam.position.z = 0.38;
+    markerGroup.add(markerGlow, markerDot, beam);
+
     const pulseRings = [];
     for (let i = 0; i < 3; i++) {
-      const pr = new THREE.Mesh(
-        new THREE.TorusGeometry(0.1 + i * 0.12, 0.003, 4, 32),
-        new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.4 })
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.12 + i * 0.07, 0.125 + i * 0.07, 48),
+        new THREE.MeshBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false })
       );
-      pr.position.copy(pinPos);
-      pr.lookAt(0, 0, 0);
-      pr._i = i;
-      earth.add(pr);
-      pulseRings.push(pr);
+      ring._i = i;
+      markerGroup.add(ring);
+      pulseRings.push(ring);
     }
 
-    // Orbiting data points (satellites)
-    const sats = [];
-    for (let i = 0; i < 5; i++) {
-      const s = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.04, 0),
-        new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.6 })
+    const routeGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(homePos.x, homePos.y, 0.11),
+      new THREE.Vector3(homePos.x, homePos.y, 0.11),
+    ]);
+    const routeLine = new THREE.Line(
+      routeGeo,
+      new THREE.LineBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.3, depthWrite: false })
+    );
+    mapRoot.add(routeLine);
+
+    const orbiters = [];
+    for (let i = 0; i < 8; i++) {
+      const orb = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.035 + i * 0.002, 0),
+        new THREE.MeshBasicMaterial({ color: i % 2 ? 0xa8d8ea : 0x22d3ee, transparent: true, opacity: 0.55, depthWrite: false })
       );
-      s._orbit = 2.2 + i * 0.25;
-      s._speed = 0.15 + i * 0.08;
-      s._phase = (Math.PI * 2 / 5) * i;
-      s._tilt = 0.3 + i * 0.15;
-      scene.add(s);
-      sats.push(s);
+      orb._r = 2.65 + (i % 3) * 0.36;
+      orb._speed = 0.16 + i * 0.035;
+      orb._phase = (Math.PI * 2 / 8) * i;
+      mapGroup.add(orb);
+      orbiters.push(orb);
     }
+
+    let latestMode = 'waiting';
+    let latestLocation = HOME;
+    updateReadout('waiting', HOME);
+    startLocationTracking();
+
+    const langObserver = new MutationObserver(() => updateReadout(latestMode, latestLocation));
+    langObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function projectGeo(lat, lon, clampToBounds) {
+      const safeLat = clampToBounds ? clamp(lat, VN_BOUNDS.latMin, VN_BOUNDS.latMax) : lat;
+      const safeLon = clampToBounds ? clamp(lon, VN_BOUNDS.lonMin, VN_BOUNDS.lonMax) : lon;
+      return new THREE.Vector3(
+        (safeLon - VN_CENTER.lon) * LON_SCALE * MAP_SCALE,
+        (safeLat - VN_CENTER.lat) * MAP_SCALE,
+        0
+      );
+    }
+
+    function isOnVietnamMap(lat, lon) {
+      return lat >= VN_BOUNDS.latMin && lat <= VN_BOUNDS.latMax && lon >= VN_BOUNDS.lonMin && lon <= VN_BOUNDS.lonMax;
+    }
+
+    function makeLine(points, material) {
+      return new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), material);
+    }
+
+    function makeRing(lon, lat, rx, ry, steps) {
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = (i / steps) * Math.PI * 2;
+        pts.push([lon + Math.cos(a) * rx, lat + Math.sin(a) * ry]);
+      }
+      return pts;
+    }
+
+    function disposeObject(obj) {
+      obj.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      });
+    }
+
+    function toPolygons(data) {
+      const geom = data && data.type === 'Feature' ? data.geometry : data;
+      if (!geom) return FALLBACK_VIETNAM_POLYGONS;
+      if (geom.type === 'Polygon') return [geom.coordinates];
+      if (geom.type === 'MultiPolygon') return geom.coordinates;
+      return FALLBACK_VIETNAM_POLYGONS;
+    }
+
+    function buildCountryLayer(polygons) {
+      if (countryLayer) {
+        mapRoot.remove(countryLayer);
+        disposeObject(countryLayer);
+      }
+
+      countryLayer = new THREE.Group();
+      const fillMat = new THREE.MeshBasicMaterial({
+        color: 0x123047,
+        transparent: true,
+        opacity: 0.26,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const outlineMat = new THREE.LineBasicMaterial({ color: 0xa8d8ea, transparent: true, opacity: 0.42, depthWrite: false });
+      const glowMat = new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.15, depthWrite: false });
+      const coastPts = [];
+
+      polygons.forEach(poly => {
+        const outer = poly && poly[0];
+        if (!outer || outer.length < 4) return;
+
+        const shape = new THREE.Shape();
+        outer.forEach(([lon, lat], i) => {
+          const p = projectGeo(lat, lon, false);
+          if (i === 0) shape.moveTo(p.x, p.y);
+          else shape.lineTo(p.x, p.y);
+          coastPts.push(new THREE.Vector3(p.x, p.y, 0.08));
+        });
+
+        try {
+          const fill = new THREE.Mesh(new THREE.ShapeGeometry(shape), fillMat.clone());
+          fill.position.z = -0.015;
+          countryLayer.add(fill);
+        } catch (err) {
+          // Keep outline rendering even if a complex polygon cannot be triangulated.
+        }
+
+        const ringPts = outer.map(([lon, lat]) => {
+          const p = projectGeo(lat, lon, false);
+          return new THREE.Vector3(p.x, p.y, 0.08);
+        });
+        countryLayer.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts), outlineMat.clone()));
+        countryLayer.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts), glowMat.clone()));
+      });
+
+      if (coastPts.length) {
+        const dotGeo = new THREE.BufferGeometry().setFromPoints(coastPts.filter((_, i) => i % 5 === 0));
+        countryLayer.add(new THREE.Points(
+          dotGeo,
+          new THREE.PointsMaterial({ color: 0xc8d6e5, size: 0.022, transparent: true, opacity: 0.38, depthWrite: false })
+        ));
+      }
+      mapRoot.add(countryLayer);
+    }
+
+    function loadDetailedVietnamMap() {
+      if (!window.fetch) return;
+      fetch(GEOJSON_URL)
+        .then(res => {
+          if (!res.ok) throw new Error('map request failed');
+          return res.json();
+        })
+        .then(data => buildCountryLayer(toPolygons(data)))
+        .catch(() => {});
+    }
+
+    function addIslandClusters() {
+      const clusters = [
+        {
+          name: 'HOANG SA',
+          labelAt: [112.25, 16.55],
+          dots: [[111.65, 16.5], [112.25, 16.85], [112.75, 16.25], [113.08, 15.95], [111.95, 15.75]],
+        },
+        {
+          name: 'TRUONG SA',
+          labelAt: [114.2, 9.65],
+          dots: [[112.75, 7.85], [113.55, 8.65], [114.25, 9.85], [115.25, 10.15], [116.05, 11.25], [114.85, 11.55]],
+        },
+      ];
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0xa8d8ea, transparent: true, opacity: 0.66, depthWrite: false });
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false });
+
+      clusters.forEach(cluster => {
+        cluster.dots.forEach(([lon, lat]) => {
+          const p = projectGeo(lat, lon, false);
+          const dot = new THREE.Mesh(new THREE.CircleGeometry(0.026, 14), dotMat.clone());
+          const ring = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.059, 24), ringMat.clone());
+          dot.position.set(p.x, p.y, 0.13);
+          ring.position.set(p.x, p.y, 0.12);
+          islandGroup.add(dot, ring);
+        });
+        const labelPos = projectGeo(cluster.labelAt[1], cluster.labelAt[0], false);
+        const label = makeSpriteLabel(cluster.name, '#a8d8ea');
+        label.position.set(labelPos.x + 0.35, labelPos.y, 0.2);
+        label.scale.set(0.7, 0.18, 1);
+        islandGroup.add(label);
+      });
+    }
+
+    function addCityPins() {
+      const cities = [
+        { name: 'HA NOI', lat: 21.0278, lon: 105.8342 },
+        { name: 'DA NANG', lat: 16.0471, lon: 108.2068 },
+        { name: 'HCM', lat: 10.8499, lon: 106.7549 },
+      ];
+      cities.forEach(city => {
+        const p = projectGeo(city.lat, city.lon, true);
+        const dot = new THREE.Mesh(
+          new THREE.CircleGeometry(0.034, 18),
+          new THREE.MeshBasicMaterial({ color: city.name === 'HCM' ? 0xff6b6b : 0xc8d6e5, transparent: true, opacity: 0.7, depthWrite: false })
+        );
+        dot.position.set(p.x, p.y, 0.16);
+        const label = makeSpriteLabel(city.name, city.name === 'HCM' ? '#ff8a8a' : '#c8d6e5');
+        label.position.set(p.x + 0.22, p.y + 0.05, 0.2);
+        label.scale.set(0.42, 0.12, 1);
+        cityGroup.add(dot, label);
+      });
+    }
+
+    function makeSpriteLabel(text, color) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const x = c.getContext('2d');
+      x.clearRect(0, 0, c.width, c.height);
+      x.font = '700 24px Courier New, monospace';
+      x.textBaseline = 'middle';
+      x.fillStyle = 'rgba(5,10,18,0.55)';
+      x.fillRect(0, 13, c.width, 38);
+      x.fillStyle = color;
+      x.fillText(text, 12, 34);
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter;
+      return new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.82, depthWrite: false }));
+    }
+
+    function setMarkerLocation(loc, mode) {
+      const p = projectGeo(loc.lat, loc.lon, true);
+      markerTarget.set(p.x, p.y, 0.22);
+      markerDot.material.color.set(mode === 'outside' ? 0xfbbf24 : 0xff6b6b);
+      markerGlow.material.color.set(mode === 'outside' ? 0xfbbf24 : 0xff6b6b);
+      beam.material.color.set(mode === 'outside' ? 0xfbbf24 : 0xff6b6b);
+      pulseRings.forEach(r => r.material.color.set(mode === 'outside' ? 0xfbbf24 : 0xff6b6b));
+    }
+
+    function updateReadout(mode, loc) {
+      latestMode = mode;
+      latestLocation = loc;
+      const vi = document.documentElement.lang === 'vi';
+      const accuracy = loc.accuracy ? ' · +/-' + Math.round(loc.accuracy) + 'M' : '';
+      const coordText = 'LAT ' + loc.lat.toFixed(4) + ' · LON ' + loc.lon.toFixed(4) + accuracy;
+      const statusText = {
+        waiting: vi ? 'GPS: DANG CHO QUYEN' : 'GPS: WAITING',
+        home: vi ? 'GPS: GHIM VI TRI NHA' : 'GPS: HOME PIN',
+        live: vi ? 'GPS: DANG THEO DOI' : 'GPS: LIVE TRACKING',
+        outside: vi ? 'GPS: NGOAI KHUNG VN' : 'GPS: OUTSIDE VN VIEW',
+        denied: vi ? 'GPS: BI TU CHOI' : 'GPS: PERMISSION DENIED',
+        unavailable: vi ? 'GPS: KHONG KHA DUNG' : 'GPS: UNAVAILABLE',
+      }[mode] || (vi ? 'GPS: GHIM VI TRI NHA' : 'GPS: HOME PIN');
+      const inlineText = {
+        waiting: vi ? 'Định vị GPS trên bản đồ Việt Nam · đang chờ quyền truy cập' : 'GPS tracking on Vietnam map · waiting for permission',
+        home: vi ? 'Đang hiển thị vị trí Thủ Đức / TP.HCM trên bản đồ Việt Nam' : 'Showing Thu Duc / HCMC pin on Vietnam map',
+        live: vi ? 'Đang theo dõi vị trí thật trên bản đồ Việt Nam · ' + coordText : 'Live GPS marker on Vietnam map · ' + coordText,
+        outside: vi ? 'Đã nhận GPS nhưng vị trí nằm ngoài khung bản đồ Việt Nam' : 'GPS received, location is outside the Vietnam map frame',
+        denied: vi ? 'Bạn chưa cấp quyền định vị · đang ghim Thủ Đức / TP.HCM' : 'Location permission denied · showing Thu Duc / HCMC pin',
+        unavailable: vi ? 'Trình duyệt không hỗ trợ định vị · đang ghim Thủ Đức / TP.HCM' : 'Geolocation unavailable · showing Thu Duc / HCMC pin',
+      }[mode] || '';
+
+      if (readout.status) readout.status.textContent = statusText;
+      if (readout.coords) readout.coords.textContent = coordText;
+      if (readout.inline) readout.inline.textContent = inlineText;
+    }
+
+    function startLocationTracking() {
+      setMarkerLocation(HOME, 'home');
+      if (!navigator.geolocation) {
+        updateReadout('unavailable', HOME);
+        return;
+      }
+
+      let hasFix = false;
+      try {
+        navigator.geolocation.watchPosition(
+          pos => {
+            hasFix = true;
+            const loc = {
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+              accuracy: pos.coords.accuracy || null,
+            };
+            const mode = isOnVietnamMap(loc.lat, loc.lon) ? 'live' : 'outside';
+            setMarkerLocation(loc, mode);
+            updateReadout(mode, loc);
+          },
+          err => {
+            if (hasFix) return;
+            updateReadout(err.code === 1 ? 'denied' : 'unavailable', HOME);
+          },
+          { enableHighAccuracy: true, maximumAge: 15000, timeout: 12000 }
+        );
+      } catch (err) {
+        updateReadout('unavailable', HOME);
+      }
+    }
+
+    function layout() {
+      const s = ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+      if (s.w < 768) {
+        cam.position.z = 9.2;
+        mapGroup.position.set(0.4, -0.15, 0);
+        mapGroup.scale.setScalar(0.68);
+      } else {
+        cam.position.z = 8;
+        mapGroup.position.set(2.25, -0.1, 0);
+        mapGroup.scale.setScalar(1);
+      }
+    }
+    window.addEventListener('resize', layout);
+    layout();
 
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
-      earth.rotation.y = t * 0.08;
-      wireEarth.rotation.y = t * 0.08;
-      atm.rotation.y = t * 0.05;
 
-      pinGlow.material.opacity = 0.2 + Math.sin(t * 3) * 0.15;
-      pulseRings.forEach(pr => {
-        const phase = (t * 1.5 + pr._i * 0.8) % 3;
-        const scale = 1 + phase * 0.8;
-        pr.scale.setScalar(scale);
-        pr.material.opacity = Math.max(0, 0.5 - phase * 0.18);
+      mapRoot.rotation.x += (gmy * 0.05 - mapRoot.rotation.x) * 0.03;
+      mapRoot.rotation.y += (-0.24 + gmx * 0.09 - mapRoot.rotation.y) * 0.03;
+      scan.position.y = sw.y - 0.16 + ((t * 0.75) % (panelH + 0.32));
+      scan.material.opacity = 0.14 + Math.sin(t * 4) * 0.06;
+
+      markerGroup.position.lerp(markerTarget, 0.075);
+      markerGlow.material.opacity = 0.14 + Math.sin(t * 3.2) * 0.08;
+      beam.material.opacity = 0.12 + Math.sin(t * 2.4) * 0.06;
+      pulseRings.forEach(r => {
+        const phase = (t * 1.35 + r._i * 0.72) % 2.6;
+        r.scale.setScalar(1 + phase * 0.95);
+        r.material.opacity = Math.max(0, 0.38 - phase * 0.14);
       });
 
-      sats.forEach(s => {
-        const a = t * s._speed + s._phase;
-        s.position.set(
-          earth.position.x + Math.cos(a) * s._orbit,
-          earth.position.y + Math.sin(a * 0.7) * s._orbit * 0.3,
-          earth.position.z + Math.sin(a) * s._orbit
+      const routePos = routeGeo.attributes.position.array;
+      routePos[0] = homePos.x; routePos[1] = homePos.y; routePos[2] = 0.11;
+      routePos[3] = markerGroup.position.x; routePos[4] = markerGroup.position.y; routePos[5] = 0.11;
+      routeGeo.attributes.position.needsUpdate = true;
+      routeLine.material.opacity = 0.12 + Math.sin(t * 2.2) * 0.08;
+
+      orbiters.forEach(o => {
+        const a = t * o._speed + o._phase;
+        o.position.set(
+          Math.cos(a) * o._r,
+          Math.sin(a * 0.72) * 1.5,
+          Math.sin(a) * 0.9
         );
-        s.rotation.y = t;
+        o.rotation.x = t * 0.7;
+        o.rotation.y = t;
       });
 
-      cam.position.x += (3 + gmx * 1.5 - cam.position.x) * 0.02;
-      cam.position.y += (0.5 - gmy * 0.8 - cam.position.y) * 0.02;
-      cam.lookAt(earth.position);
+      const lookX = ctx.sec.clientWidth < 768 ? 0.2 : 2.05;
+      cam.position.x += (gmx * 0.45 - cam.position.x) * 0.025;
+      cam.position.y += (0.25 - gmy * 0.35 - cam.position.y) * 0.025;
+      cam.lookAt(lookX, -0.05, 0);
       ctx.r.render(scene, cam);
     })();
+
+    function mainFallbackRing() {
+      return [
+        [105.32, 23.35], [104.65, 22.95], [103.88, 22.57], [103.25, 21.78],
+        [102.15, 22.42], [102.82, 21.17], [103.12, 20.25], [104.1, 19.28],
+        [104.62, 18.42], [105.03, 17.78], [105.78, 17.48], [106.55, 16.28],
+        [107.28, 15.34], [107.58, 14.72], [107.44, 14.1], [107.6, 13.5],
+        [107.34, 12.94], [106.95, 12.35], [106.86, 11.7], [106.55, 11.05],
+        [105.95, 10.75], [105.18, 10.7], [104.7, 10.42], [104.48, 9.86],
+        [104.86, 9.25], [105.18, 8.64], [105.75, 8.56], [106.45, 9.05],
+        [106.9, 9.78], [107.18, 10.48], [108.05, 11.1], [108.95, 11.7],
+        [109.4, 12.2], [109.28, 12.92], [109.05, 13.58], [109.25, 14.2],
+        [108.95, 15.0], [108.15, 15.8], [107.6, 16.55], [106.9, 17.1],
+        [106.55, 18.0], [106.25, 18.75], [106.05, 19.45], [106.65, 20.15],
+        [107.15, 20.78], [107.95, 21.42], [108.08, 21.82], [107.3, 21.95],
+        [106.55, 22.5], [105.85, 22.75], [105.32, 23.35],
+      ];
+    }
+
   })();
 
   /* ────────────────────────────────────────────────────────────
