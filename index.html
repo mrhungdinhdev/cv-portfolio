@@ -306,9 +306,17 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   transition:opacity .6s ease;
 }
 section:hover .section-3d-canvas{opacity:0.75;}
+#education .section-3d-canvas{opacity:0.72;}
+#education:hover .section-3d-canvas{opacity:0.9;}
+#education>.max-w-5xl{position:relative;z-index:1;}
+#education .hud-card{background:rgba(5,10,18,0.56);}
 #personal-project .section-3d-canvas{opacity:0.66;}
 #personal-project:hover .section-3d-canvas{opacity:0.88;}
 #personal-project>.max-w-5xl{position:relative;z-index:1;}
+[data-reacts-3d="true"]:focus-visible{
+  outline:1px solid rgba(34,211,238,0.55);
+  outline-offset:6px;
+}
 .about-geo-readout{
   position:absolute;right:clamp(18px,6vw,82px);bottom:28px;z-index:2;
   width:min(270px,calc(100% - 36px));padding:12px 14px;pointer-events:auto;
@@ -664,7 +672,8 @@ section:hover .section-3d-canvas{opacity:0.75;}
 <div class="divider-anim"><div class="dv-line"></div><div class="dv-dot"></div><div class="dv-scan"></div></div>
 
 <!-- ══ EDUCATION ══ -->
-<section id="education" class="relative z-10 py-24 px-6">
+<section id="education" class="relative z-10 py-24 px-6" style="overflow:hidden;">
+  <canvas id="edu-3d" class="section-3d-canvas"></canvas>
   <div class="max-w-5xl mx-auto">
     <div class="reveal"><p class="sec-label mb-2" data-i18n="edu_label">06 — EDUCATION</p><h2 class="text-3xl font-black mb-10 tracking-tight hud-line" style="color:#c8d6e5;" data-i18n="edu_title">Academic Background</h2></div>
     <div class="hud-card bracket rounded-xl p-8 reveal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">

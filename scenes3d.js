@@ -28,6 +28,37 @@
     return { r, sec, w: sz.w, h: sz.h, resize };
   }
 
+  function qsa(selector) {
+    return Array.prototype.slice.call(document.querySelectorAll(selector));
+  }
+
+  function isNativeInteractive(el) {
+    return !!el && /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/i.test(el.tagName);
+  }
+
+  function bindContentReaction(targets, activate, opts) {
+    const cfg = opts || {};
+    (targets || []).filter(Boolean).forEach((el, index) => {
+      el.setAttribute('data-reacts-3d', 'true');
+      if (cfg.title && !el.getAttribute('title')) el.setAttribute('title', cfg.title);
+      if (!isNativeInteractive(el) && cfg.focusable !== false) {
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+        if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      }
+
+      const fire = source => activate(index, el, source);
+      if (cfg.hover !== false) el.addEventListener('mouseenter', () => fire('hover'));
+      if (cfg.focus !== false) el.addEventListener('focus', () => fire('focus'));
+      if (cfg.press !== false) el.addEventListener('pointerdown', () => fire('press'));
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (!isNativeInteractive(el)) e.preventDefault();
+          fire('key');
+        }
+      });
+    });
+  }
+
   /* ────────────────────────────────────────────────────────────
      A. ABOUT — Rotating Earth with Vietnam GPS finder
      Ý nghĩa: Trái đất xoay, Việt Nam nổi bật, phi thuyền tìm GPS
@@ -55,6 +86,10 @@
       coords: document.getElementById('about-location-coords'),
       inline: document.getElementById('about-live-location'),
       trigger: document.getElementById('about-location-trigger'),
+      address: (function() {
+        const text = document.querySelector('[data-i18n="about_address"]');
+        return text ? text.closest('li') : null;
+      })(),
     };
     if (readout.inline) readout.inline.removeAttribute('data-i18n');
 
@@ -469,6 +504,14 @@
       if (readout.trigger) {
         readout.trigger.setAttribute('title', 'Click to launch GPS finder spaceship');
       }
+      bindContentReaction([readout.address], () => {
+        setMarkerLocation(HOME, 'home');
+        updateReadout('home', HOME);
+        launchFinder();
+      }, {
+        hover: false,
+        title: 'Click address to send the finder ship to Thu Duc / HCMC',
+      });
     }
 
     function updateReadout(mode, loc) {
@@ -1230,22 +1273,73 @@
     cpu.position.y = 0.3;
     scene.add(cpu);
 
+    const skillTargets = [
+      new THREE.Vector3(-3.5, 0.12, -1.75), // languages
+      new THREE.Vector3(-1.55, 0.12, -0.9), // frontend
+      new THREE.Vector3(0.15, 0.12, 0.0),   // backend
+      new THREE.Vector3(2.35, 0.12, -1.65), // AI/data
+      new THREE.Vector3(-2.6, 0.12, 1.6),   // databases
+      new THREE.Vector3(2.7, 0.12, 1.25),   // devops/cloud
+      new THREE.Vector3(0.85, 0.12, 2.25),  // tools
+    ];
+    const skillFocus = new THREE.Mesh(
+      new THREE.TorusGeometry(0.62, 0.012, 4, 90),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    );
+    skillFocus.rotation.x = -Math.PI / 2;
+    skillFocus.visible = false;
+    hexGroup.add(skillFocus);
+
+    let activeSkill = -1;
+    let skillPulseUntil = 0;
+    bindContentReaction(qsa('#skills .grid > .hud-card'), index => {
+      activeSkill = index % skillTargets.length;
+      skillPulseUntil = performance.now() + 950;
+    }, {
+      title: 'Hover or click to route this stack through the 3D CPU',
+    });
+
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
+      const target = activeSkill >= 0 ? skillTargets[activeSkill] : null;
+      const burst = Math.max(0, (skillPulseUntil - performance.now()) / 950);
 
       // Hex pulse wave (ripple từ tâm ra ngoài)
       hexes.forEach(h => {
         const dist = h.position.length();
         const wave = Math.sin(t * 2 - dist * 0.8);
-        h.material.opacity = h._baseOp + wave * 0.04;
+        const focus = target ? Math.max(0, 1 - h.position.distanceTo(target) / 1.9) : 0;
+        h.material.opacity = h._baseOp + wave * 0.04 + focus * 0.26 + burst * focus * 0.18;
         h.position.y = Math.sin(t * 0.8 + h._phase) * 0.05;
+        h.scale.setScalar(1 + focus * 0.2 + burst * focus * 0.12);
       });
+
+      if (target) {
+        skillFocus.visible = true;
+        skillFocus.position.lerp(target, 0.12);
+        skillFocus.material.color.set(colors[activeSkill % colors.length]);
+        skillFocus.material.opacity = 0.22 + Math.sin(t * 4.2) * 0.08 + burst * 0.35;
+        skillFocus.scale.setScalar(1 + Math.sin(t * 2.8) * 0.08 + burst * 0.22);
+        cpu.material.color.set(colors[activeSkill % colors.length]);
+        cpu.material.opacity = 0.26 + burst * 0.36;
+      } else {
+        skillFocus.material.opacity *= 0.92;
+        if (skillFocus.material.opacity < 0.01) skillFocus.visible = false;
+        cpu.material.color.set(0xc8d6e5);
+        cpu.material.opacity += (0.2 - cpu.material.opacity) * 0.06;
+      }
 
       // Data pulses
       const pos = pGeo.attributes.position.array;
       for (let i = 0; i < pCount; i++) {
+        if (target && burst > 0) {
+          pVel[i].x += (target.x - pos[i * 3]) * 0.00045 * burst;
+          pVel[i].z += (target.z - pos[i * 3 + 2]) * 0.00045 * burst;
+          pVel[i].x = Math.max(-0.05, Math.min(0.05, pVel[i].x));
+          pVel[i].z = Math.max(-0.05, Math.min(0.05, pVel[i].z));
+        }
         pos[i * 3] += pVel[i].x;
         pos[i * 3 + 2] += pVel[i].z;
         if (Math.abs(pos[i * 3]) > 5) pVel[i].x *= -1;
@@ -1317,6 +1411,7 @@
 
     // Milestone markers (3 công ty)
     const msColors = [0x4ade80, 0x22d3ee, 0xa78bfa];
+    const milestoneVisuals = [];
     milestones.forEach((idx, i) => {
       const pt = pathPoints[idx];
       // Glowing sphere
@@ -1344,6 +1439,7 @@
       ring.position.copy(pt);
       ring._i = i;
       pathGroup.add(ring);
+      milestoneVisuals.push({ ms, glow, ring, point: pt.clone() });
     });
 
     // Ascending particles (energy flowing up)
@@ -1364,10 +1460,34 @@
       color: 0x22d3ee, size: 0.04, transparent: true, opacity: 0.45
     })));
 
+    const expRunner = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.13, 0),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    );
+    const expTargetRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.52, 0.012, 4, 72),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    );
+    expTargetRing.rotation.x = Math.PI / 2;
+    expRunner.visible = false;
+    expTargetRing.visible = false;
+    pathGroup.add(expRunner, expTargetRing);
+
+    let activeExp = -1;
+    let expPulseUntil = 0;
+    bindContentReaction(qsa('#experience .tl-line > .relative'), index => {
+      activeExp = index % milestoneVisuals.length;
+      expPulseUntil = performance.now() + 1200;
+    }, {
+      title: 'Hover or click to lock the 3D career milestone',
+    });
+
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
+      const activeMilestone = activeExp >= 0 ? milestoneVisuals[activeExp] : null;
+      const expBurst = Math.max(0, (expPulseUntil - performance.now()) / 1200);
 
       pathGroup.rotation.y = t * 0.06;
 
@@ -1382,6 +1502,35 @@
           child.scale.setScalar(1 + Math.sin(t * 2.5 + child._i) * 0.15);
         }
       });
+
+      milestoneVisuals.forEach((m, i) => {
+        const focus = i === activeExp ? 1 : 0;
+        m.ms.scale.setScalar(1 + focus * (0.7 + expBurst * 0.35));
+        m.ms.material.opacity = 0.65 + focus * 0.28;
+        m.glow.material.opacity = 0.09 + Math.sin(t * 2 + i) * 0.05 + focus * 0.22;
+        m.ring.scale.setScalar(1 + focus * (0.45 + Math.sin(t * 4.5) * 0.08));
+        m.ring.material.opacity = 0.2 + focus * 0.45;
+      });
+
+      if (activeMilestone) {
+        expRunner.visible = true;
+        expTargetRing.visible = true;
+        const target = activeMilestone.point.clone();
+        expRunner.position.lerp(target.clone().add(new THREE.Vector3(0, 0.28, 0)), 0.12);
+        expRunner.rotation.x = t * 1.3;
+        expRunner.rotation.y = -t * 1.7;
+        expRunner.material.color.set(msColors[activeExp]);
+        expRunner.material.opacity = 0.45 + expBurst * 0.4;
+        expTargetRing.position.copy(activeMilestone.point);
+        expTargetRing.material.color.set(msColors[activeExp]);
+        expTargetRing.material.opacity = 0.26 + Math.sin(t * 5) * 0.08 + expBurst * 0.22;
+        expTargetRing.scale.setScalar(1.05 + Math.sin(t * 3.4) * 0.1 + expBurst * 0.28);
+      } else {
+        expRunner.material.opacity *= 0.9;
+        expTargetRing.material.opacity *= 0.9;
+        if (expRunner.material.opacity < 0.02) expRunner.visible = false;
+        if (expTargetRing.material.opacity < 0.02) expTargetRing.visible = false;
+      }
 
       // Particles ascend
       const pos = apGeo.attributes.position.array;
@@ -1398,7 +1547,11 @@
 
       cam.position.x += (-4 + gmx * 1.5 - cam.position.x) * 0.02;
       cam.position.y += (2 - gmy * 1 - cam.position.y) * 0.02;
-      cam.lookAt(pathGroup.position.x, pathGroup.position.y + totalH / 2, pathGroup.position.z);
+      cam.lookAt(
+        pathGroup.position.x,
+        pathGroup.position.y + (activeMilestone ? activeMilestone.point.y : totalH / 2),
+        pathGroup.position.z
+      );
       ctx.r.render(scene, cam);
     })();
   })();
@@ -1430,6 +1583,7 @@
 
     positions.forEach((pos, i) => {
       const group = new THREE.Group();
+      const codeLines = [];
 
       // Screen frame
       const frame = new THREE.Mesh(
@@ -1462,6 +1616,7 @@
         );
         codeLine.position.set(-0.5 + lineW / 2, 0.25 - j * 0.15, 0.01);
         group.add(codeLine);
+        codeLines.push(codeLine);
       }
 
       // Corner brackets
@@ -1475,11 +1630,15 @@
       });
 
       group.position.set(...pos);
+      group._home = new THREE.Vector3(pos[0], pos[1], pos[2]);
+      group._frame = frame;
+      group._border = border;
       group.lookAt(cam.position);
       group._scan = scan;
-      group._baseY = pos[1];
+      group._codeLines = codeLines;
       group._phase = i * 0.8;
       group._i = i;
+      group._color = screenColors[i];
       screenGroup.add(group);
       screens.push(group);
     });
@@ -1493,25 +1652,72 @@
       scene.add(new THREE.Line(geo, connMat));
     }
 
+    const beamGeo = new THREE.BufferGeometry();
+    beamGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+    const activeBeam = new THREE.Line(
+      beamGeo,
+      new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    );
+    scene.add(activeBeam);
+
+    let activeProject = -1;
+    let projectPulseUntil = 0;
+    bindContentReaction(qsa('#projects .grid > .hud-card'), index => {
+      activeProject = index % screens.length;
+      projectPulseUntil = performance.now() + 1100;
+    }, {
+      title: 'Hover or click to open the matching 3D project screen',
+    });
+
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
+      const activeScreen = activeProject >= 0 ? screens[activeProject] : null;
+      const projectBurst = Math.max(0, (projectPulseUntil - performance.now()) / 1100);
 
       screens.forEach(s => {
+        const focus = s === activeScreen ? 1 : 0;
+        const desired = s._home.clone();
+        desired.y += Math.sin(t * 0.4 + s._phase) * 0.2;
+        desired.z += focus * (1.35 + projectBurst * 0.65);
+        desired.x += focus * (s._home.x > 0 ? -0.35 : 0.35);
         // Float gently
-        s.position.y = s._baseY + Math.sin(t * 0.4 + s._phase) * 0.2;
+        s.position.lerp(desired, focus ? 0.14 : 0.055);
+        s.scale.setScalar(1 + focus * (0.35 + projectBurst * 0.16));
+        if (s._frame) s._frame.material.opacity = 0.04 + focus * 0.22;
+        if (s._border) s._border.material.opacity = 0.15 + focus * 0.5;
         // Face camera
         s.lookAt(cam.position);
         // Scan line animation
         if (s._scan) {
           s._scan.position.y = Math.sin(t * 1.5 + s._phase) * 0.35;
+          s._scan.material.opacity = 0.18 + focus * 0.34 + projectBurst * focus * 0.18;
+        }
+        if (s._codeLines) {
+          s._codeLines.forEach((line, j) => {
+            line.material.opacity = 0.1 + focus * (0.2 + Math.sin(t * 4 + j) * 0.04);
+            line.scale.x = 1 + focus * (0.18 + Math.sin(t * 3.5 + j) * 0.06);
+          });
         }
       });
 
-      cam.position.x += (gmx * 2.5 - cam.position.x) * 0.02;
-      cam.position.y += (-gmy * 1.5 - cam.position.y) * 0.02;
-      cam.lookAt(0, 0, -2);
+      if (activeScreen) {
+        const pos = beamGeo.attributes.position.array;
+        pos[0] = 0; pos[1] = 0; pos[2] = 1.5;
+        pos[3] = activeScreen.position.x; pos[4] = activeScreen.position.y; pos[5] = activeScreen.position.z;
+        beamGeo.attributes.position.needsUpdate = true;
+        activeBeam.material.color.set(activeScreen._color);
+        activeBeam.material.opacity = 0.1 + projectBurst * 0.35 + Math.sin(t * 6) * 0.04;
+      } else {
+        activeBeam.material.opacity *= 0.9;
+      }
+
+      const camTargetX = activeScreen ? activeScreen.position.x * 0.26 + gmx * 0.8 : gmx * 2.5;
+      const camTargetY = activeScreen ? activeScreen.position.y * 0.18 - gmy * 0.7 : -gmy * 1.5;
+      cam.position.x += (camTargetX - cam.position.x) * 0.025;
+      cam.position.y += (camTargetY - cam.position.y) * 0.025;
+      cam.lookAt(activeScreen ? activeScreen.position : new THREE.Vector3(0, 0, -2));
       ctx.r.render(scene, cam);
     })();
   })();
@@ -1760,6 +1966,20 @@
       new THREE.PointsMaterial({ color: 0x22d3ee, size: 0.035, transparent: true, opacity: 0.48, depthWrite: false })
     ));
 
+    let activePersonal = 'overview';
+    let personalPulseUntil = 0;
+    const personalTargets = qsa('#personal-project .personal-feature-cell')
+      .concat(qsa('#personal-project .personal-side-card'))
+      .concat(qsa('#personal-project .personal-main-card'))
+      .concat(qsa('#personal-project .btn-ghost'));
+    const personalModes = ['ask', 'storage', 'shield', 'orbit', 'overview', 'shield'];
+    bindContentReaction(personalTargets, index => {
+      activePersonal = personalModes[index] || 'overview';
+      personalPulseUntil = performance.now() + 1050;
+    }, {
+      title: 'Hover or click to drive the extension lab hologram',
+    });
+
     function layout(w) {
       if (w < 768) {
         root.position.set(0.12, -0.28, 0);
@@ -1789,29 +2009,42 @@
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
+      const personalPulse = Math.max(0, (personalPulseUntil - performance.now()) / 1050);
+      const askActive = activePersonal === 'ask';
+      const storageActive = activePersonal === 'storage';
+      const shieldActive = activePersonal === 'shield';
+      const orbitActive = activePersonal === 'orbit' || activePersonal === 'overview';
 
       browser.position.y = Math.sin(t * 0.7) * 0.08;
       browser.rotation.z = Math.sin(t * 0.42) * 0.018;
-      root.rotation.y += (gmx * 0.18 + Math.sin(t * 0.34) * 0.045 - root.rotation.y) * 0.035;
+      root.rotation.y += (gmx * 0.18 + Math.sin(t * 0.34) * 0.045 + (orbitActive ? personalPulse * 0.15 : 0) - root.rotation.y) * 0.035;
       root.rotation.x += (-gmy * 0.08 - root.rotation.x) * 0.035;
 
-      const scanPhase = (t * 0.42) % 1;
+      const scanPhase = (t * (askActive ? 0.8 : 0.42)) % 1;
       sideScan.position.y = 0.86 - scanPhase * 1.55;
-      sideScan.material.opacity = 0.14 + Math.sin(scanPhase * Math.PI) * 0.34;
-      highlight.material.opacity = 0.12 + Math.sin(t * 2.4) * 0.05;
-      cursor.position.x = 0.72 + Math.sin(t * 1.5) * 0.08;
-      cursor.position.y = -0.55 + Math.cos(t * 1.2) * 0.04;
+      sideScan.material.opacity = 0.14 + Math.sin(scanPhase * Math.PI) * 0.34 + (askActive ? personalPulse * 0.18 : 0);
+      highlight.material.opacity = 0.12 + Math.sin(t * 2.4) * 0.05 + (askActive ? 0.18 + personalPulse * 0.12 : 0);
+      askButton.material.opacity = 0.16 + (askActive ? 0.22 + Math.sin(t * 6) * 0.05 : 0);
+      cursor.position.x += ((askActive ? 1.04 : 0.72 + Math.sin(t * 1.5) * 0.08) - cursor.position.x) * 0.12;
+      cursor.position.y += ((askActive ? -0.55 : -0.55 + Math.cos(t * 1.2) * 0.04) - cursor.position.y) * 0.12;
+      cursor.scale.setScalar(1 + (askActive ? personalPulse * 0.45 : 0));
 
-      shield.rotation.z = Math.sin(t * 1.1) * 0.07;
-      shieldRing.rotation.z = t * 0.75;
-      shieldRing.material.opacity = 0.22 + Math.sin(t * 2.1) * 0.11;
+      shield.rotation.z = Math.sin(t * (shieldActive ? 2.4 : 1.1)) * 0.07;
+      shield.material.opacity = 0.18 + (shieldActive ? 0.22 + personalPulse * 0.12 : 0);
+      shieldRing.rotation.z = t * (shieldActive ? 1.55 : 0.75);
+      shieldRing.material.opacity = 0.22 + Math.sin(t * 2.1) * 0.11 + (shieldActive ? 0.24 : 0);
+      shieldRing.scale.setScalar(1 + (shieldActive ? 0.35 + Math.sin(t * 5) * 0.08 + personalPulse * 0.2 : 0));
 
-      orbitRingA.rotation.z = t * 0.18;
-      orbitRingB.rotation.z = -t * 0.12;
+      orbitRingA.rotation.z = t * (orbitActive ? 0.28 : 0.18);
+      orbitRingB.rotation.z = -t * (orbitActive ? 0.2 : 0.12);
+      iconPlane.scale.setScalar(1 + (orbitActive ? personalPulse * 0.22 : 0));
+      iconHolder.material.opacity = 0.32 + (orbitActive ? personalPulse * 0.18 : 0.04);
 
       storageLayers.forEach((layer, i) => {
         layer.position.z = Math.sin(t * 1.8 + i * 0.55) * 0.025;
-        layer.material.opacity = 0.14 + i * 0.035 + Math.sin(t * 2 + i) * 0.025;
+        layer.scale.x = 1 + (storageActive ? 0.16 + i * 0.04 + personalPulse * 0.12 : 0);
+        layer.position.x = storageActive ? Math.sin(t * 2.5 + i) * 0.025 : 0;
+        layer.material.opacity = 0.14 + i * 0.035 + Math.sin(t * 2 + i) * 0.025 + (storageActive ? 0.18 : 0);
       });
 
       providers.forEach((p, i) => {
@@ -1820,8 +2053,8 @@
         p.group.position.z = p.base.z + Math.sin(t * 0.8 + p.phase) * 0.08;
         p.node.rotation.x = t * 0.7 + i;
         p.node.rotation.y = -t * 0.9 + i;
-        p.node.scale.setScalar(1 + Math.sin(t * 2.4 + i) * 0.12);
-        p.glow.material.opacity = 0.055 + Math.sin(t * 2.1 + i) * 0.025;
+        p.node.scale.setScalar(1 + Math.sin(t * 2.4 + i) * 0.12 + (askActive ? 0.28 + personalPulse * 0.2 : 0));
+        p.glow.material.opacity = 0.055 + Math.sin(t * 2.1 + i) * 0.025 + (askActive ? 0.13 : 0);
       });
 
       providerLines.forEach(({ line, group }) => {
@@ -1829,7 +2062,7 @@
         pos[0] = providerAnchor.x; pos[1] = providerAnchor.y; pos[2] = providerAnchor.z;
         pos[3] = group.position.x; pos[4] = group.position.y; pos[5] = group.position.z;
         line.geometry.attributes.position.needsUpdate = true;
-        line.material.opacity = 0.1 + Math.sin(t * 1.7 + group.position.x) * 0.045;
+        line.material.opacity = 0.1 + Math.sin(t * 1.7 + group.position.x) * 0.045 + (askActive ? 0.18 : 0);
       });
 
       for (let i = 0; i < pCount; i++) {
@@ -1850,7 +2083,265 @@
   })();
 
   /* ────────────────────────────────────────────────────────────
-     F. CONTACT — Signal Broadcast Waves
+     F. EDUCATION — Diploma Archive / GPA Core
+     Ý nghĩa: Hồ sơ học vấn, timeline tốt nghiệp, GPA, credits, chứng chỉ
+     Vị trí: Nền phía sau education card
+     ──────────────────────────────────────────────────────────── */
+  (function() {
+    const ctx = makeCtx('edu-3d');
+    if (!ctx) return;
+
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(48, ctx.w / ctx.h, 0.1, 100);
+    const root = new THREE.Group();
+    const archive = new THREE.Group();
+    scene.add(root);
+    root.add(archive);
+
+    scene.add(new THREE.AmbientLight(0x0a1828, 0.95));
+    const key = new THREE.PointLight(0xa8d8ea, 1.45, 12);
+    key.position.set(2.6, 2.4, 5);
+    scene.add(key);
+
+    function basicMat(color, opacity) {
+      return new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false });
+    }
+
+    function plane(w, h, color, opacity) {
+      return new THREE.Mesh(new THREE.PlaneGeometry(w, h), basicMat(color, opacity));
+    }
+
+    function rectLine(w, h, color, opacity, z) {
+      const x = w / 2;
+      const y = h / 2;
+      const pts = [
+        new THREE.Vector3(-x, y, z || 0),
+        new THREE.Vector3(x, y, z || 0),
+        new THREE.Vector3(x, -y, z || 0),
+        new THREE.Vector3(-x, -y, z || 0),
+        new THREE.Vector3(-x, y, z || 0),
+      ];
+      return new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false })
+      );
+    }
+
+    const diploma = plane(3.55, 2.22, 0x071522, 0.34);
+    archive.add(diploma);
+    archive.add(rectLine(3.55, 2.22, 0xc8d6e5, 0.36, 0.04));
+
+    const header = plane(2.55, 0.11, 0xc8d6e5, 0.32);
+    header.position.set(-0.2, 0.78, 0.08);
+    archive.add(header);
+
+    const rowGroup = new THREE.Group();
+    archive.add(rowGroup);
+    const rowSpecs = [
+      [-0.55, 0.45, 1.9, 0x7fa8c9],
+      [-0.7, 0.22, 1.55, 0xc8d6e5],
+      [-0.45, -0.02, 2.05, 0xa8d8ea],
+      [-0.75, -0.26, 1.45, 0xc8d6e5],
+    ];
+    rowSpecs.forEach(([x, y, w, color]) => {
+      const row = plane(w, 0.045, color, 0.2);
+      row.position.set(x, y, 0.09);
+      rowGroup.add(row);
+    });
+
+    const timeline = new THREE.Group();
+    timeline.position.set(-0.45, -0.82, 0.1);
+    archive.add(timeline);
+    const timeLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-1.08, 0, 0),
+        new THREE.Vector3(1.15, 0, 0),
+      ]),
+      new THREE.LineBasicMaterial({ color: 0x7fa8c9, transparent: true, opacity: 0.22, depthWrite: false })
+    );
+    timeline.add(timeLine);
+    const timeNodes = [];
+    [-1.08, 1.15].forEach((x, i) => {
+      const node = new THREE.Mesh(
+        new THREE.CircleGeometry(0.075, 20),
+        basicMat(i ? 0x4ade80 : 0xfbbf24, 0.68)
+      );
+      node.position.set(x, 0, 0.04);
+      timeline.add(node);
+      timeNodes.push(node);
+    });
+
+    const scoreCore = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.35, 0),
+      basicMat(0xa8d8ea, 0.78)
+    );
+    scoreCore.position.set(1.38, 0.18, 0.25);
+    archive.add(scoreCore);
+    const scoreRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.58, 0.01, 4, 90),
+      basicMat(0xa8d8ea, 0.38)
+    );
+    scoreRing.position.copy(scoreCore.position);
+    scoreRing.rotation.x = Math.PI / 2;
+    archive.add(scoreRing);
+
+    const rankBadge = new THREE.Group();
+    rankBadge.position.set(1.35, -0.62, 0.17);
+    archive.add(rankBadge);
+    rankBadge.add(new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.012, 4, 72), basicMat(0xfbbf24, 0.44)));
+    for (let i = 0; i < 3; i++) {
+      const shard = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.24, 3), basicMat(0xfbbf24, 0.5));
+      shard.position.set((i - 1) * 0.16, 0.12, 0.05);
+      shard.rotation.z = (i - 1) * 0.16;
+      rankBadge.add(shard);
+    }
+
+    const certCrystal = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.2, 0),
+      basicMat(0x38bdf8, 0.66)
+    );
+    certCrystal.position.set(-1.47, -0.42, 0.2);
+    archive.add(certCrystal);
+
+    const creditGroup = new THREE.Group();
+    creditGroup.position.set(-1.34, 0.36, 0.12);
+    archive.add(creditGroup);
+    const creditNodes = [];
+    for (let i = 0; i < 12; i++) {
+      const a = i / 12 * Math.PI * 2;
+      const node = new THREE.Mesh(
+        new THREE.BoxGeometry(0.055, 0.055, 0.055),
+        basicMat(i % 3 ? 0x7fa8c9 : 0xc8d6e5, 0.34)
+      );
+      node.position.set(Math.cos(a) * 0.42, Math.sin(a) * 0.24, Math.sin(a) * 0.05);
+      node._a = a;
+      creditGroup.add(node);
+      creditNodes.push(node);
+    }
+
+    const focusRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.42, 0.012, 4, 84),
+      basicMat(0x22d3ee, 0)
+    );
+    focusRing.rotation.x = Math.PI / 2;
+    focusRing.visible = false;
+    archive.add(focusRing);
+
+    const focusTargets = {
+      duration: { pos: new THREE.Vector3(timeline.position.x - 0.45, timeline.position.y, 0.24), color: 0xfbbf24 },
+      grad: { pos: new THREE.Vector3(timeline.position.x + 0.72, timeline.position.y, 0.24), color: 0x4ade80 },
+      gpa: { pos: scoreCore.position.clone(), color: 0xa8d8ea },
+      rank: { pos: rankBadge.position.clone(), color: 0xfbbf24 },
+      credits: { pos: creditGroup.position.clone(), color: 0xc8d6e5 },
+      cert: { pos: certCrystal.position.clone(), color: 0x38bdf8 },
+      overview: { pos: new THREE.Vector3(0.15, 0, 0.2), color: 0x22d3ee },
+    };
+
+    let activeEdu = 'overview';
+    let eduPulseUntil = 0;
+    const eduTargets = qsa('#education [data-i18n-html]')
+      .concat(qsa('#education .gold-badge'))
+      .concat(qsa('#education .hud-card'));
+    const eduModes = ['duration', 'grad', 'gpa', 'rank', 'credits', 'cert', 'gpa', 'overview'];
+    bindContentReaction(eduTargets, index => {
+      activeEdu = eduModes[index] || 'overview';
+      eduPulseUntil = performance.now() + 1100;
+    }, {
+      title: 'Hover or click to inspect this education metric in 3D',
+    });
+
+    function layout(w) {
+      if (w < 768) {
+        root.position.set(0.1, -0.2, 0);
+        root.scale.setScalar(0.68);
+        cam.position.set(0, 0.55, 7.7);
+      } else {
+        root.position.set(1.55, -0.05, 0);
+        root.scale.setScalar(1.05);
+        cam.position.set(0, 0.75, 7.0);
+      }
+    }
+
+    function resize() {
+      const s = ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+      layout(s.w);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const clk = new THREE.Clock();
+    (function tick() {
+      requestAnimationFrame(tick);
+      const t = clk.getElapsedTime();
+      const focus = focusTargets[activeEdu] || focusTargets.overview;
+      const eduPulse = Math.max(0, (eduPulseUntil - performance.now()) / 1100);
+      const gpaActive = activeEdu === 'gpa';
+      const rankActive = activeEdu === 'rank';
+      const creditActive = activeEdu === 'credits';
+      const certActive = activeEdu === 'cert';
+      const timelineActive = activeEdu === 'duration' || activeEdu === 'grad';
+
+      archive.position.y = Math.sin(t * 0.62) * 0.06;
+      archive.rotation.y += (gmx * 0.16 + Math.sin(t * 0.28) * 0.035 - archive.rotation.y) * 0.035;
+      archive.rotation.x += (-gmy * 0.08 - archive.rotation.x) * 0.035;
+
+      focusRing.visible = true;
+      focusRing.position.lerp(focus.pos, 0.13);
+      focusRing.material.color.set(focus.color);
+      focusRing.material.opacity = 0.2 + Math.sin(t * 5) * 0.07 + eduPulse * 0.28;
+      focusRing.scale.setScalar(1 + Math.sin(t * 3) * 0.08 + eduPulse * 0.28);
+
+      rowGroup.children.forEach((row, i) => {
+        row.material.opacity = 0.1 + Math.sin(t * 1.8 + i) * 0.025 + (activeEdu === 'overview' ? eduPulse * 0.06 : 0);
+      });
+
+      timeLine.material.opacity = 0.18 + (timelineActive ? 0.28 + eduPulse * 0.2 : 0);
+      timeNodes.forEach((node, i) => {
+        const active = (activeEdu === 'duration' && i === 0) || (activeEdu === 'grad' && i === 1);
+        node.scale.setScalar(1 + (active ? 0.65 + eduPulse * 0.3 : Math.sin(t * 2 + i) * 0.08));
+        node.material.opacity = 0.44 + (active ? 0.38 : 0);
+      });
+
+      scoreCore.rotation.x = t * (0.6 + (gpaActive ? 0.75 : 0));
+      scoreCore.rotation.y = -t * (0.8 + (gpaActive ? 0.7 : 0));
+      scoreCore.scale.setScalar(1 + (gpaActive ? 0.42 + eduPulse * 0.28 : Math.sin(t * 2) * 0.05));
+      scoreCore.material.opacity = 0.56 + (gpaActive ? 0.28 : 0);
+      scoreRing.rotation.z = t * (gpaActive ? 1.25 : 0.45);
+      scoreRing.material.opacity = 0.22 + Math.sin(t * 2.8) * 0.07 + (gpaActive ? 0.28 : 0);
+      scoreRing.scale.setScalar(1 + (gpaActive ? 0.28 + eduPulse * 0.2 : 0));
+
+      rankBadge.rotation.z = Math.sin(t * (rankActive ? 2.8 : 1.1)) * 0.08;
+      rankBadge.scale.setScalar(1 + (rankActive ? 0.35 + eduPulse * 0.25 : 0));
+      rankBadge.children.forEach(child => {
+        if (child.material) child.material.opacity = 0.28 + (rankActive ? 0.26 : 0) + Math.sin(t * 2.2) * 0.04;
+      });
+
+      certCrystal.rotation.x = t * (certActive ? 1.4 : 0.6);
+      certCrystal.rotation.y = t * (certActive ? 1.8 : 0.7);
+      certCrystal.scale.setScalar(1 + (certActive ? 0.42 + eduPulse * 0.18 : 0));
+      certCrystal.material.opacity = 0.44 + (certActive ? 0.32 : 0);
+
+      creditNodes.forEach((node, i) => {
+        const a = node._a + t * (creditActive ? 0.8 : 0.28);
+        node.position.x = Math.cos(a) * (creditActive ? 0.58 : 0.42);
+        node.position.y = Math.sin(a) * (creditActive ? 0.34 : 0.24);
+        node.rotation.x = t + i;
+        node.rotation.y = -t * 0.7 + i;
+        node.scale.setScalar(1 + (creditActive ? 0.35 + Math.sin(t * 3 + i) * 0.1 : 0));
+        node.material.opacity = 0.18 + (creditActive ? 0.28 : 0);
+      });
+
+      cam.position.x += (gmx * 0.85 - cam.position.x) * 0.025;
+      cam.position.y += ((ctx.sec.clientWidth < 768 ? 0.55 : 0.75) - gmy * 0.35 - cam.position.y) * 0.025;
+      cam.lookAt(root.position.x * 0.25, -0.02, 0);
+      ctx.r.render(scene, cam);
+    })();
+  })();
+
+  /* ────────────────────────────────────────────────────────────
+     G. CONTACT — Signal Broadcast Waves
      Ý nghĩa: Sóng tín hiệu phát ra = kết nối, liên lạc
      Vị trí: Trung tâm (phù hợp layout centered)
      ──────────────────────────────────────────────────────────── */
@@ -1909,6 +2400,7 @@
       ring.position.y = 1.3;
       ring.rotation.x = Math.PI / 2;
       ring._delay = i * 0.6;
+      ring._baseColor = [0x22d3ee, 0x4ade80, 0xa78bfa, 0xc8d6e5, 0x22d3ee][i];
       coreGroup.add(ring);
       waveRings.push(ring);
     }
@@ -1927,15 +2419,16 @@
       );
       node.position.set(...ep.pos);
       coreGroup.add(node);
-      epMeshes.push(node);
 
       // Connection line
       const geo = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(0, 1.3, 0), node.position.clone()
       ]);
-      coreGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({
+      const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
         color: ep.color, transparent: true, opacity: 0.06
-      })));
+      }));
+      coreGroup.add(line);
+      epMeshes.push({ node, line, color: ep.color });
     });
 
     // Grid floor
@@ -1944,32 +2437,50 @@
     gridH.position.y = -0.5;
     scene.add(gridH);
 
+    let activeContact = -1;
+    let contactPulseUntil = 0;
+    bindContentReaction(qsa('#contact .hud-card').concat(qsa('#contact .btn-metal')), index => {
+      activeContact = index < 3 ? index : 0;
+      contactPulseUntil = performance.now() + 1200;
+    }, {
+      title: 'Hover or click to send the 3D signal to this contact channel',
+    });
+
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       const t = clk.getElapsedTime();
+      const activeEndpoint = activeContact >= 0 ? epMeshes[activeContact] : null;
+      const contactBurst = Math.max(0, (contactPulseUntil - performance.now()) / 1200);
 
       diamond.rotation.y = t * 0.8;
       diamond.rotation.x = t * 0.4;
-      diamond.material.opacity = 0.5 + Math.sin(t * 3) * 0.2;
-      diamondGlow.material.opacity = 0.05 + Math.sin(t * 2) * 0.05;
-      diamondGlow.scale.setScalar(1 + Math.sin(t * 2.5) * 0.2);
+      if (activeEndpoint) diamond.material.color.set(activeEndpoint.color);
+      diamond.material.opacity = 0.5 + Math.sin(t * 3) * 0.2 + contactBurst * 0.18;
+      diamondGlow.material.color.set(activeEndpoint ? activeEndpoint.color : 0x22d3ee);
+      diamondGlow.material.opacity = 0.05 + Math.sin(t * 2) * 0.05 + contactBurst * 0.1;
+      diamondGlow.scale.setScalar(1 + Math.sin(t * 2.5) * 0.2 + contactBurst * 0.4);
 
       // Wave rings expand and fade
       waveRings.forEach(ring => {
-        const phase = ((t - ring._delay) * 0.6) % 2.5;
+        const waveSpeed = activeEndpoint ? 0.95 : 0.6;
+        const phase = ((t - ring._delay) * waveSpeed) % 2.5;
         if (phase > 0) {
           const scale = 1 + phase * 2.5;
           ring.scale.setScalar(scale);
-          ring.material.opacity = Math.max(0, 0.35 - phase * 0.14);
+          ring.material.color.set(activeEndpoint ? activeEndpoint.color : ring._baseColor);
+          ring.material.opacity = Math.max(0, 0.35 - phase * 0.14 + contactBurst * 0.12);
         }
       });
 
       // Endpoint pulse
       epMeshes.forEach((ep, i) => {
-        ep.rotation.y = t * 0.5;
-        ep.rotation.x = t * 0.3;
-        ep.material.opacity = 0.4 + Math.sin(t * 2 + i) * 0.2;
+        const focus = i === activeContact ? 1 : 0;
+        ep.node.rotation.y = t * (0.5 + focus * 0.65);
+        ep.node.rotation.x = t * (0.3 + focus * 0.55);
+        ep.node.scale.setScalar(1 + focus * (0.55 + contactBurst * 0.35));
+        ep.node.material.opacity = 0.4 + Math.sin(t * 2 + i) * 0.2 + focus * 0.35;
+        ep.line.material.opacity = 0.06 + focus * (0.28 + Math.sin(t * 5) * 0.04 + contactBurst * 0.2);
       });
 
       coreGroup.rotation.y = t * 0.04;
