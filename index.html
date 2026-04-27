@@ -318,6 +318,50 @@ nav a{text-decoration:none;}
 #contact::after{content:'';position:absolute;top:10%;left:50%;margin-left:-180px;width:360px;height:360px;border-radius:50%;
   background:radial-gradient(circle,rgba(34,211,238,0.03),transparent 70%);filter:blur(50px);pointer-events:none;z-index:-1;}
 
+/* ── SKILLS REACTOR INTERACTION ── */
+#skills>.max-w-5xl{position:relative;z-index:2;}
+#skills .skill-reactor-card{
+  --skill-accent:#22d3ee;
+  --skill-rgb:34,211,238;
+  overflow:hidden;
+}
+#skills .skill-reactor-card::after{
+  content:'';position:absolute;left:-45%;top:0;width:34%;height:100%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(var(--skill-rgb),0.28),transparent);
+  opacity:0;transform:skewX(-18deg);
+}
+#skills .skill-reactor-card.is-3d-active{
+  border-color:rgba(var(--skill-rgb),0.58);
+  box-shadow:0 0 30px rgba(var(--skill-rgb),0.16),0 0 72px rgba(var(--skill-rgb),0.08),inset 0 0 28px rgba(var(--skill-rgb),0.045);
+  transform:translateY(-7px) scale(1.012);
+}
+#skills .skill-reactor-card.is-3d-active::after{
+  opacity:1;animation:skill-card-scan 1.05s ease-out both;
+}
+#skills .skill-reactor-card.is-3d-active .prog-bar{
+  background:linear-gradient(90deg,var(--skill-accent),#d8ecf8);
+  box-shadow:0 0 14px rgba(var(--skill-rgb),0.5),0 0 30px rgba(var(--skill-rgb),0.18);
+}
+#skills .skill-reactor-card.is-3d-active .tag{
+  border-color:rgba(var(--skill-rgb),0.34);
+  color:#d8ecf8;
+}
+.skills-reactor-link{
+  position:absolute;left:0;top:0;z-index:1;height:1px;width:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--skill-accent,#22d3ee),rgba(216,236,248,0.78),transparent);
+  box-shadow:0 0 12px var(--skill-accent,#22d3ee),0 0 30px rgba(34,211,238,0.18);
+  opacity:0;transform-origin:0 50%;transition:opacity .22s ease;
+}
+.skills-reactor-link.is-active{opacity:.82;}
+.skills-reactor-link span{
+  position:absolute;top:-2px;left:0;width:34px;height:5px;border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff,transparent);
+  filter:drop-shadow(0 0 8px var(--skill-accent,#22d3ee));
+  animation:skill-link-packet .82s linear infinite;
+}
+@keyframes skill-card-scan{from{left:-45%;}to{left:118%;}}
+@keyframes skill-link-packet{from{transform:translateX(-18px);}to{transform:translateX(calc(var(--link-len,160px) + 18px));}}
+
 .personal-icon-wrap{position:relative;width:112px;height:112px;flex-shrink:0;}
 .personal-icon-wrap::before{content:'';position:absolute;inset:-8px;border:1px solid rgba(200,214,229,0.22);
   clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
@@ -370,6 +414,8 @@ nav a{text-decoration:none;}
   transition:opacity .6s ease,filter .6s ease;
 }
 section:hover .section-3d-canvas{opacity:0.9;filter:saturate(1.24) contrast(1.14);}
+#skills .section-3d-canvas{opacity:0.82;filter:saturate(1.36) contrast(1.18);}
+#skills:hover .section-3d-canvas{opacity:0.96;filter:saturate(1.48) contrast(1.24);}
 #education .section-3d-canvas{opacity:0.72;}
 #education:hover .section-3d-canvas{opacity:0.9;}
 #education>.max-w-5xl{position:relative;z-index:1;}
@@ -396,6 +442,8 @@ section:hover .section-3d-canvas{opacity:0.9;filter:saturate(1.24) contrast(1.14
   .about-geo-readout{display:none;}
   .section-3d-canvas{opacity:0.5;}
   section:hover .section-3d-canvas{opacity:0.62;}
+  #skills .section-3d-canvas{opacity:0.64;}
+  #skills:hover .section-3d-canvas{opacity:0.74;}
   #about .section-3d-canvas{opacity:0.45;}
   #about:hover .section-3d-canvas{opacity:0.56;}
   #personal-project .section-3d-canvas{opacity:0.5;}

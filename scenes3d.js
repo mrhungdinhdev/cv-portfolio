@@ -1234,258 +1234,556 @@
   })();
 
   /* ────────────────────────────────────────────────────────────
-     B. SKILLS — Hexagonal CPU / Circuit Grid
-     Ý nghĩa: Chip xử lý = kiến trúc kỹ năng kỹ thuật
-     Vị trí: Trải đều làm nền
+     B. SKILLS — Quantum Stack Reactor
+     Meaning: each skill card routes power into a sci-fi stack core.
      ──────────────────────────────────────────────────────────── */
   (function() {
     const ctx = makeCtx('skills-3d');
     if (!ctx) return;
+
     const scene = new THREE.Scene();
-    const cam = new THREE.PerspectiveCamera(50, ctx.w / ctx.h, 0.1, 100);
-    cam.position.set(0, 6, 8);
-    cam.lookAt(0, 0, 0);
-    window.addEventListener('resize', () => { const s = ctx.resize(); cam.aspect = s.w / s.h; cam.updateProjectionMatrix(); });
+    const cam = new THREE.PerspectiveCamera(48, ctx.w / ctx.h, 0.1, 120);
+    cam.position.set(0, 4.45, 8.9);
+    const lookPoint = new THREE.Vector3(0, 0.28, 0);
+    cam.lookAt(lookPoint);
+    window.addEventListener('resize', () => {
+      const s = ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+      updateDomLink();
+    });
 
-    // Hexagonal grid (circuit board)
-    const hexGroup = new THREE.Group();
-    scene.add(hexGroup);
-    const hexShape = new THREE.CircleGeometry(0.45, 6);
-    const colors = [0x22d3ee, 0xa78bfa, 0x4ade80, 0xfbbf24, 0xff6b6b, 0x38bdf8, 0xc8d6e5];
+    scene.add(new THREE.AmbientLight(0x07131f, 0.85));
+    const cyanKey = new THREE.PointLight(0x22d3ee, 1.7, 16);
+    cyanKey.position.set(-2.8, 4.2, 4.8);
+    scene.add(cyanKey);
+    const silverRim = new THREE.PointLight(0xd8ecf8, 1.15, 14);
+    silverRim.position.set(3.6, 3.1, -3.8);
+    scene.add(silverRim);
 
-    const hexes = [];
-    const cols = 9, rows = 7;
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = (col - cols / 2) * 1.0 + (row % 2 ? 0.5 : 0);
-        const z = (row - rows / 2) * 0.87;
-        const hex = new THREE.Mesh(
-          hexShape,
-          new THREE.MeshBasicMaterial({
-            color: colors[(row * cols + col) % colors.length],
-            wireframe: true, transparent: true,
-            opacity: 0.06 + Math.random() * 0.08
-          })
-        );
-        hex.rotation.x = -Math.PI / 2;
-        hex.position.set(x, 0, z);
-        hex._baseOp = hex.material.opacity;
-        hex._phase = Math.random() * Math.PI * 2;
-        hexGroup.add(hex);
-        hexes.push(hex);
-      }
-    }
+    const root = new THREE.Group();
+    root.position.set(0, 0.08, 0);
+    scene.add(root);
 
-    // Circuit traces (connections between hex centers)
-    const traceMat = new THREE.LineBasicMaterial({ color: 0x7fa8c9, transparent: true, opacity: 0.06 });
-    for (let i = 0; i < hexes.length; i++) {
-      for (let j = i + 1; j < hexes.length; j++) {
-        if (hexes[i].position.distanceTo(hexes[j].position) < 1.2) {
-          const geo = new THREE.BufferGeometry().setFromPoints([hexes[i].position.clone(), hexes[j].position.clone()]);
-          hexGroup.add(new THREE.Line(geo, traceMat));
-        }
-      }
-    }
-
-    // Data pulses (particles flowing along traces)
-    const pCount = 150;
-    const pPos = new Float32Array(pCount * 3);
-    const pVel = [];
-    for (let i = 0; i < pCount; i++) {
-      pPos[i * 3] = (Math.random() - 0.5) * 10;
-      pPos[i * 3 + 1] = 0.1;
-      pPos[i * 3 + 2] = (Math.random() - 0.5) * 7;
-      pVel.push({ x: (Math.random() - 0.5) * 0.015, z: (Math.random() - 0.5) * 0.015 });
-    }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0x22d3ee, size: 0.05, transparent: true, opacity: 0.5 })));
-
-    // Central processor (floating cube)
-    const cpu = new THREE.Mesh(
-      new THREE.BoxGeometry(0.8, 0.15, 0.8),
-      new THREE.MeshBasicMaterial({ color: 0xc8d6e5, wireframe: true, transparent: true, opacity: 0.2 })
-    );
-    cpu.position.y = 0.3;
-    scene.add(cpu);
-
-    const skillTargets = [
-      new THREE.Vector3(-3.5, 0.12, -1.75), // languages
-      new THREE.Vector3(-1.55, 0.12, -0.9), // frontend
-      new THREE.Vector3(0.15, 0.12, 0.0),   // backend
-      new THREE.Vector3(2.35, 0.12, -1.65), // AI/data
-      new THREE.Vector3(-2.6, 0.12, 1.6),   // databases
-      new THREE.Vector3(2.7, 0.12, 1.25),   // devops/cloud
-      new THREE.Vector3(0.85, 0.12, 2.25),  // tools
+    const skillData = [
+      { title: 'LANGUAGES', short: 'LANG', route: 'JS / TS / PHP', level: 0.90, color: 0x22d3ee, css: '#22d3ee', pos: new THREE.Vector3(-4.05, 0.22, -1.38) },
+      { title: 'FRONTEND', short: 'UI', route: 'REACT / NEXT / VUE', level: 0.80, color: 0xa78bfa, css: '#a78bfa', pos: new THREE.Vector3(-2.12, 0.45, 1.04) },
+      { title: 'BACKEND', short: 'API', route: 'NEST / LARAVEL / NODE', level: 0.95, color: 0x4ade80, css: '#4ade80', pos: new THREE.Vector3(0.05, 0.64, -2.28) },
+      { title: 'AI / DATA', short: 'AI', route: 'OPENAI / CHROMA / QUEUE', level: 0.75, color: 0xfbbf24, css: '#fbbf24', pos: new THREE.Vector3(2.36, 0.52, -1.16) },
+      { title: 'DATABASES', short: 'DB', route: 'SQL / MONGO / REDIS', level: 0.88, color: 0xff6b6b, css: '#ff6b6b', pos: new THREE.Vector3(-2.72, 0.18, 2.42) },
+      { title: 'DEVOPS / CLOUD', short: 'CLOUD', route: 'AWS / DOCKER / CI', level: 0.82, color: 0x38bdf8, css: '#38bdf8', pos: new THREE.Vector3(3.18, 0.26, 1.86) },
+      { title: 'CMS / TOOLS', short: 'TOOLS', route: 'WP / GIT / FIGMA', level: 0.70, color: 0xc8d6e5, css: '#c8d6e5', pos: new THREE.Vector3(0.66, 0.38, 2.82) },
     ];
 
-    const cpuRings = [];
-    [0.72, 1.02, 1.34].forEach((radius, i) => {
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(radius, 0.01, 4, 100),
-        new THREE.MeshBasicMaterial({ color: i === 1 ? 0x22d3ee : 0xc8d6e5, transparent: true, opacity: 0.16, depthWrite: false })
-      );
-      ring.position.y = 0.34 + i * 0.04;
-      ring.rotation.x = -Math.PI / 2 + i * 0.18;
-      scene.add(ring);
-      cpuRings.push(ring);
+    const skillCards = qsa('#skills .grid > .hud-card');
+    const link = document.createElement('div');
+    link.className = 'skills-reactor-link';
+    link.setAttribute('aria-hidden', 'true');
+    link.appendChild(document.createElement('span'));
+    ctx.sec.appendChild(link);
+
+    skillCards.forEach((card, i) => {
+      const data = skillData[i % skillData.length];
+      card.classList.add('skill-reactor-card');
+      card.style.setProperty('--skill-accent', data.css);
+      card.style.setProperty('--skill-rgb', hexToRgb(data.css));
     });
 
+    const tagEls = qsa('#skills .hud-card .tag');
+    tagEls.forEach(tag => {
+      const card = tag.closest('.hud-card');
+      const index = skillCards.indexOf(card);
+      if (index < 0) return;
+      tag.addEventListener('mouseenter', () => activateSkill(index, 'chip', tag.textContent.trim()));
+      tag.addEventListener('pointerdown', () => activateSkill(index, 'chip', tag.textContent.trim()));
+    });
+
+    bindContentReaction(skillCards, index => {
+      activateSkill(index, 'card');
+    }, {
+      title: 'Route this stack through the 3D reactor',
+    });
+
+    const deck = createHoloDeck();
+    root.add(deck);
+
+    const starCount = PERF.lowPower ? 120 : 260;
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      starPos[i * 3] = (Math.random() - 0.5) * 13.5;
+      starPos[i * 3 + 1] = Math.random() * 5.6 - 1.8;
+      starPos[i * 3 + 2] = Math.random() * 10 - 6.0;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starField = new THREE.Points(
+      starGeo,
+      new THREE.PointsMaterial({
+        color: 0x7fa8c9,
+        size: PERF.lowPower ? 0.023 : 0.018,
+        transparent: true,
+        opacity: 0.42,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    root.add(starField);
+
+    const core = new THREE.Group();
+    core.position.y = 0.42;
+    root.add(core);
+
+    const coreGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.74, PERF.lowPower ? 18 : 30, PERF.lowPower ? 18 : 30),
+      meshMat(0x22d3ee, 0.07, { side: THREE.BackSide })
+    );
+    const coreInner = new THREE.Mesh(
+      new THREE.SphereGeometry(0.28, PERF.lowPower ? 16 : 28, PERF.lowPower ? 16 : 28),
+      meshMat(0xd8ecf8, 0.78)
+    );
+    const coreShell = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.68, 1),
+      meshMat(0xc8d6e5, 0.28, { wireframe: true })
+    );
     const coreCrystal = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.34, 1),
-      new THREE.MeshBasicMaterial({ color: 0xc8d6e5, wireframe: true, transparent: true, opacity: 0.28, depthWrite: false })
+      new THREE.OctahedronGeometry(0.42, 1),
+      meshMat(0x22d3ee, 0.34, { wireframe: true })
     );
-    coreCrystal.position.y = 0.64;
-    scene.add(coreCrystal);
+    core.add(coreGlow, coreInner, coreShell, coreCrystal);
 
-    const skillTowers = [];
-    skillTargets.forEach((target, i) => {
-      const group = new THREE.Group();
-      group.position.copy(target);
-      const baseColor = colors[i % colors.length];
-      const tower = new THREE.Mesh(
-        new THREE.BoxGeometry(0.32, 0.7 + (i % 3) * 0.18, 0.32),
-        new THREE.MeshBasicMaterial({ color: baseColor, wireframe: true, transparent: true, opacity: 0.16, depthWrite: false })
+    const reactorRings = [
+      makeRing(1.02, 0.010, 0x22d3ee, 0.28, [-Math.PI / 2, 0.10, 0.00]),
+      makeRing(1.33, 0.008, 0xd8ecf8, 0.18, [0.38, 0.34, 0.22]),
+      makeRing(1.62, 0.007, 0xa78bfa, 0.14, [1.18, 0.08, -0.48], Math.PI * 1.42),
+      makeRing(1.96, 0.006, 0x38bdf8, 0.12, [0.18, 1.02, 0.42], Math.PI * 1.62),
+    ];
+    reactorRings.forEach(ring => core.add(ring));
+
+    const shockRings = [0.46, 0.64, 0.86].map((radius, i) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.009, 4, 80),
+        meshMat(0x22d3ee, 0)
       );
-      tower.position.y = 0.35;
-      const halo = new THREE.Mesh(
-        new THREE.TorusGeometry(0.48, 0.01, 4, 64),
-        new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.18, depthWrite: false })
-      );
-      halo.rotation.x = -Math.PI / 2;
-      halo.position.y = 0.76;
-      const cap = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.12, 0),
-        new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.58, depthWrite: false })
-      );
-      cap.position.y = 0.86;
-      group.add(tower, halo, cap);
-      group._tower = tower;
-      group._halo = halo;
-      group._cap = cap;
-      group._baseY = target.y;
-      group._phase = i * 0.85;
-      hexGroup.add(group);
-      skillTowers.push(group);
+      ring.rotation.x = -Math.PI / 2;
+      ring.userData.i = i;
+      root.add(ring);
+      return ring;
     });
 
-    const dataSpokes = skillTargets.map((target, i) => {
-      const mid = target.clone().multiplyScalar(0.5);
-      mid.y = 0.62 + (i % 2) * 0.22;
-      const geo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(0, 0.38, 0),
-        mid,
-        target.clone().setY(0.58),
-      ]);
-      const line = new THREE.Line(
-        geo,
-        new THREE.LineBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 0.1, depthWrite: false })
-      );
-      hexGroup.add(line);
-      return line;
+    const nodes = skillData.map((data, i) => createSkillNode(data, i));
+    nodes.forEach(node => root.add(node.group));
+
+    const routes = skillData.map((data, i) => createRoute(data, i));
+    routes.forEach(route => {
+      root.add(route.beam, route.line);
+      route.pulses.forEach(pulse => root.add(pulse));
     });
 
-    const skillFocus = new THREE.Mesh(
-      new THREE.TorusGeometry(0.62, 0.012, 4, 90),
-      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
+    const streamCount = PERF.lowPower ? 92 : 190;
+    const streamPos = new Float32Array(streamCount * 3);
+    const streamCol = new Float32Array(streamCount * 3);
+    const streamMeta = [];
+    for (let i = 0; i < streamCount; i++) {
+      streamMeta.push({
+        offset: Math.random(),
+        speed: 0.18 + Math.random() * 0.32,
+        wobble: Math.random() * Math.PI * 2,
+        jitter: 0.018 + Math.random() * 0.055,
+        radius: 0.72 + Math.random() * 2.35,
+      });
+      setStreamColorAt(i, 0x22d3ee, 0.48 + Math.random() * 0.52);
+    }
+    const streamGeo = new THREE.BufferGeometry();
+    streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos, 3));
+    streamGeo.setAttribute('color', new THREE.BufferAttribute(streamCol, 3));
+    const streamParticles = new THREE.Points(
+      streamGeo,
+      new THREE.PointsMaterial({
+        size: PERF.lowPower ? 0.044 : 0.034,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.72,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
     );
-    skillFocus.rotation.x = -Math.PI / 2;
-    skillFocus.visible = false;
-    hexGroup.add(skillFocus);
+    root.add(streamParticles);
 
+    const targetCam = new THREE.Vector3();
+    const targetLook = new THREE.Vector3();
     let activeSkill = -1;
     let skillPulseUntil = 0;
-    bindContentReaction(qsa('#skills .grid > .hud-card'), index => {
-      activeSkill = index % skillTargets.length;
-      skillPulseUntil = performance.now() + 950;
-    }, {
-      title: 'Hover or click to route this stack through the 3D CPU',
-    });
+    let pulseWindow = 1200;
+    let lastLinkSlot = -1;
+    activateSkill(2, 'init');
 
     const clk = new THREE.Clock();
     (function tick() {
       requestAnimationFrame(tick);
       if (!ctx.canFrame()) return;
+
       const t = clk.getElapsedTime();
-      const target = activeSkill >= 0 ? skillTargets[activeSkill] : null;
-      const burst = Math.max(0, (skillPulseUntil - performance.now()) / 950);
+      const now = performance.now();
+      const active = activeSkill >= 0 ? skillData[activeSkill] : null;
+      const burst = Math.max(0, (skillPulseUntil - now) / pulseWindow);
+      const activeColor = active ? active.color : 0x22d3ee;
 
-      // Hex pulse wave (ripple từ tâm ra ngoài)
-      hexes.forEach(h => {
-        const dist = h.position.length();
-        const wave = Math.sin(t * 2 - dist * 0.8);
-        const focus = target ? Math.max(0, 1 - h.position.distanceTo(target) / 1.9) : 0;
-        h.material.opacity = h._baseOp + wave * 0.04 + focus * 0.26 + burst * focus * 0.18;
-        h.position.y = Math.sin(t * 0.8 + h._phase) * 0.05;
-        h.scale.setScalar(1 + focus * 0.2 + burst * focus * 0.12);
+      animateStars(t, burst);
+      deck.rotation.y = Math.sin(t * 0.18) * 0.035;
+      deck.material.opacity = 0.05 + Math.sin(t * 1.6) * 0.012 + burst * 0.03;
+
+      core.position.y = 0.42 + Math.sin(t * 0.85) * 0.06 + burst * 0.05;
+      coreInner.scale.setScalar(1 + Math.sin(t * 2.2) * 0.07 + burst * 0.22);
+      coreGlow.scale.setScalar(1.0 + Math.sin(t * 1.4) * 0.06 + burst * 0.32);
+      coreGlow.material.color.set(activeColor);
+      coreGlow.material.opacity = 0.055 + burst * 0.10;
+      coreShell.rotation.x = t * 0.32;
+      coreShell.rotation.y = -t * 0.42;
+      coreShell.material.color.set(activeColor);
+      coreShell.material.opacity = 0.20 + burst * 0.22;
+      coreCrystal.rotation.x = -t * 0.68;
+      coreCrystal.rotation.z = t * 0.54;
+      coreCrystal.material.color.set(activeColor);
+      coreCrystal.material.opacity = 0.24 + Math.sin(t * 2.8) * 0.04 + burst * 0.28;
+
+      reactorRings.forEach((ring, i) => {
+        ring.rotation.z = ring.userData.baseZ + t * (i % 2 ? -0.44 : 0.37);
+        ring.rotation.x = ring.userData.baseX + Math.sin(t * 0.5 + i) * 0.06;
+        ring.rotation.y = ring.userData.baseY + Math.cos(t * 0.42 + i) * 0.05;
+        ring.material.color.set(i % 2 ? activeColor : ring.userData.baseColor);
+        ring.material.opacity = ring.userData.baseOpacity + Math.sin(t * 2.0 + i) * 0.035 + burst * (0.10 + i * 0.018);
+        ring.scale.setScalar(1 + Math.sin(t * 1.2 + i) * 0.028 + burst * 0.12);
       });
 
-      if (target) {
-        skillFocus.visible = true;
-        skillFocus.position.lerp(target, 0.12);
-        skillFocus.material.color.set(colors[activeSkill % colors.length]);
-        skillFocus.material.opacity = 0.22 + Math.sin(t * 4.2) * 0.08 + burst * 0.35;
-        skillFocus.scale.setScalar(1 + Math.sin(t * 2.8) * 0.08 + burst * 0.22);
-        cpu.material.color.set(colors[activeSkill % colors.length]);
-        cpu.material.opacity = 0.26 + burst * 0.36;
+      nodes.forEach((node, i) => {
+        const focus = activeSkill === i ? 1 : 0;
+        const neighbor = active ? Math.max(0, 1 - node.data.pos.distanceTo(active.pos) / 5.8) : 0;
+        const life = 0.25 + neighbor * 0.45 + focus * 0.55;
+        node.group.position.y = node.data.pos.y + Math.sin(t * 0.9 + node.phase) * 0.055 + focus * (0.12 + burst * 0.08);
+        node.group.scale.setScalar(1 + focus * (0.18 + burst * 0.15) + neighbor * 0.035);
+        node.base.rotation.z = t * (0.18 + i * 0.015);
+        node.base.material.opacity = 0.07 + life * 0.22 + focus * burst * 0.18;
+        node.gate.rotation.z = -t * (0.58 + i * 0.04);
+        node.gate.material.opacity = 0.10 + life * 0.28 + focus * burst * 0.22;
+        node.vertical.rotation.y = t * (0.46 + i * 0.02);
+        node.vertical.material.opacity = 0.08 + life * 0.18;
+        node.core.rotation.x = t * 0.76;
+        node.core.rotation.y = -t * 0.92;
+        node.core.material.opacity = 0.36 + life * 0.32 + focus * burst * 0.18;
+        node.core.scale.setScalar(0.88 + node.data.level * 0.24 + focus * (0.42 + burst * 0.32));
+        node.label.material.opacity = 0.32 + focus * 0.50 + neighbor * 0.12;
+        node.shards.forEach((shard, s) => {
+          shard.rotation.y = t * (0.65 + s * 0.11);
+          shard.position.y = shard.userData.baseY + Math.sin(t * 1.5 + s + i) * 0.06 + focus * 0.10;
+          shard.material.opacity = 0.10 + life * 0.28;
+        });
+      });
+
+      routes.forEach((route, i) => {
+        const focus = activeSkill === i ? 1 : 0;
+        const idle = active ? 0.06 : 0.22;
+        route.beam.material.color.set(focus ? activeColor : route.color);
+        route.beam.material.opacity = idle + focus * (0.24 + burst * 0.22);
+        route.line.material.color.set(focus ? activeColor : route.color);
+        route.line.material.opacity = 0.045 + focus * (0.34 + burst * 0.20);
+        route.pulses.forEach((pulse, p) => {
+          const u = (route.phase[p] + t * (focus ? 0.56 + burst * 0.36 : 0.17 + p * 0.02)) % 1;
+          pulse.position.copy(route.curve.getPoint(u));
+          pulse.material.color.set(focus ? activeColor : route.color);
+          pulse.material.opacity = focus ? 0.74 + burst * 0.22 : 0.12;
+          pulse.scale.setScalar(focus ? 1.0 + burst * 0.9 : 0.62);
+        });
+      });
+
+      animateStreams(t, burst, activeColor);
+      animateShockwave(t, burst, activeColor);
+
+      if (active) {
+        targetCam.set(active.pos.x * 0.16 + gmx * 1.05, 4.38 - gmy * 0.72 + burst * 0.18, 8.55 - burst * 0.45);
+        targetLook.set(active.pos.x * 0.18, 0.36 + active.pos.y * 0.10, active.pos.z * 0.16);
       } else {
-        skillFocus.material.opacity *= 0.92;
-        if (skillFocus.material.opacity < 0.01) skillFocus.visible = false;
-        cpu.material.color.set(0xc8d6e5);
-        cpu.material.opacity += (0.2 - cpu.material.opacity) * 0.06;
+        targetCam.set(gmx * 1.05, 4.45 - gmy * 0.7, 8.9);
+        targetLook.set(0, 0.28, 0);
+      }
+      cam.position.lerp(targetCam, 0.045);
+      lookPoint.lerp(targetLook, 0.075);
+      root.rotation.y = Math.sin(t * 0.14) * 0.05 + gmx * 0.055;
+      root.rotation.x = -0.035 + gmy * 0.03;
+      cam.lookAt(lookPoint);
+
+      const linkSlot = Math.floor(t * 12);
+      if (linkSlot !== lastLinkSlot) {
+        lastLinkSlot = linkSlot;
+        updateDomLink();
       }
 
-      coreCrystal.rotation.x = t * 0.36;
-      coreCrystal.rotation.y = -t * 0.52;
-      coreCrystal.material.color.set(target ? colors[activeSkill % colors.length] : 0xc8d6e5);
-      coreCrystal.material.opacity = 0.22 + (target ? 0.16 + burst * 0.18 : Math.sin(t * 1.5) * 0.04);
-      cpuRings.forEach((ring, i) => {
-        ring.rotation.z = t * (i % 2 ? -0.34 : 0.28);
-        ring.material.color.set(target ? colors[activeSkill % colors.length] : (i === 1 ? 0x22d3ee : 0xc8d6e5));
-        ring.material.opacity = 0.12 + Math.sin(t * 2 + i) * 0.04 + (target ? burst * 0.18 : 0);
-        ring.scale.setScalar(1 + Math.sin(t * 1.6 + i) * 0.035 + (target ? burst * 0.12 : 0));
-      });
-
-      skillTowers.forEach((tower, i) => {
-        const focus = i === activeSkill ? 1 : 0;
-        tower.position.y = tower._baseY + Math.sin(t * 0.9 + tower._phase) * 0.06 + focus * 0.12;
-        tower._tower.scale.y = 1 + focus * (0.65 + burst * 0.28) + Math.sin(t * 1.4 + i) * 0.05;
-        tower._tower.material.opacity = 0.12 + focus * 0.32;
-        tower._halo.rotation.z = t * (0.42 + i * 0.04);
-        tower._halo.scale.setScalar(1 + focus * (0.28 + burst * 0.2) + Math.sin(t * 2 + i) * 0.04);
-        tower._halo.material.opacity = 0.12 + focus * 0.34;
-        tower._cap.rotation.x = t * 0.7;
-        tower._cap.rotation.y = -t * 0.9;
-        tower._cap.scale.setScalar(1 + focus * (0.5 + burst * 0.26));
-        tower._cap.material.opacity = 0.42 + focus * 0.36;
-        dataSpokes[i].material.opacity = 0.06 + focus * (0.35 + Math.sin(t * 7) * 0.05 + burst * 0.24);
-      });
-
-      // Data pulses
-      const pos = pGeo.attributes.position.array;
-      for (let i = 0; i < pCount; i++) {
-        if (target && burst > 0) {
-          pVel[i].x += (target.x - pos[i * 3]) * 0.00045 * burst;
-          pVel[i].z += (target.z - pos[i * 3 + 2]) * 0.00045 * burst;
-          pVel[i].x = Math.max(-0.05, Math.min(0.05, pVel[i].x));
-          pVel[i].z = Math.max(-0.05, Math.min(0.05, pVel[i].z));
-        }
-        pos[i * 3] += pVel[i].x;
-        pos[i * 3 + 2] += pVel[i].z;
-        if (Math.abs(pos[i * 3]) > 5) pVel[i].x *= -1;
-        if (Math.abs(pos[i * 3 + 2]) > 3.5) pVel[i].z *= -1;
-      }
-      pGeo.attributes.position.needsUpdate = true;
-
-      cpu.rotation.y = t * 0.3;
-      cpu.position.y = 0.3 + Math.sin(t * 0.5) * 0.1;
-      hexGroup.rotation.y = t * 0.02;
-
-      cam.position.x += (gmx * 2 - cam.position.x) * 0.02;
-      cam.position.z += (8 - gmy * 1.5 - cam.position.z) * 0.02;
-      cam.lookAt(0, 0, 0);
       ctx.r.render(scene, cam);
     })();
+
+    function activateSkill(index, source, chipText) {
+      activeSkill = ((index % skillData.length) + skillData.length) % skillData.length;
+      pulseWindow = source === 'chip' ? 860 : 1240;
+      skillPulseUntil = performance.now() + pulseWindow;
+      const data = skillData[activeSkill];
+      setAllStreamColors(data.color);
+      skillCards.forEach((card, i) => card.classList.toggle('is-3d-active', i === activeSkill));
+      link.classList.add('is-active');
+      link.style.setProperty('--skill-accent', data.css);
+      updateDomLink();
+    }
+
+    function updateDomLink() {
+      if (activeSkill < 0 || !skillCards[activeSkill] || !link) return;
+      const secRect = ctx.sec.getBoundingClientRect();
+      if (!secRect.width || !secRect.height) return;
+      const cardRect = skillCards[activeSkill].getBoundingClientRect();
+      const startX = cardRect.left + cardRect.width * 0.5 - secRect.left;
+      const startY = cardRect.top + cardRect.height * 0.5 - secRect.top;
+      const corePoint = new THREE.Vector3(0, 0.44, 0);
+      root.localToWorld(corePoint);
+      corePoint.project(cam);
+      const endX = (corePoint.x * 0.5 + 0.5) * secRect.width;
+      const endY = (-corePoint.y * 0.5 + 0.5) * secRect.height;
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const len = Math.max(40, Math.sqrt(dx * dx + dy * dy));
+      link.style.width = len.toFixed(1) + 'px';
+      link.style.transform = 'translate3d(' + startX.toFixed(1) + 'px,' + startY.toFixed(1) + 'px,0) rotate(' + Math.atan2(dy, dx).toFixed(4) + 'rad)';
+      link.style.setProperty('--link-len', len.toFixed(1) + 'px');
+    }
+
+    function createHoloDeck() {
+      const pts = [];
+      const xCount = 15;
+      const zCount = 11;
+      for (let x = -xCount; x <= xCount; x++) {
+        pts.push(new THREE.Vector3(x * 0.42, -0.78, -3.7), new THREE.Vector3(x * 0.42, -0.78, 3.7));
+      }
+      for (let z = -zCount; z <= zCount; z++) {
+        pts.push(new THREE.Vector3(-6.3, -0.78, z * 0.42), new THREE.Vector3(6.3, -0.78, z * 0.42));
+      }
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      const grid = new THREE.LineSegments(
+        geo,
+        new THREE.LineBasicMaterial({
+          color: 0x7fa8c9,
+          transparent: true,
+          opacity: 0.06,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      return grid;
+    }
+
+    function createSkillNode(data, i) {
+      const group = new THREE.Group();
+      group.position.copy(data.pos);
+      const base = new THREE.Mesh(
+        new THREE.RingGeometry(0.40, 0.48, 6),
+        meshMat(data.color, 0.16, { side: THREE.DoubleSide })
+      );
+      base.rotation.x = -Math.PI / 2;
+      const plate = new THREE.Mesh(
+        new THREE.CircleGeometry(0.36, 6),
+        meshMat(data.color, 0.06, { wireframe: true })
+      );
+      plate.rotation.x = -Math.PI / 2;
+      plate.position.y = 0.018;
+      const gate = new THREE.Mesh(
+        new THREE.TorusGeometry(0.47, 0.010, 4, 68),
+        meshMat(data.color, 0.22)
+      );
+      gate.rotation.x = -Math.PI / 2;
+      gate.position.y = 0.08;
+      const vertical = new THREE.Mesh(
+        new THREE.TorusGeometry(0.30, 0.007, 4, 52),
+        meshMat(data.color, 0.12)
+      );
+      vertical.position.y = 0.38;
+      vertical.rotation.y = Math.PI / 2;
+      const coreNode = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.13 + data.level * 0.06, 0),
+        meshMat(data.color, 0.62)
+      );
+      coreNode.position.y = 0.34;
+      const label = makeStackLabel(data.short, data.route, data.css);
+      label.position.set(0, 0.92, 0);
+      const shards = [];
+      for (let s = 0; s < 4; s++) {
+        const angle = (s / 4) * Math.PI * 2 + i * 0.2;
+        const shard = new THREE.Mesh(
+          new THREE.BoxGeometry(0.055, 0.18 + s * 0.028, 0.055),
+          meshMat(data.color, 0.18, { wireframe: true })
+        );
+        shard.position.set(Math.cos(angle) * 0.62, 0.26 + s * 0.035, Math.sin(angle) * 0.62);
+        shard.userData.baseY = shard.position.y;
+        shards.push(shard);
+      }
+      group.add(base, plate, gate, vertical, coreNode, label);
+      shards.forEach(shard => group.add(shard));
+      return { data, group, base, plate, gate, vertical, core: coreNode, label, shards, phase: i * 0.82 };
+    }
+
+    function createRoute(data, i) {
+      const start = new THREE.Vector3(0, 0.48, 0);
+      const end = data.pos.clone();
+      end.y += 0.36;
+      const mid = start.clone().lerp(end, 0.52);
+      mid.y = 1.08 + (i % 3) * 0.18;
+      mid.z += (i % 2 ? 0.36 : -0.28);
+      const curve = new THREE.CatmullRomCurve3([start, mid, end]);
+      const beam = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, PERF.lowPower ? 44 : 76, 0.008, 6, false),
+        meshMat(data.color, 0.08)
+      );
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(curve.getPoints(PERF.lowPower ? 32 : 58)),
+        new THREE.LineBasicMaterial({
+          color: data.color,
+          transparent: true,
+          opacity: 0.08,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      const pulses = [0, 0.32, 0.66].map(() => new THREE.Mesh(
+        new THREE.SphereGeometry(0.042, 10, 10),
+        meshMat(data.color, 0.18)
+      ));
+      return { curve, beam, line, pulses, color: data.color, phase: [i * 0.08, 0.34 + i * 0.05, 0.68 + i * 0.03] };
+    }
+
+    function animateStars(t, burst) {
+      const arr = starGeo.attributes.position.array;
+      for (let i = 0; i < starCount; i++) {
+        const idx = i * 3;
+        arr[idx + 2] += 0.008 + burst * 0.030;
+        arr[idx] += Math.sin(t * 0.55 + i) * 0.0012;
+        if (arr[idx + 2] > 4.2) {
+          arr[idx + 2] = -6.0;
+          arr[idx] = (Math.random() - 0.5) * 13.5;
+          arr[idx + 1] = Math.random() * 5.6 - 1.8;
+        }
+      }
+      starGeo.attributes.position.needsUpdate = true;
+      starField.material.opacity = 0.34 + burst * 0.26;
+    }
+
+    function animateStreams(t, burst, activeColor) {
+      const arr = streamGeo.attributes.position.array;
+      const route = activeSkill >= 0 ? routes[activeSkill] : null;
+      for (let i = 0; i < streamCount; i++) {
+        const idx = i * 3;
+        const meta = streamMeta[i];
+        if (route) {
+          const u = (meta.offset + t * meta.speed * (0.52 + burst * 0.52)) % 1;
+          const point = route.curve.getPoint(u);
+          arr[idx] = point.x + Math.sin(t * 2.2 + meta.wobble) * meta.jitter;
+          arr[idx + 1] = point.y + Math.cos(t * 1.7 + meta.wobble) * meta.jitter * 0.6;
+          arr[idx + 2] = point.z + Math.sin(t * 1.4 + i) * meta.jitter;
+        } else {
+          const a = t * meta.speed + meta.offset * Math.PI * 2;
+          arr[idx] = Math.cos(a) * meta.radius;
+          arr[idx + 1] = 0.28 + Math.sin(a * 1.7 + i) * 0.56;
+          arr[idx + 2] = Math.sin(a) * meta.radius * 0.68;
+        }
+      }
+      streamGeo.attributes.position.needsUpdate = true;
+      streamParticles.material.opacity = 0.52 + burst * 0.32;
+      void activeColor;
+    }
+
+    function animateShockwave(t, burst, activeColor) {
+      const target = activeSkill >= 0 ? skillData[activeSkill].pos.clone() : new THREE.Vector3(0, 0.2, 0);
+      target.y += 0.06;
+      shockRings.forEach((ring, i) => {
+        ring.position.lerp(target, 0.18);
+        ring.rotation.z = t * (0.4 + i * 0.08);
+        ring.material.color.set(activeColor);
+        const spread = 1 + (1 - burst) * (0.45 + i * 0.34);
+        ring.scale.setScalar(spread);
+        ring.material.opacity = burst * (0.28 - i * 0.055);
+      });
+    }
+
+    function makeRing(radius, tube, color, opacity, rotation, arc) {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, tube, 5, PERF.lowPower ? 74 : 132, arc || Math.PI * 2),
+        meshMat(color, opacity)
+      );
+      ring.rotation.set(rotation[0], rotation[1], rotation[2]);
+      ring.userData.baseX = rotation[0];
+      ring.userData.baseY = rotation[1];
+      ring.userData.baseZ = rotation[2];
+      ring.userData.baseColor = color;
+      ring.userData.baseOpacity = opacity;
+      return ring;
+    }
+
+    function makeStackLabel(title, route, color) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 160;
+      const x = c.getContext('2d');
+      x.clearRect(0, 0, c.width, c.height);
+      const glow = x.createLinearGradient(0, 0, c.width, 0);
+      glow.addColorStop(0, 'rgba(5,10,18,0)');
+      glow.addColorStop(0.18, 'rgba(5,10,18,0.76)');
+      glow.addColorStop(0.82, 'rgba(5,10,18,0.76)');
+      glow.addColorStop(1, 'rgba(5,10,18,0)');
+      x.fillStyle = glow;
+      x.fillRect(0, 22, c.width, 112);
+      x.strokeStyle = color;
+      x.globalAlpha = 0.72;
+      x.strokeRect(78, 30, 356, 94);
+      x.globalAlpha = 1;
+      x.font = '800 34px Courier New, monospace';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillStyle = '#d8ecf8';
+      x.fillText(title, c.width / 2, 63);
+      x.font = '700 19px Courier New, monospace';
+      x.fillStyle = color;
+      x.fillText(route, c.width / 2, 102);
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.7, depthWrite: false }));
+      sprite.scale.set(1.35, 0.42, 1);
+      return sprite;
+    }
+
+    function meshMat(color, opacity, opts) {
+      return new THREE.MeshBasicMaterial(Object.assign({
+        color,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }, opts || {}));
+    }
+
+    function setStreamColorAt(index, color, gain) {
+      const c = new THREE.Color(color);
+      const idx = index * 3;
+      streamCol[idx] = c.r * gain;
+      streamCol[idx + 1] = c.g * gain;
+      streamCol[idx + 2] = c.b * gain;
+    }
+
+    function setAllStreamColors(color) {
+      for (let i = 0; i < streamCount; i++) {
+        const shimmer = 0.46 + (i % 9) * 0.055;
+        setStreamColorAt(i, color, shimmer);
+      }
+      streamGeo.attributes.color.needsUpdate = true;
+    }
+
+    function hexToRgb(hex) {
+      const value = parseInt(hex.replace('#', ''), 16);
+      return ((value >> 16) & 255) + ',' + ((value >> 8) & 255) + ',' + (value & 255);
+    }
   })();
 
   /* ────────────────────────────────────────────────────────────
