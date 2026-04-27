@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node backend/src/server.js",
-    "start": "NODE_ENV=production node backend/src/server.js",
+    "dev": "node backend/src/dev.js",
+    "start": "node backend/src/dev.js",
+    "build": "echo 'No build step needed'",
     "check": "find backend/src -name '*.js' -exec node --check {} \\;"
   },
   "dependencies": {

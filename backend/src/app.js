@@ -37,6 +37,7 @@ export function createApp() {
   const app = express();
 
   app.disable('x-powered-by');
+
   app.use(compression({
     threshold: 1024,
     level: 6
@@ -44,18 +45,17 @@ export function createApp() {
 
   app.use('/api', localCors);
   app.use('/api', express.json({ limit: '1mb' }), apiRouter);
-  app.use('/api', (req, res) => {
-    res.status(404).json({ error: 'API route not found' });
-  });
 
   app.get('/favicon.ico', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
     res.sendFile(join(env.publicDir, 'assets', 'favicon-32.png'));
   });
+
   app.get('/assets/favicon.png', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
     res.sendFile(join(env.publicDir, 'assets', 'favicon-32.png'));
   });
+
   app.get('/icon.png', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
     res.sendFile(join(env.publicDir, 'assets', 'icon-384.jpg'));
@@ -76,6 +76,10 @@ export function createApp() {
 
   app.get('/', (req, res) => {
     res.sendFile(join(env.publicDir, 'index.html'));
+  });
+
+  app.use('/api', (req, res) => {
+    res.status(404).json({ error: 'API route not found' });
   });
 
   app.use('/api', errorHandler);
