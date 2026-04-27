@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Đinh Văn Hùng — Full Stack Developer</title>
 <meta name="description" content="Đinh Văn Hùng is a full stack developer specializing in backend systems, cloud architecture, AI-powered platforms, and production web applications."/>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png"/>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/>
 <link rel="preconnect" href="https://unpkg.com" crossorigin/>
 <link href="assets/tailwind-lite.css" rel="stylesheet"/>
@@ -227,6 +227,57 @@ nav a{text-decoration:none;}
 
 .gold-badge{background:linear-gradient(135deg,rgba(168,200,220,0.18),rgba(200,214,229,0.12));
   border:1px solid rgba(200,214,229,0.35);}
+
+/* ── SECTION NAV TRANSITION ── */
+.section-warp{
+  position:fixed;inset:0;z-index:170;pointer-events:none;opacity:0;
+  transform:translateY(18px) scaleY(.94);
+  background:
+    linear-gradient(180deg,transparent 0%,rgba(34,211,238,0.08) 42%,rgba(200,214,229,0.16) 50%,rgba(34,211,238,0.08) 58%,transparent 100%),
+    repeating-linear-gradient(0deg,transparent 0 10px,rgba(200,214,229,0.055) 10px 11px);
+  clip-path:polygon(0 42%,100% 32%,100% 68%,0 58%);
+  mix-blend-mode:screen;
+  transition:opacity .18s ease,transform .42s cubic-bezier(.16,1,.3,1);
+}
+.section-warp::before,
+.section-warp::after{
+  content:'';position:absolute;left:-20%;right:-20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,214,229,0.92),rgba(34,211,238,0.75),transparent);
+  box-shadow:0 0 18px rgba(34,211,238,0.55),0 0 44px rgba(200,214,229,0.25);
+  opacity:0;transform:translateY(0);
+}
+.section-warp::before{top:43%;}
+.section-warp::after{top:57%;}
+.section-warp.is-active{opacity:1;transform:translateY(0) scaleY(1);}
+.section-warp.is-active::before{animation:section-warp-scan .62s ease-out both;}
+.section-warp.is-active::after{animation:section-warp-scan .62s .07s ease-out both reverse;}
+@keyframes section-warp-scan{
+  0%{opacity:0;transform:translateX(-18%) translateY(-26px);}
+  25%{opacity:1;}
+  100%{opacity:0;transform:translateX(18%) translateY(26px);}
+}
+main section.is-section-arriving{
+  animation:section-frame-pulse .9s ease both;
+}
+main section.is-section-arriving>.max-w-5xl{
+  animation:section-content-arrive .72s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes section-frame-pulse{
+  0%{box-shadow:inset 0 0 0 1px rgba(34,211,238,0),inset 0 0 0 rgba(34,211,238,0);}
+  30%{box-shadow:inset 0 0 0 1px rgba(34,211,238,0.32),inset 0 0 80px rgba(34,211,238,0.05);}
+  100%{box-shadow:inset 0 0 0 1px rgba(34,211,238,0),inset 0 0 0 rgba(34,211,238,0);}
+}
+@keyframes section-content-arrive{
+  0%{opacity:.42;filter:blur(4px);transform:translateY(34px) scale(.985);}
+  100%{opacity:1;filter:blur(0);transform:translateY(0) scale(1);}
+}
+@media (prefers-reduced-motion:reduce){
+  .section-warp,
+  .section-warp.is-active::before,
+  .section-warp.is-active::after,
+  main section.is-section-arriving,
+  main section.is-section-arriving>.max-w-5xl{animation:none;transition:none;}
+}
 
 /* ── LANG TOGGLE ── */
 .lang-btn{
@@ -1855,6 +1906,112 @@ menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
   ham.setAttribute('aria-label', 'Open navigation menu');
   ham.querySelectorAll('span').forEach(s=>{s.style.transform='';s.style.opacity='1';});
 }));
+
+/* ── 7A. SECTION NAV TRANSITION ── */
+(function(){
+  const sectionIds = new Set([...document.querySelectorAll('main section[id]')].map(section => section.id));
+  const links = document.querySelectorAll('a[href^="#"]:not([href="#"])');
+  if (!sectionIds.size || !links.length) return;
+
+  const warp = document.createElement('div');
+  warp.className = 'section-warp';
+  warp.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(warp);
+
+  let warpTimer = 0;
+  let arriveTimer = 0;
+  let navRun = 0;
+
+  function prefersReducedMotion() {
+    return window.DVHPerf ? window.DVHPerf.reduceMotion : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function sectionFromHash(hash) {
+    if (!hash || hash === '#') return null;
+    let id = hash.slice(1);
+    try { id = decodeURIComponent(id); } catch (error) {}
+    if (!sectionIds.has(id)) return null;
+    return document.getElementById(id);
+  }
+
+  function scrollTopFor(target) {
+    const nav = document.querySelector('nav');
+    const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+    const gap = target.id === 'hero' ? 0 : navHeight + 14;
+    return Math.max(0, window.scrollY + target.getBoundingClientRect().top - gap);
+  }
+
+  function flashWarp() {
+    clearTimeout(warpTimer);
+    warp.classList.add('is-active');
+    warpTimer = setTimeout(() => warp.classList.remove('is-active'), 620);
+  }
+
+  function updateHash(hash) {
+    if (location.hash !== hash) history.pushState(null, '', hash);
+  }
+
+  function replaySection(target) {
+    clearTimeout(arriveTimer);
+    target.classList.remove('is-section-arriving');
+    void target.offsetWidth;
+    target.classList.add('is-section-arriving');
+    arriveTimer = setTimeout(() => target.classList.remove('is-section-arriving'), 980);
+
+    const reveals = [...target.querySelectorAll('.reveal')];
+    reveals.forEach(el => el.classList.remove('in'));
+    requestAnimationFrame(() => {
+      reveals.forEach((el, index) => {
+        setTimeout(() => el.classList.add('in'), index * 70);
+      });
+    });
+
+    target.querySelectorAll('.prog-bar[data-w]').forEach(bar => {
+      setTimeout(() => { bar.style.width = `${bar.dataset.w}%`; }, 260);
+    });
+  }
+
+  function afterScrollArrives(targetTop, runId, callback) {
+    const started = performance.now();
+    const check = () => {
+      const done = Math.abs(window.scrollY - targetTop) < 8 || performance.now() - started > 1350;
+      if (done) {
+        if (runId === navRun) callback();
+        return;
+      }
+      requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }
+
+  function goToSection(hash) {
+    const target = sectionFromHash(hash);
+    if (!target) return false;
+
+    const targetTop = scrollTopFor(target);
+    const runId = ++navRun;
+    updateHash(hash);
+
+    if (prefersReducedMotion()) {
+      window.scrollTo(0, targetTop);
+      return true;
+    }
+
+    flashWarp();
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+    afterScrollArrives(targetTop, runId, () => replaySection(target));
+    return true;
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', event => {
+      const hash = link.getAttribute('href');
+      if (!sectionFromHash(hash)) return;
+      event.preventDefault();
+      goToSection(hash);
+    });
+  });
+})();
 
 /* ── 7B. CONTENT HOVER HIGHLIGHT ── */
 (function(){
