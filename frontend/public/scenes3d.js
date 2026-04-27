@@ -2468,7 +2468,7 @@
     const iconPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.54), iconMat);
     iconPlane.position.set(1.23, 0.68, 0.16);
     browser.add(iconPlane);
-    new THREE.TextureLoader().load('icon.png', tex => {
+    new THREE.TextureLoader().load('assets/icon-384.jpg', tex => {
       if (ctx.r.capabilities && ctx.r.capabilities.getMaxAnisotropy) {
         tex.anisotropy = Math.min(ctx.r.capabilities.getMaxAnisotropy(), 4);
       }

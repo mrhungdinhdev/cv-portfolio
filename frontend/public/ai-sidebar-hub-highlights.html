@@ -483,6 +483,12 @@ h1{
   padding:82px 0;
   border-top:1px solid rgba(17,17,17,.1);
 }
+@supports (content-visibility:auto) {
+  .section{
+    content-visibility:auto;
+    contain-intrinsic-block-size:760px;
+  }
+}
 .section-head{
   display:flex;
   align-items:end;
@@ -1774,7 +1780,7 @@ h2{
             <span class="support-kicker"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Vietnam</span>
             <h3>Scan QR to Support</h3>
             <div class="qr-frame">
-              <img src="assets/qr-bank-vn.png" loading="lazy" decoding="async" alt="QR donate for Dinh Van Hung via VietinBank"/>
+              <img src="assets/qr-bank-vn.png" width="507" height="512" loading="lazy" decoding="async" fetchpriority="low" alt="QR donate for Dinh Van Hung via VietinBank"/>
             </div>
             <p class="bank-detail">Dinh Van Hung<br/>VietinBank</p>
             <p class="qr-note">For supporters in Vietnam, scan this QR with your banking app. Thank you for helping keep the project alive.</p>
@@ -1822,10 +1828,12 @@ h2{
   </footer>
 </div>
 
-<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
 <script>
 'use strict';
-if (window.lucide) lucide.createIcons();
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) lucide.createIcons();
+});
 
 const revealItems = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window) {

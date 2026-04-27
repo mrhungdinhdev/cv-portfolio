@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Đinh Văn Hùng — Full Stack Developer</title>
 <meta name="description" content="Đinh Văn Hùng is a full stack developer specializing in backend systems, cloud architecture, AI-powered platforms, and production web applications."/>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"/>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/>
 <link rel="preconnect" href="https://unpkg.com" crossorigin/>
 <link href="assets/tailwind-lite.css" rel="stylesheet"/>
@@ -477,6 +477,12 @@ section:hover .section-3d-canvas{opacity:0.9;filter:saturate(1.24) contrast(1.14
 [data-reacts-3d="true"]:focus-visible{
   outline:1px solid rgba(34,211,238,0.55);
   outline-offset:6px;
+}
+@supports (content-visibility:auto) {
+  main > section:not(#hero) {
+    content-visibility:auto;
+    contain-intrinsic-block-size:900px;
+  }
 }
 .about-geo-readout{
   position:absolute;right:clamp(18px,6vw,82px);bottom:28px;z-index:2;

@@ -1,8 +1,17 @@
 {
+  "name": "dinhvanhung-portfolio",
+  "version": "1.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node dev-server.mjs",
-    "check": "node --check api/chat.js && node --check api/tts.js && node --check dev-server.mjs"
+    "dev": "node backend/src/server.js",
+    "start": "NODE_ENV=production node backend/src/server.js",
+    "check": "find backend/src -name '*.js' -exec node --check {} \\;"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
   },
   "engines": {
     "node": ">=20"
