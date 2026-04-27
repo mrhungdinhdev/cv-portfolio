@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Sidebar Hub + Highlights - User Guide</title>
+<meta name="description" content="User guide and privacy information for AI Sidebar Hub + Highlights, a Chrome extension for multi-AI side panel access, highlights, notes, and cookie banner blocking."/>
+<meta name="theme-color" content="#f7f7f4"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"/>
+<link rel="preconnect" href="https://unpkg.com" crossorigin/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f7f7f4;
+  --panel:#ffffff;
+  --panel-2:#eeeeea;
+  --line:rgba(17,17,17,.12);
+  --text:#111111;
+  --muted:#666666;
+  --soft:#333333;
+  --cyan:#111111;
+  --green:#2f2f2f;
+  --amber:#c8b58a;
+  --rose:#888888;
+}
+html{scroll-behavior:smooth;}
+body{
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(17,17,17,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(17,17,17,.035) 1px,transparent 1px),
+    radial-gradient(ellipse at top left,rgba(17,17,17,.055),transparent 42%),
+    linear-gradient(180deg,#fbfbf8 0%,#f4f4f0 58%,#ffffff 100%);
+  background-size:36px 36px,36px 36px,auto,auto;
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.5;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),transparent 24%,rgba(17,17,17,.025));
+  z-index:1;
+}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;}
+img{display:block;max-width:100%;}
+.page{position:relative;z-index:2;}
+.container{width:min(1120px,calc(100% - 40px));margin:0 auto;}
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.86);
+  backdrop-filter:blur(20px);
+}
+.nav{
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.brand img{
+  width:38px;
+  height:38px;
+  border-radius:8px;
+  border:1px solid rgba(17,17,17,.12);
+  box-shadow:0 10px 28px rgba(17,17,17,.08);
+}
+.brand-copy{
+  display:block;
+  min-width:0;
+}
+.brand-copy strong{
+  display:block;
+  font-size:.9rem;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.brand-copy span{
+  display:block;
+  color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.68rem;
+  letter-spacing:.12em;
+  margin-top:1px;
+}
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  letter-spacing:.11em;
+}
+.nav-links a{transition:color .2s ease;}
+.nav-links a:hover{color:var(--text);}
+.nav-support{
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  padding:0 12px;
+  color:#fff!important;
+  background:linear-gradient(135deg,#111,#3a3a3a);
+  box-shadow:0 10px 24px rgba(17,17,17,.12);
+}
+.nav-support:hover{
+  color:#fff!important;
+  transform:translateY(-1px);
+  box-shadow:0 14px 28px rgba(17,17,17,.16);
+}
+.icon-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  color:var(--soft);
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
+}
+.icon-link:hover{border-color:rgba(17,17,17,.22);color:var(--text);background:rgba(17,17,17,.045);}
+.hero{
+  min-height:calc(100svh - 68px);
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr);
+  align-items:center;
+  gap:44px;
+  padding:74px 0 46px;
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  color:var(--green);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.eyebrow::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 18px rgba(17,17,17,.18);
+}
+h1{
+  max-width:800px;
+  font-size:clamp(2.65rem,7vw,5.8rem);
+  line-height:.94;
+  letter-spacing:0;
+  color:#111111;
+}
+.hero-copy{
+  max-width:660px;
+  margin-top:24px;
+  color:var(--soft);
+  font-size:clamp(1rem,1.65vw,1.18rem);
+}
+.hero-actions{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:34px;
+}
+.btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  border-radius:8px;
+  padding:0 18px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.78rem;
+  letter-spacing:.08em;
+  border:1px solid var(--line);
+  color:var(--text);
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,color .2s ease;
+}
+.btn.primary{
+  color:#ffffff;
+  border-color:transparent;
+  background:linear-gradient(135deg,#111111,#3a3a3a);
+  font-weight:700;
+}
+.btn.secondary{background:rgba(17,17,17,.035);}
+.btn.support-primary{
+  color:#fff;
+  border-color:transparent;
+  background:linear-gradient(135deg,#009cde,#003087);
+  box-shadow:0 14px 28px rgba(0,112,186,.18);
+}
+.btn.support-primary:hover{
+  border-color:transparent;
+  box-shadow:0 18px 34px rgba(0,112,186,.24);
+}
+.btn:hover{transform:translateY(-2px);border-color:rgba(17,17,17,.28);}
+.hero-meta{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin-top:44px;
+  max-width:680px;
+}
+.metric{
+  border-left:1px solid rgba(17,17,17,.18);
+  padding-left:13px;
+}
+.metric strong{
+  display:block;
+  color:#111111;
+  font-size:1.55rem;
+  line-height:1;
+}
+.metric span{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.66rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.support-teaser{
+  margin:-24px auto 70px;
+}
+.support-teaser-inner{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:20px;
+  border:1px solid rgba(0,112,186,.18);
+  border-radius:10px;
+  padding:18px 20px;
+  background:
+    radial-gradient(circle at 12% 20%,rgba(0,112,186,.09),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.94),rgba(247,247,244,.9));
+  box-shadow:0 18px 42px rgba(17,17,17,.08);
+}
+.support-teaser-copy{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.support-teaser-icon{
+  width:46px;
+  height:46px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  color:#fff;
+  background:linear-gradient(145deg,#009cde,#003087);
+  box-shadow:0 12px 28px rgba(0,112,186,.18);
+}
+.support-teaser strong{
+  display:block;
+  color:#111;
+  font-size:1rem;
+  margin-bottom:3px;
+}
+.support-teaser span{
+  display:block;
+  color:var(--muted);
+  font-size:.92rem;
+}
+.support-teaser-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.support-teaser-link{
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border-radius:8px;
+  padding:0 14px;
+  color:#fff;
+  background:linear-gradient(135deg,#009cde,#003087);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.07em;
+  white-space:nowrap;
+}
+.support-teaser-link.secondary{
+  color:#111;
+  border:1px solid rgba(17,17,17,.14);
+  background:rgba(255,255,255,.7);
+}
+.product-visual{
+  position:relative;
+  min-height:540px;
+  display:grid;
+  place-items:center;
+}
+.browser-shell{
+  width:min(100%,460px);
+  border:1px solid rgba(17,17,17,.14);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(244,244,240,.96));
+  box-shadow:0 28px 80px rgba(17,17,17,.12);
+  overflow:hidden;
+}
+.browser-top{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+  padding:0 14px;
+  background:rgba(17,17,17,.035);
+}
+.traffic{display:flex;gap:7px;}
+.traffic span{width:8px;height:8px;border-radius:50%;}
+.traffic span:nth-child(1){background:var(--rose);}
+.traffic span:nth-child(2){background:var(--amber);}
+.traffic span:nth-child(3){background:var(--green);}
+.browser-url{
+  flex:1;
+  min-width:0;
+  border:1px solid rgba(17,17,17,.1);
+  border-radius:7px;
+  padding:5px 10px;
+  color:rgba(17,17,17,.5);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.65rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.workspace{
+  display:grid;
+  grid-template-columns:1fr 172px;
+  min-height:360px;
+}
+.article-mock{
+  padding:22px;
+  border-right:1px solid var(--line);
+}
+.line{
+  height:9px;
+  border-radius:99px;
+  background:rgba(17,17,17,.1);
+  margin-bottom:12px;
+}
+.line.short{width:52%;}
+.line.medium{width:74%;}
+.highlighted{
+  position:relative;
+  margin:18px 0 20px;
+  padding:13px 14px;
+  color:#111111;
+  background:linear-gradient(135deg,rgba(238,231,214,.98),rgba(255,255,255,.95));
+  border-radius:8px;
+  font-size:.85rem;
+  font-weight:700;
+}
+.highlighted::after{
+  content:"Saved highlight";
+  position:absolute;
+  right:10px;
+  bottom:-24px;
+  color:var(--amber);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.58rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.sidebar-mock{
+  padding:16px;
+  background:rgba(255,255,255,.78);
+}
+.sidebar-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+.sidebar-head img{
+  width:34px;
+  height:34px;
+  border-radius:8px;
+}
+.sidebar-head strong{
+  display:block;
+  color:#111111;
+  font-size:.78rem;
+}
+.sidebar-head span{
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+.tool-row{
+  display:grid;
+  grid-template-columns:32px 1fr;
+  gap:9px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid rgba(17,17,17,.1);
+}
+.tool-icon{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:8px;
+  color:var(--cyan);
+  background:rgba(17,17,17,.045);
+}
+.tool-row strong{
+  display:block;
+  color:var(--text);
+  font-size:.72rem;
+}
+.tool-row span{
+  color:var(--muted);
+  font-size:.62rem;
+}
+.provider-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:15px;
+}
+.provider-strip span{
+  --brand:#111111;
+  --brand-bg:rgba(17,17,17,.045);
+  --brand-border:rgba(17,17,17,.12);
+  border:1px solid var(--brand-border);
+  border-radius:999px;
+  padding:4px 7px;
+  color:var(--brand);
+  background:var(--brand-bg);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.55rem;
+}
+.section{
+  padding:82px 0;
+  border-top:1px solid rgba(17,17,17,.1);
+}
+.section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:28px;
+}
+.section-label{
+  color:var(--cyan);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.7rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+h2{
+  color:#111111;
+  font-size:clamp(1.75rem,3.4vw,3rem);
+  line-height:1.05;
+  letter-spacing:0;
+}
+.section-intro{
+  max-width:560px;
+  color:var(--muted);
+}
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.split-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:16px;
+  align-items:stretch;
+}
+.step-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  counter-reset:steps;
+}
+.step-card{
+  position:relative;
+  min-height:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:18px;
+  background:rgba(255,255,255,.68);
+}
+.step-card::before{
+  counter-increment:steps;
+  content:"0" counter(steps);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:26px;
+  border-radius:7px;
+  color:#ffffff;
+  background:linear-gradient(135deg,#111111,#3a3a3a);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.step-card h3{
+  color:#111111;
+  font-size:.94rem;
+  margin-bottom:7px;
+}
+.step-card p{color:var(--muted);font-size:.88rem;}
+.service-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.service-chip{
+  --brand:#111111;
+  --brand-bg:rgba(17,17,17,.04);
+  --brand-border:rgba(17,17,17,.12);
+  min-height:66px;
+  border:1px solid var(--brand-border);
+  border-radius:8px;
+  padding:13px;
+  background:linear-gradient(180deg,#fff,var(--brand-bg));
+  box-shadow:inset 3px 0 0 var(--brand);
+}
+.service-chip strong{
+  display:block;
+  color:var(--brand);
+  font-size:.86rem;
+}
+.service-chip span{
+  display:block;
+  color:var(--muted);
+  font-size:.76rem;
+  margin-top:3px;
+}
+.brand-chatgpt{--brand:#10a37f;--brand-bg:rgba(16,163,127,.08);--brand-border:rgba(16,163,127,.24);}
+.brand-gemini{--brand:#6f5cff;--brand-bg:rgba(111,92,255,.08);--brand-border:rgba(111,92,255,.24);}
+.brand-qwen{--brand:#7f3fbf;--brand-bg:rgba(127,63,191,.08);--brand-border:rgba(127,63,191,.22);}
+.brand-claude{--brand:#d97742;--brand-bg:rgba(217,119,66,.1);--brand-border:rgba(217,119,66,.26);}
+.brand-kimi{--brand:#2478ff;--brand-bg:rgba(36,120,255,.08);--brand-border:rgba(36,120,255,.24);}
+.brand-grok{--brand:#111111;--brand-bg:rgba(17,17,17,.06);--brand-border:rgba(17,17,17,.18);}
+.brand-deepseek{--brand:#2563eb;--brand-bg:rgba(37,99,235,.08);--brand-border:rgba(37,99,235,.24);}
+.brand-custom{--brand:#555555;--brand-bg:rgba(85,85,85,.06);--brand-border:rgba(85,85,85,.16);}
+.workflow-list{
+  display:grid;
+  gap:10px;
+}
+.workflow-item{
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:12px;
+  align-items:start;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(255,255,255,.72);
+}
+.workflow-item .icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:8px;
+  color:var(--cyan);
+  background:rgba(17,17,17,.045);
+}
+.workflow-item strong{
+  display:block;
+  color:#111111;
+  margin-bottom:4px;
+}
+.workflow-item p{color:var(--muted);font-size:.9rem;}
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+}
+.color-card{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(255,255,255,.7);
+}
+.swatch{
+  display:block;
+  width:100%;
+  height:8px;
+  border-radius:99px;
+  margin-bottom:12px;
+}
+.swatch.yellow{background:#efe3b0;}
+.swatch.green{background:#d9e7d6;}
+.swatch.blue{background:#d8e0ea;}
+.swatch.pink{background:#ead8e4;}
+.swatch.orange{background:#ead8c5;}
+.color-card strong{
+  display:block;
+  color:#111111;
+  font-size:.86rem;
+}
+.color-card span{
+  display:block;
+  color:var(--muted);
+  font-size:.76rem;
+  margin-top:4px;
+}
+.check-list{
+  display:grid;
+  gap:9px;
+  color:var(--muted);
+  font-size:.94rem;
+}
+.check-list li{
+  list-style:none;
+  display:grid;
+  grid-template-columns:24px 1fr;
+  gap:9px;
+}
+.check-list li::before{
+  content:"";
+  width:14px;
+  height:14px;
+  margin-top:5px;
+  border-radius:4px;
+  background:linear-gradient(135deg,#111111,#3a3a3a);
+  box-shadow:0 0 14px rgba(17,17,17,.12);
+}
+.shortcut-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.shortcut{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  background:rgba(255,255,255,.68);
+}
+.shortcut code{
+  display:inline-block;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:6px;
+  padding:3px 7px;
+  color:var(--green);
+  background:rgba(17,17,17,.045);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  margin-bottom:8px;
+}
+.shortcut p{color:var(--muted);font-size:.85rem;}
+.faq-list{
+  display:grid;
+  gap:12px;
+}
+.faq-item{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:18px;
+  background:rgba(255,255,255,.7);
+}
+.faq-item h3{
+  color:#111111;
+  font-size:.98rem;
+  margin-bottom:7px;
+}
+.faq-item p{color:var(--muted);font-size:.92rem;}
+.badge-note{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  border:1px solid rgba(17,17,17,.14);
+  border-radius:999px;
+  padding:8px 12px;
+  color:var(--amber);
+  background:rgba(17,17,17,.035);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  letter-spacing:.06em;
+}
+.support-grid{
+  display:grid;
+  grid-template-columns:minmax(0,.92fr) minmax(340px,1.08fr);
+  gap:20px;
+  align-items:stretch;
+}
+.support-block{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(247,247,244,.8));
+  overflow:hidden;
+}
+.support-block.paypal-block{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:24px;
+  background:
+    radial-gradient(circle at 18% 14%,rgba(0,112,186,.16),transparent 36%),
+    linear-gradient(180deg,rgba(255,255,255,.94),rgba(247,247,244,.86));
+}
+.support-block.paypal-block::before{
+  background:linear-gradient(90deg,transparent,#003087,#009cde,transparent);
+}
+.support-block.qr-block::before{
+  background:linear-gradient(90deg,transparent,#005baa,#e31e24,transparent);
+}
+.support-block::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:2px;
+  background:linear-gradient(90deg,transparent,#111111,rgba(17,17,17,.28),transparent);
+  opacity:.72;
+}
+.support-block h3{
+  color:#111111;
+  font-size:1.1rem;
+  margin-bottom:8px;
+}
+.support-block p{
+  color:var(--muted);
+  font-size:.94rem;
+}
+.support-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:999px;
+  padding:7px 10px;
+  color:var(--soft);
+  background:rgba(17,17,17,.04);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.paypal-mark{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+.paypal-logo{
+  width:50px;
+  height:50px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  color:#fff;
+  background:linear-gradient(145deg,#009cde,#003087);
+  box-shadow:0 14px 30px rgba(0,112,186,.22);
+}
+.paypal-mark strong{
+  display:block;
+  color:#111111;
+  font-size:1.25rem;
+  line-height:1.15;
+}
+.paypal-mark span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:.88rem;
+}
+.support-points{
+  display:grid;
+  gap:10px;
+  margin-top:20px;
+}
+.support-points span{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:var(--soft);
+  font-size:.9rem;
+}
+.support-points i{
+  color:var(--amber);
+  flex:0 0 auto;
+}
+.paypal-block .support-kicker,
+.paypal-block .support-points i{
+  color:#0070ba;
+}
+.paypal-block .support-kicker{
+  border-color:rgba(0,112,186,.2);
+  background:rgba(0,112,186,.07);
+}
+.support-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:0;
+}
+.paypal-btn{
+  min-height:52px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  border-radius:8px;
+  padding:0 22px;
+  color:#ffffff;
+  background:linear-gradient(135deg,#009cde,#003087);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.paypal-btn:hover{
+  transform:translateY(-2px);
+  background:linear-gradient(135deg,#00a8ec,#123fb5);
+  box-shadow:0 18px 34px rgba(0,112,186,.24);
+}
+.qr-block{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,91,170,.08),transparent 32%),
+    linear-gradient(180deg,rgba(255,255,255,.9),rgba(247,247,244,.82));
+}
+.qr-block .support-kicker{
+  color:#005baa;
+  border-color:rgba(0,91,170,.2);
+  background:rgba(0,91,170,.06);
+}
+.qr-block h3{color:#005baa;}
+.qr-frame{
+  width:min(100%,430px);
+  max-width:100%;
+  margin:22px auto 18px;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:16px;
+  padding:10px;
+  background:#ffffff;
+  box-shadow:0 16px 40px rgba(17,17,17,.12);
+}
+.qr-frame img{
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  object-fit:contain;
+}
+.bank-detail{
+  color:var(--soft);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.82rem;
+  letter-spacing:.05em;
+  line-height:1.7;
+}
+.qr-note{
+  max-width:390px;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:.9rem;
+}
+.policy-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.card{
+  position:relative;
+  min-height:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(247,247,244,.78));
+  overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:3px;
+  height:44px;
+  background:linear-gradient(180deg,#111111,#777777);
+}
+.card .icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(17,17,17,.12);
+  border-radius:8px;
+  color:var(--cyan);
+  background:rgba(17,17,17,.045);
+  margin-bottom:18px;
+}
+.card h3{
+  color:#111111;
+  font-size:1rem;
+  margin-bottom:9px;
+}
+.card p{color:var(--muted);font-size:.94rem;}
+.card strong{color:var(--soft);}
+.policy-card:nth-child(2)::before{background:linear-gradient(180deg,#c8b58a,#111111);}
+.policy-card:nth-child(3)::before{background:linear-gradient(180deg,#111111,#777777);}
+.policy-card:nth-child(4)::before{background:linear-gradient(180deg,#777777,#c8b58a);}
+.wide-card{grid-column:1/-1;}
+.provider-table{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border:1px solid var(--line);
+  border-radius:8px;
+  overflow:hidden;
+  background:rgba(255,255,255,.76);
+}
+.provider{
+  padding:24px;
+  border-right:1px solid var(--line);
+}
+.provider:last-child{border-right:0;}
+.provider h3{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#111111;
+  font-size:1rem;
+  margin-bottom:8px;
+}
+.provider p{color:var(--muted);font-size:.93rem;}
+.callout{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  border:1px solid rgba(17,17,17,.14);
+  border-radius:8px;
+  padding:26px;
+  background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(247,247,244,.76));
+}
+.callout p{color:var(--soft);max-width:760px;}
+.site-footer{
+  padding:34px 0 42px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.72rem;
+  letter-spacing:.08em;
+}
+.footer-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+.reveal{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.reveal.in{opacity:1;transform:translateY(0);}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;padding-top:50px;}
+  .product-visual{min-height:auto;}
+  .feature-grid,.policy-grid,.provider-table,.split-grid,.support-grid{grid-template-columns:1fr;}
+  .step-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .service-grid,.color-grid,.shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .provider{border-right:0;border-bottom:1px solid var(--line);}
+  .provider:last-child{border-bottom:0;}
+  .section-head{display:block;}
+  .section-intro{margin-top:14px;}
+}
+@media (max-width:680px){
+  .container{width:min(100% - 28px,1120px);}
+  .nav{min-height:62px;}
+  .brand-copy strong{font-size:.78rem;}
+  .brand-copy span{display:none;}
+  .nav-links{gap:10px;}
+  .nav-links a:nth-child(1),
+  .nav-links a:nth-child(3),
+  .nav-links a:nth-child(4){display:none;}
+  .nav-support{min-height:34px;padding:0 10px;font-size:.68rem;}
+  .hero{min-height:auto;padding:46px 0 34px;}
+  .hero-meta{grid-template-columns:1fr;gap:16px;}
+  .support-teaser{margin:0 auto 46px;}
+  .support-teaser-inner{grid-template-columns:1fr;padding:16px;}
+  .support-teaser-copy{align-items:flex-start;}
+  .support-teaser-actions{flex-wrap:wrap;}
+  .support-teaser-link{flex:1 1 150px;}
+  .workspace{grid-template-columns:1fr;}
+  .article-mock{border-right:0;border-bottom:1px solid var(--line);}
+  .browser-shell{border-radius:10px;}
+  .step-grid,.service-grid,.color-grid,.shortcut-grid{grid-template-columns:1fr;}
+  .section{padding:58px 0;}
+  .callout,.footer-row{align-items:flex-start;flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="AI Sidebar Hub + Highlights home">
+        <img src="assets/icon-192.jpg" width="38" height="38" alt="AI Sidebar Hub + Highlights icon"/>
+        <span class="brand-copy">
+          <strong>AI Sidebar Hub + Highlights</strong>
+          <span>Chrome Extension</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Page navigation">
+        <a href="#features">FEATURES</a>
+        <a href="#guide">GUIDE</a>
+        <a href="#privacy">PRIVACY</a>
+        <a href="#faq">FAQ</a>
+        <a href="#support" class="nav-support">SUPPORT</a>
+        <a class="icon-link" href="index.html#personal-project" aria-label="Back to portfolio">
+          <i data-lucide="arrow-left" style="width:17px;height:17px;"></i>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-content reveal">
+        <div class="eyebrow">Multi-AI side panel and research toolkit</div>
+        <h1>AI Sidebar Hub + Highlights</h1>
+        <p class="hero-copy">
+          Open ChatGPT, Gemini, Claude, Qwen and other AI services in a Chrome side panel while you read. Highlight important text, add notes, send selected passages to AI, manage saved highlights, and automatically block supported cookie banners.
+        </p>
+        <div class="hero-actions">
+          <a class="btn support-primary" href="#support"><i data-lucide="heart-handshake" style="width:17px;height:17px;"></i> SUPPORT PROJECT</a>
+          <a class="btn secondary" href="#guide"><i data-lucide="book-open" style="width:17px;height:17px;"></i> START GUIDE</a>
+          <a class="btn secondary" href="#privacy"><i data-lucide="shield-check" style="width:17px;height:17px;"></i> PRIVACY</a>
+        </div>
+        <div class="hero-meta" aria-label="Product principles">
+          <div class="metric"><strong>7+</strong><span>AI services</span></div>
+          <div class="metric"><strong>5</strong><span>Highlight colors</span></div>
+          <div class="metric"><strong>99+</strong><span>Badge count limit</span></div>
+        </div>
+      </div>
+
+      <div class="product-visual reveal" aria-label="AI Sidebar Hub + Highlights interface preview">
+        <div class="browser-shell">
+          <div class="browser-top">
+            <div class="traffic" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="browser-url">selected-page.example/article</div>
+          </div>
+          <div class="workspace">
+            <div class="article-mock">
+              <div class="line medium"></div>
+              <div class="line"></div>
+              <div class="line short"></div>
+              <div class="highlighted">Select text, choose a color, add a note, or click Ask AI without leaving the page.</div>
+              <div class="line"></div>
+              <div class="line medium"></div>
+              <div class="line short"></div>
+            </div>
+            <aside class="sidebar-mock" aria-label="Extension sidebar preview">
+              <div class="sidebar-head">
+                <img src="assets/icon-192.jpg" width="34" height="34" alt=""/>
+                <div><strong>Sidebar Hub</strong><span>READY</span></div>
+              </div>
+              <div class="tool-row">
+                <span class="tool-icon"><i data-lucide="highlighter" style="width:16px;height:16px;"></i></span>
+                <div><strong>Highlight</strong><span>Saved locally</span></div>
+              </div>
+              <div class="tool-row">
+                <span class="tool-icon"><i data-lucide="sticky-note" style="width:16px;height:16px;"></i></span>
+                <div><strong>Notes</strong><span>Chrome storage</span></div>
+              </div>
+              <div class="tool-row">
+                <span class="tool-icon"><i data-lucide="bot" style="width:16px;height:16px;"></i></span>
+                <div><strong>AI tab</strong><span>ChatGPT active</span></div>
+              </div>
+              <div class="tool-row">
+                <span class="tool-icon"><i data-lucide="settings" style="width:16px;height:16px;"></i></span>
+                <div><strong>Settings</strong><span>Custom services</span></div>
+              </div>
+              <div class="tool-row">
+                <span class="tool-icon"><i data-lucide="cookie" style="width:16px;height:16px;"></i></span>
+                <div><strong>Cookie block</strong><span>OneTrust banners</span></div>
+              </div>
+              <div class="provider-strip" aria-label="Supported AI providers">
+                <span class="brand-chatgpt">ChatGPT</span><span class="brand-gemini">Gemini</span><span class="brand-claude">Claude</span><span class="brand-qwen">Qwen</span><span class="brand-kimi">Kimi</span><span class="brand-grok">Grok</span><span class="brand-deepseek">DeepSeek</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="support-teaser container reveal" aria-label="Support this project">
+      <div class="support-teaser-inner">
+        <div class="support-teaser-copy">
+          <span class="support-teaser-icon"><i data-lucide="heart-handshake" style="width:22px;height:22px;"></i></span>
+          <div>
+            <strong>Support keeps AI Sidebar Hub maintained.</strong>
+            <span>Use PayPal internationally or scan the VietinBank QR in Vietnam.</span>
+          </div>
+        </div>
+        <div class="support-teaser-actions">
+          <a class="support-teaser-link" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
+            <i data-lucide="circle-dollar-sign" style="width:16px;height:16px;"></i> PAYPAL
+          </a>
+          <a class="support-teaser-link secondary" href="#support">
+            <i data-lucide="qr-code" style="width:16px;height:16px;"></i> BANK QR
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <section id="features" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Features</p>
+            <h2>Everything from the guide, organized as a product surface.</h2>
+          </div>
+          <p class="section-intro">
+            The extension combines a multi-AI side panel, webpage highlights, personal notes, highlight management, AI handoff actions, cookie banner blocking, and a toolbar badge.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="panel-right-open" style="width:21px;height:21px;"></i></div>
+            <h3>AI side panel</h3>
+            <p>Open AI services beside your current webpage from the toolbar or from selected text.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="refresh-cw" style="width:21px;height:21px;"></i></div>
+            <h3>Service switching</h3>
+            <p>Switch between ChatGPT, Gemini, Qwen, Claude, Kimi, Grok, DeepSeek, or your own custom URL.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="highlighter" style="width:21px;height:21px;"></i></div>
+            <h3>Highlights</h3>
+            <p>Select text on any website, then apply yellow, green, blue, pink, or orange highlights.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="sticky-note" style="width:21px;height:21px;"></i></div>
+            <h3>Notes</h3>
+            <p>Add personal notes to highlighted text and edit them from the Highlights tab.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="list-filter" style="width:21px;height:21px;"></i></div>
+            <h3>Highlight manager</h3>
+            <p>Search, filter, copy, delete, and jump back to saved highlights from the side panel.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="cookie" style="width:21px;height:21px;"></i></div>
+            <h3>Cookie banner blocking</h3>
+            <p>Automatically blocks supported OneTrust cookie consent banners with no setup required.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="guide" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Installation</p>
+            <h2>Load the extension and open the side panel.</h2>
+          </div>
+          <p class="section-intro">The documentation describes a developer-mode install flow for Chrome.</p>
+        </div>
+        <div class="step-grid">
+          <article class="step-card reveal">
+            <h3>Open extensions</h3>
+            <p>Go to chrome://extensions/ in Chrome.</p>
+          </article>
+          <article class="step-card reveal">
+            <h3>Developer mode</h3>
+            <p>Enable Developer mode in the top-right corner.</p>
+          </article>
+          <article class="step-card reveal">
+            <h3>Load unpacked</h3>
+            <p>Click Load unpacked and select the extension folder.</p>
+          </article>
+          <article class="step-card reveal">
+            <h3>Pin toolbar icon</h3>
+            <p>The extension icon appears in the Chrome toolbar.</p>
+          </article>
+          <article class="step-card reveal">
+            <h3>First use</h3>
+            <p>Click the icon and the AI side panel opens automatically.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="ai-panel" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">AI Side Panel</p>
+            <h2>Open, switch, reload, and customize AI services.</h2>
+          </div>
+          <p class="section-intro">Use the toolbar icon, selected text, or the settings panel to control the AI workspace.</p>
+        </div>
+        <div class="split-grid">
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="mouse-pointer-click" style="width:21px;height:21px;"></i></div>
+            <h3>Opening methods</h3>
+            <ul class="check-list">
+              <li>Click the extension icon on the toolbar.</li>
+              <li>Select text on a webpage and click Ask AI.</li>
+              <li>Ask AI opens the side panel and pre-fills the selected text when supported.</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="settings-2" style="width:21px;height:21px;"></i></div>
+            <h3>Panel controls</h3>
+            <ul class="check-list">
+              <li>Use settings to choose the active AI service.</li>
+              <li>Reload refreshes the embedded AI page.</li>
+              <li>Open in new tab launches the AI service in a full browser tab.</li>
+              <li>Defaults restores the original service list.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="service-grid" style="margin-top:16px;">
+          <div class="service-chip brand-chatgpt reveal"><strong>ChatGPT</strong><span>OpenAI</span></div>
+          <div class="service-chip brand-gemini reveal"><strong>Gemini</strong><span>Google</span></div>
+          <div class="service-chip brand-qwen reveal"><strong>Qwen</strong><span>Alibaba</span></div>
+          <div class="service-chip brand-claude reveal"><strong>Claude</strong><span>Anthropic</span></div>
+          <div class="service-chip brand-kimi reveal"><strong>Kimi</strong><span>Moonshot AI</span></div>
+          <div class="service-chip brand-grok reveal"><strong>Grok</strong><span>xAI</span></div>
+          <div class="service-chip brand-deepseek reveal"><strong>DeepSeek</strong><span>DeepSeek AI</span></div>
+          <div class="service-chip brand-custom reveal"><strong>Custom AI</strong><span>Name, ID, URL</span></div>
+        </div>
+        <div class="callout reveal" style="margin-top:16px;">
+          <div>
+            <p class="section-label">Strong Embed Mode</p>
+            <h2>Use when an AI page refuses to load.</h2>
+            <p>Enable Strong embed in settings, then reload the AI page. Some AI services may still block iframe embedding even with this mode enabled.</p>
+          </div>
+          <span class="badge-note"><i data-lucide="shield-alert" style="width:16px;height:16px;"></i> CSP BYPASS OPTION</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="highlights" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Highlights and Notes</p>
+            <h2>Capture selected text, add context, and revisit it later.</h2>
+          </div>
+          <p class="section-intro">The guide defines a selection toolbar, note creation flow, info popup, and highlight color system.</p>
+        </div>
+        <div class="workflow-list">
+          <div class="workflow-item reveal">
+            <div class="icon"><i data-lucide="scan-text" style="width:21px;height:21px;"></i></div>
+            <div><strong>Select text</strong><p>Select any text on a webpage and the floating toolbar appears near the selection.</p></div>
+          </div>
+          <div class="workflow-item reveal">
+            <div class="icon"><i data-lucide="paint-bucket" style="width:21px;height:21px;"></i></div>
+            <div><strong>Choose a color</strong><p>Click a color to highlight instantly, or choose Note to write personal context before saving.</p></div>
+          </div>
+          <div class="workflow-item reveal">
+            <div class="icon"><i data-lucide="message-circle-more" style="width:21px;height:21px;"></i></div>
+            <div><strong>Open details</strong><p>Click highlighted text to view the original text, your note, and actions for Copy, Ask AI, or Delete.</p></div>
+          </div>
+        </div>
+        <div class="color-grid" style="margin-top:16px;">
+          <div class="color-card reveal"><span class="swatch yellow"></span><strong>Yellow</strong><span>Definitions and key concepts</span></div>
+          <div class="color-card reveal"><span class="swatch green"></span><strong>Green</strong><span>Examples and illustrations</span></div>
+          <div class="color-card reveal"><span class="swatch blue"></span><strong>Blue</strong><span>Reference information</span></div>
+          <div class="color-card reveal"><span class="swatch pink"></span><strong>Pink</strong><span>Special notes</span></div>
+          <div class="color-card reveal"><span class="swatch orange"></span><strong>Orange</strong><span>Main ideas to remember</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="manage" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Highlight Manager</p>
+            <h2>Search, filter, copy, delete, and navigate.</h2>
+          </div>
+          <p class="section-intro">The Highlights tab consolidates saved text across websites and adds actions for research workflows.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="search" style="width:21px;height:21px;"></i></div>
+            <h3>Search</h3>
+            <p>Search highlighted text, notes, and page titles from the Highlights tab.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="list-filter" style="width:21px;height:21px;"></i></div>
+            <h3>Filters</h3>
+            <p>Switch between All, This page, and With note to narrow the highlight list.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="copy" style="width:21px;height:21px;"></i></div>
+            <h3>Copy options</h3>
+            <p>Copy one highlight or all highlights as text only, or include notes and source links.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="trash-2" style="width:21px;height:21px;"></i></div>
+            <h3>Delete</h3>
+            <p>Delete one highlight or delete all after reviewing the count. Deletion cannot be undone.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="locate-fixed" style="width:21px;height:21px;"></i></div>
+            <h3>View on page</h3>
+            <p>Click View to scroll to a highlight on the current page and outline it for easy identification.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="badge-check" style="width:21px;height:21px;"></i></div>
+            <h3>Toolbar badge</h3>
+            <p>The extension icon shows the current highlight count, with 99+ as the maximum displayed value.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="productivity" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Quick Actions</p>
+            <h2>Research, work, news reading, and cookie blocking.</h2>
+          </div>
+          <p class="section-intro">The documentation includes focused patterns for common reading and research sessions.</p>
+        </div>
+        <div class="split-grid">
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="send" style="width:21px;height:21px;"></i></div>
+            <h3>Sending text to AI</h3>
+            <ul class="check-list">
+              <li>From a webpage: select text and click Ask AI.</li>
+              <li>From Highlights: click Ask AI on a saved highlight.</li>
+              <li>From the info popup: click Ask AI after opening a highlight.</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="cookie" style="width:21px;height:21px;"></i></div>
+            <h3>Cookie banner blocking</h3>
+            <ul class="check-list">
+              <li>Blocks OneTrust banners from cdn.cookielaw.org.</li>
+              <li>Blocks OneTrust Geolocation.</li>
+              <li>No configuration is needed.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="shortcut-grid" style="margin-top:16px;">
+          <div class="shortcut reveal"><code>Escape</code><p>Close popup, or click outside the popup.</p></div>
+          <div class="shortcut reveal"><code>Click text</code><p>Expand text in the Highlights tab.</p></div>
+          <div class="shortcut reveal"><code>Select + Ask AI</code><p>Quickly send selected text to AI.</p></div>
+          <div class="shortcut reveal"><code>Settings</code><p>Open AI tab settings with the settings icon.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Privacy Policy</p>
+            <h2>Clear data handling for AI Sidebar Hub + Highlights.</h2>
+          </div>
+          <p class="section-intro">Version 1.0.0 - last updated April 7, 2026.</p>
+        </div>
+
+        <div class="policy-grid">
+          <article class="card policy-card reveal">
+            <div class="icon"><i data-lucide="badge-x" style="width:21px;height:21px;"></i></div>
+            <h3>No advertising data use</h3>
+            <p>AI Sidebar Hub + Highlights does not collect, sell, or share personal user data for advertising, profiling, or data resale.</p>
+          </article>
+          <article class="card policy-card reveal">
+            <div class="icon"><i data-lucide="database" style="width:21px;height:21px;"></i></div>
+            <h3>Local browser storage</h3>
+            <p>All highlights, notes, and settings are stored locally in the user's browser using Chrome storage. The extension does not store personal data on external servers.</p>
+          </article>
+          <article class="card policy-card reveal">
+            <div class="icon"><i data-lucide="mouse-pointer-click" style="width:21px;height:21px;"></i></div>
+            <h3>User-selected text</h3>
+            <p>The extension may process user-selected text to provide core features such as highlighting, note-taking, and AI-powered assistance.</p>
+          </article>
+          <article class="card policy-card reveal">
+            <div class="icon"><i data-lucide="radar" style="width:21px;height:21px;"></i></div>
+            <h3>No cross-site tracking</h3>
+            <p>The extension does not track users across websites and does not collect browsing history beyond what is required to provide its core functionality.</p>
+          </article>
+          <article class="card policy-card wide-card reveal">
+            <div class="icon"><i data-lucide="send" style="width:21px;height:21px;"></i></div>
+            <h3>AI features are explicit actions</h3>
+            <p>When the user explicitly chooses to use AI features, such as Ask AI, selected text may be sent to the selected third-party AI service, including services such as <strong>OpenAI ChatGPT</strong>, <strong>Google Gemini</strong>, or <strong>Anthropic Claude</strong>. This data is transmitted only after user action and is not stored by the extension.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="providers" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">AI Providers</p>
+            <h2>Default catalog plus custom services.</h2>
+          </div>
+          <p class="section-intro">The settings panel lets users choose a default service, reload it, open it in a new tab, add a custom AI URL, remove entries, or restore defaults.</p>
+        </div>
+        <div class="service-grid">
+          <div class="service-chip brand-chatgpt reveal"><strong>ChatGPT</strong><span>OpenAI</span></div>
+          <div class="service-chip brand-gemini reveal"><strong>Gemini</strong><span>Google</span></div>
+          <div class="service-chip brand-qwen reveal"><strong>Qwen</strong><span>Alibaba</span></div>
+          <div class="service-chip brand-claude reveal"><strong>Claude</strong><span>Anthropic</span></div>
+          <div class="service-chip brand-kimi reveal"><strong>Kimi</strong><span>Moonshot AI</span></div>
+          <div class="service-chip brand-grok reveal"><strong>Grok</strong><span>xAI</span></div>
+          <div class="service-chip brand-deepseek reveal"><strong>DeepSeek</strong><span>DeepSeek AI</span></div>
+          <div class="service-chip brand-custom reveal"><strong>Any custom AI</strong><span>Name, optional ID, full URL</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="troubleshooting" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Troubleshooting</p>
+            <h2>Fast checks for common issues.</h2>
+          </div>
+          <p class="section-intro">The guide documents fallback paths for embedded AI pages, highlight matching, text handoff, and cookie banners.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="panel-right-close" style="width:21px;height:21px;"></i></div>
+            <h3>AI not showing</h3>
+            <p>Enable Strong embed, open the AI in a new tab, and confirm that you are logged in to the AI service.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="refresh-cw" style="width:21px;height:21px;"></i></div>
+            <h3>Highlights missing after reload</h3>
+            <p>Make sure you are on the exact same URL. If the page content changed, re-highlight the text.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="message-square-warning" style="width:21px;height:21px;"></i></div>
+            <h3>Text not filling AI chat</h3>
+            <p>Reload the AI page, try another AI service, and make sure the AI page is logged in and ready.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="cookie" style="width:21px;height:21px;"></i></div>
+            <h3>Cookie banner still showing</h3>
+            <p>The extension only blocks OneTrust banners. Other consent providers are not covered.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="monitor-check" style="width:21px;height:21px;"></i></div>
+            <h3>Browser support</h3>
+            <p>The extension is designed for Chrome. It may work on Edge, but Edge has not been tested.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon"><i data-lucide="archive-restore" style="width:21px;height:21px;"></i></div>
+            <h3>Restore defaults</h3>
+            <p>Use Defaults in settings to restore the original seven AI service entries.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">FAQ</p>
+            <h2>Answers from the product documentation.</h2>
+          </div>
+          <p class="section-intro">These notes reflect the current version 1.0.0 documentation.</p>
+        </div>
+        <div class="faq-list">
+          <article class="faq-item reveal">
+            <h3>Are highlights synced across devices?</h3>
+            <p>No. Highlights are currently saved only on your current browser. Sync functionality is planned for a future release.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Can I change the color of an existing highlight?</h3>
+            <p>Currently, you need to delete the old highlight and create a new one with your preferred color.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Does the extension collect my personal data?</h3>
+            <p>No. Highlights and notes are saved on your computer, and the extension does not collect or sell personal data.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Can I export highlights to a file?</h3>
+            <p>File export is planned. For now, you can copy highlights to the clipboard and paste them into a text or Word document.</p>
+          </article>
+          <article class="faq-item reveal">
+            <h3>Does it work outside Chrome?</h3>
+            <p>The extension is designed for Chrome. Chromium-based browsers may work, but they are not the tested target.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="support" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Support</p>
+            <h2>Support my work.</h2>
+          </div>
+          <p class="section-intro">If this extension helps your reading or research workflow, you can support continued development through PayPal or bank transfer in Vietnam.</p>
+        </div>
+        <div class="support-grid">
+          <article class="support-block paypal-block reveal">
+            <div>
+              <span class="support-kicker"><i data-lucide="globe-2" style="width:14px;height:14px;"></i> International</span>
+              <div class="paypal-mark">
+                <span class="paypal-logo"><i data-lucide="wallet" style="width:24px;height:24px;"></i></span>
+                <div>
+                  <strong>Donate via PayPal</strong>
+                  <span>Support ongoing extension development.</span>
+                </div>
+              </div>
+              <p>Use PayPal for international support. The link opens in a new tab and goes directly to the donation page.</p>
+              <div class="support-points" aria-label="What support helps with">
+                <span><i data-lucide="check" style="width:16px;height:16px;"></i> Maintenance and browser compatibility updates</span>
+                <span><i data-lucide="check" style="width:16px;height:16px;"></i> New AI service integrations</span>
+                <span><i data-lucide="check" style="width:16px;height:16px;"></i> Highlight and notes workflow improvements</span>
+              </div>
+            </div>
+            <div class="support-actions">
+              <a class="paypal-btn" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
+                <i data-lucide="circle-dollar-sign" style="width:18px;height:18px;"></i>
+                DONATE VIA PAYPAL
+              </a>
+            </div>
+          </article>
+          <article class="support-block qr-block reveal">
+            <span class="support-kicker"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Vietnam</span>
+            <h3>Bank QR Transfer</h3>
+            <div class="qr-frame">
+              <img src="assets/qr-bank-vn.png" loading="lazy" decoding="async" alt="QR donate for Dinh Van Hung via VietinBank"/>
+            </div>
+            <p class="bank-detail">Dinh Van Hung<br/>VietinBank</p>
+            <p class="qr-note">Scan the QR image above with your banking app. The image keeps its original ratio so the full transfer QR remains readable.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container">
+        <div class="callout reveal">
+          <div>
+            <p class="section-label">Contact</p>
+            <h2>Questions about privacy or the extension?</h2>
+            <p>For privacy questions, support, or extension-related requests, contact the developer by email.</p>
+          </div>
+          <a class="btn primary" href="mailto:manhhung.dvh@gmail.com"><i data-lucide="mail" style="width:17px;height:17px;"></i> EMAIL SUPPORT</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <span>AI SIDEBAR HUB + HIGHLIGHTS</span>
+      <span>Contact: manhhung.dvh@gmail.com</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+'use strict';
+if (window.lucide) lucide.createIcons();
+
+const revealItems = document.querySelectorAll('.reveal');
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: .12 });
+  revealItems.forEach(item => observer.observe(item));
+} else {
+  revealItems.forEach(item => item.classList.add('in'));
+}
+</script>
+</body>
+</html>

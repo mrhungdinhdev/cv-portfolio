@@ -7,7 +7,7 @@ import chatHandler from './api/chat.js';
 import ttsHandler from './api/tts.js';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
-const preferredPort = Number(process.env.PORT || 3000);
+const preferredPort = Number(process.env.PORT || 3001);
 const maxPortAttempts = process.env.PORT ? 1 : 10;
 
 async function loadDotEnv() {
