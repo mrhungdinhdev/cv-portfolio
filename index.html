@@ -4,11 +4,31 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Đinh Văn Hùng — Full Stack Developer</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
-<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<meta name="description" content="Đinh Văn Hùng is a full stack developer specializing in backend systems, cloud architecture, AI-powered platforms, and production web applications."/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"/>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/>
+<link rel="preconnect" href="https://unpkg.com" crossorigin/>
+<link href="assets/tailwind-lite.css" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+ul{list-style:none;}
+button,textarea{font:inherit;}
+button{background:transparent;border:0;color:inherit;cursor:pointer;}
+a{color:inherit;}
+img{display:block;}
+.-translate-x-1\/2{transform:translateX(-50%);}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+[style*="color:#2d4050"],
+[style*="color:#3d5566"],
+[style*="color:#4a6070"],
+[style*="color:#4a6678"]{color:#6f8da3!important;}
+[style*="rgba(127,168,201,0.55)"],
+[style*="rgba(127,168,201,0.7)"]{color:#7fa8c9!important;}
+[style*="rgba(200,214,229,0.25)"],
+[style*="rgba(200,214,229,0.28)"],
+[style*="rgba(200,214,229,0.35)"],
+[style*="rgba(200,214,229,0.4)"],
+[style*="rgba(200,214,229,0.45)"]{color:#8aa8c0!important;}
 :root{
   --silver: #c8d6e5;
   --steel:  #7fa8c9;
@@ -150,7 +170,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;
 .btn-metal:hover{color:#fff;box-shadow:0 0 28px var(--gsi),0 0 60px rgba(200,214,229,0.15);transform:translateY(-2px);}
 .btn-metal:hover::before{transform:translateX(0);}
 
-.btn-ghost{border:1px solid rgba(200,214,229,0.1);color:#4a6070;
+.btn-ghost{border:1px solid rgba(200,214,229,0.1);color:#7fa8c9;
   font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.08em;
   padding:.75rem 2rem;transition:border-color .3s,color .3s,transform .2s,box-shadow .3s;
   clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);}
@@ -182,10 +202,17 @@ nav{position:fixed;top:0;width:100%;z-index:100;
   background:transparent;padding:3px 9px;border-radius:2px;
   transition:border-color .2s,color .2s;
   display:inline-flex;align-items:center;gap:4px;
+  -webkit-appearance:none;appearance:none;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
-.lang-btn:hover{border-color:rgba(200,214,229,0.5);color:var(--silver);}
-.lang-active{color:var(--silver);font-weight:700;}
-.lang-sep{opacity:.25;}
+.lang-btn span:not(.lang-sep){color:#7fa8c9;transition:color .2s;}
+.lang-btn span.lang-active{color:var(--gold2);font-weight:700;}
+.lang-sep{color:#6f8da3;opacity:.75;}
+@media (hover:hover) and (pointer:fine){
+  .lang-btn:hover{border-color:rgba(200,214,229,0.5);}
+  .lang-btn:hover span.lang-active{color:var(--silver);}
+}
+.lang-btn:active,.lang-btn:focus-visible{border-color:rgba(200,214,229,0.5);}
 
 /* ── LUCIDE ICONS ── */
 .icon-glow{filter:drop-shadow(0 0 6px currentColor);opacity:.85;transition:opacity .3s,filter .3s,transform .3s;}
@@ -578,7 +605,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
 <!-- AI CHAT -->
 <div id="portfolio-chat" class="portfolio-chat">
-  <button id="chat-toggle" class="chat-toggle" type="button" aria-label="Open Hung AI Assistant" aria-controls="chat-panel" aria-expanded="false">
+  <button id="chat-toggle" class="chat-toggle" type="button" aria-controls="chat-panel" aria-expanded="false">
     <span class="chat-toggle-icon"><i data-lucide="sparkles" style="width:21px;height:21px;"></i></span>
     <span class="chat-toggle-copy">
       <span class="chat-toggle-title" data-i18n="chat_launcher_title">AI GUIDE</span>
@@ -643,7 +670,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
     <div class="chat-compose">
       <div class="chat-input-row">
-        <textarea id="chat-input" rows="1" data-i18n-placeholder="chat_placeholder" placeholder="Ask about skills, projects..."></textarea>
+        <textarea id="chat-input" rows="1" aria-label="Ask about skills, projects" data-i18n-placeholder="chat_placeholder" placeholder="Ask about skills, projects..."></textarea>
         <button id="chat-mic" type="button" aria-label="Use voice input" title="Use voice input">
           <i data-lucide="mic" style="width:18px;height:18px;"></i>
         </button>
@@ -674,16 +701,18 @@ section:hover .section-3d-canvas{opacity:0.75;}
       </ul>
       <div class="flex items-center gap-3">
         <div class="hud-data" style="color:rgba(200,214,229,0.4);"><div id="nav-time">00:00:00</div></div>
-        <button id="lang-toggle" class="lang-btn">
+        <button id="lang-toggle" class="lang-btn" type="button" title="Switch language">
+          <span class="sr-only">Switch language</span>
           <span id="lang-en" class="lang-active">EN</span><span class="lang-sep">/</span><span id="lang-vi">VI</span>
         </button>
       </div>
     </div>
     <div class="flex items-center gap-3 md:hidden">
-      <button id="lang-toggle-mob" class="lang-btn">
+      <button id="lang-toggle-mob" class="lang-btn" type="button" title="Switch language">
+        <span class="sr-only">Switch language</span>
         <span id="lang-en-mob" class="lang-active">EN</span><span class="lang-sep">/</span><span id="lang-vi-mob">VI</span>
       </button>
-      <button id="ham" class="flex flex-col gap-1.5 p-1">
+      <button id="ham" class="flex flex-col gap-1.5 p-1" type="button" aria-label="Open navigation menu" aria-controls="mob-menu" aria-expanded="false">
         <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
         <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
         <span class="block w-5 h-px transition-all duration-300" style="background:#3d5566;"></span>
@@ -702,6 +731,8 @@ section:hover .section-3d-canvas{opacity:0.75;}
     </div>
   </div>
 </nav>
+
+<main id="main-content">
 
 <!-- ══ HERO ══ -->
 <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
@@ -747,7 +778,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
       <div class="flex flex-wrap gap-3 mb-14">
         <a href="#contact" class="btn-metal no-underline inline-flex items-center gap-2" data-i18n="hero_contact">CONTACT ME ›</a>
-        <a href="https://github.com/mrhungdinhdev" target="_blank" class="btn-ghost no-underline inline-flex items-center gap-2"><i data-lucide="github" style="width:14px;height:14px;color:#a78bfa;"></i> GITHUB</a>
+        <a href="https://github.com/mrhungdinhdev" target="_blank" rel="noopener noreferrer" class="btn-ghost no-underline inline-flex items-center gap-2"><i data-lucide="github" style="width:14px;height:14px;color:#a78bfa;"></i> GITHUB</a>
       </div>
 
       <div class="flex gap-10 flex-wrap">
@@ -784,11 +815,11 @@ section:hover .section-3d-canvas{opacity:0.75;}
       </div>
       <ul class="space-y-3 reveal">
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="map-pin" class="icon-glow" style="width:16px;height:16px;color:#ff6b6b;"></i></span><span data-i18n="about_address">11 Street, Tam Binh Ward, Thu Duc City, Ho Chi Minh City</span></li>
-        <li id="about-location-trigger" class="gps-trigger flex items-center gap-3 text-sm" style="color:#4a6678;" role="button" tabindex="0" aria-label="Launch GPS finder spaceship"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="crosshair" class="icon-glow" style="width:16px;height:16px;color:#22d3ee;"></i></span><span id="about-live-location" data-i18n="about_tracking" aria-live="polite">GPS tracking on Vietnam map · waiting for permission</span></li>
+        <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><button id="about-location-trigger" class="gps-trigger flex items-center gap-3 text-sm text-left w-full" style="color:#4a6678;" type="button" aria-label="Launch GPS finder spaceship"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="crosshair" class="icon-glow" style="width:16px;height:16px;color:#22d3ee;"></i></span><span id="about-live-location" data-i18n="about_tracking" aria-live="polite">GPS tracking on Vietnam map · waiting for permission</span></button></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="calendar" class="icon-glow" style="width:16px;height:16px;color:#fbbf24;"></i></span><span data-i18n="about_born">Born 28 January 2002</span></li>
         <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="mail" class="icon-glow" style="width:16px;height:16px;color:#22d3ee;"></i></span><a href="mailto:manhhung.dvh@gmail.com" class="text-st hover:text-si hover:underline transition-colors">manhhung.dvh@gmail.com</a></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="smartphone" class="icon-glow" style="width:16px;height:16px;color:#4ade80;"></i></span>034 256 8696</li>
-        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="github" class="icon-glow" style="width:16px;height:16px;color:#a78bfa;"></i></span><a href="https://github.com/mrhungdinhdev" target="_blank" class="text-st hover:text-si hover:underline transition-colors">github.com/mrhungdinhdev</a></li>
+        <li class="flex items-center gap-3 text-sm"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="github" class="icon-glow" style="width:16px;height:16px;color:#a78bfa;"></i></span><a href="https://github.com/mrhungdinhdev" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si hover:underline transition-colors">github.com/mrhungdinhdev</a></li>
         <li class="flex items-center gap-3 text-sm" style="color:#4a6678;"><span class="hud-card bracket rounded-lg w-9 h-9 flex items-center justify-center text-sm flex-shrink-0"><i data-lucide="globe" class="icon-glow" style="width:16px;height:16px;color:#2dd4bf;"></i></span><span data-i18n="about_lang">Vietnamese (Native) · English (Intermediate)</span></li>
       </ul>
     </div>
@@ -887,17 +918,17 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
       <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 02</p><span class="tag" style="font-size:.6rem;">DISTRIBUTED</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="radar" class="proj-icon" style="width:18px;height:18px;color:#fb923c;"></i> Crawler Social Tool</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj2_desc">Distributed worker consuming crawl jobs from Redis Streams. Supports Facebook, X/Twitter, Instagram, TikTok with persistent Playwright browser sessions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Node.js</span><span class="tag">Playwright</span><span class="tag">Redis Streams</span><span class="tag">Docker</span></div><p class="font-mono text-xs" style="color:#2d4050;" data-i18n="proj2_internal">// Internal Tool</p></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 03</p><span class="tag" style="font-size:.6rem;">REALTIME</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="book-open" class="proj-icon" style="width:18px;height:18px;color:#34d399;"></i> XuatBanDienTu</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj3_desc">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span></div><a href="https://docsach.com.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ docsach.com.vn</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 03</p><span class="tag" style="font-size:.6rem;">REALTIME</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="book-open" class="proj-icon" style="width:18px;height:18px;color:#34d399;"></i> XuatBanDienTu</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj3_desc">Full-featured e-book publishing & reading platform with real-time reading progress, payment flows, and Socket.IO sidecar.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Phalcon</span><span class="tag">MySQL</span><span class="tag">Redis</span><span class="tag">Socket.IO</span><span class="tag">Docker</span><span class="tag">Nginx</span></div><a href="https://docsach.com.vn" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ docsach.com.vn</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 04</p><span class="tag" style="font-size:.6rem;">MOBILE · WEB</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="leaf" class="proj-icon" style="width:18px;height:18px;color:#a3e635;"></i> AnchayFood</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj4_desc">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div><div class="flex gap-4"><a href="https://anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Web</a><a href="https://vendor.anchayfood.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Vendor</a></div></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 04</p><span class="tag" style="font-size:.6rem;">MOBILE · WEB</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="leaf" class="proj-icon" style="width:18px;height:18px;color:#a3e635;"></i> AnchayFood</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj4_desc">Vegetarian & vegan platform for Vietnam — web + 3 mobile apps for users, vendors, and delivery. Full ordering ecosystem with live exchange rates.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Next.js</span><span class="tag">Flutter</span></div><div class="flex gap-4"><a href="https://anchayfood.com/" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Web</a><a href="https://vendor.anchayfood.com/" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Vendor</a></div></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 05</p><span class="tag" style="font-size:.6rem;">AI · AWS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="circle-check-big" class="proj-icon" style="width:18px;height:18px;color:#38bdf8;"></i> CheckYay</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj5_desc">Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span></div><a href="https://app.checkyay.com/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ App</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 05</p><span class="tag" style="font-size:.6rem;">AI · AWS</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="circle-check-big" class="proj-icon" style="width:18px;height:18px;color:#38bdf8;"></i> CheckYay</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj5_desc">Task management platform with AI chat (ChatGPT) trained on customer data. Web + mobile on full AWS infrastructure (ECS, RDS, S3, CloudWatch).</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Next.js</span><span class="tag">Node.js</span><span class="tag">Flutter</span><span class="tag">AWS ECS</span></div><a href="https://app.checkyay.com/" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ App</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 06</p><span class="tag" style="font-size:.6rem;">ENTERPRISE AI</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="brain" class="proj-icon" style="width:18px;height:18px;color:#c084fc;"></i> AiBC</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj6_desc">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div><a href="https://ai-pro.pro/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 06</p><span class="tag" style="font-size:.6rem;">ENTERPRISE AI</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="brain" class="proj-icon" style="width:18px;height:18px;color:#c084fc;"></i> AiBC</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj6_desc">Apply enterprise AI learning models to ChatGPT & Bard with full data isolation, perpetual learning, and PDF/Word/XML support.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">Vue.js</span><span class="tag">jQuery</span></div><a href="https://ai-pro.pro/" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 07</p><span class="tag" style="font-size:.6rem;">BLOCKCHAIN</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="clapperboard" class="proj-icon" style="width:18px;height:18px;color:#fb7185;"></i> Video NFT</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj7_desc">Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div><a href="https://videonft.live/" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 07</p><span class="tag" style="font-size:.6rem;">BLOCKCHAIN</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="clapperboard" class="proj-icon" style="width:18px;height:18px;color:#fb7185;"></i> Video NFT</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj7_desc">Earn crypto watching & uploading videos. ERC-20 & NFT on BSC, NFT marketplace, wallet system, Solidity smart contracts.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">NestJS</span><span class="tag">Next.js</span><span class="tag">Solidity</span><span class="tag">AWS</span><span class="tag">Flutter</span></div><a href="https://videonft.live/" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
-      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 08</p><span class="tag" style="font-size:.6rem;">E-COMMERCE</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="monitor" class="proj-icon" style="width:18px;height:18px;color:#fbbf24;"></i> CyberMart</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj8_desc">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div><a href="https://cybermart.io.vn" target="_blank" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
+      <div class="hud-card bracket rounded-xl p-6 flex flex-col reveal"><div class="flex justify-between items-center mb-2"><p class="font-mono text-xs" style="color:#2d4050;">// 08</p><span class="tag" style="font-size:.6rem;">E-COMMERCE</span></div><h3 class="font-bold text-base mb-2" style="color:#c8d6e5;"><i data-lucide="monitor" class="proj-icon" style="width:18px;height:18px;color:#fbbf24;"></i> CyberMart</h3><p class="text-sm leading-relaxed flex-1 mb-4" style="color:#3d5566;" data-i18n="proj8_desc">Tech accessories e-commerce with full product, category, cart, and order management for smart purchasing decisions.</p><div class="flex flex-wrap gap-1.5 mb-4"><span class="tag">Laravel</span><span class="tag">MySQL</span><span class="tag">jQuery</span><span class="tag">Bootstrap</span></div><a href="https://cybermart.io.vn" target="_blank" rel="noopener noreferrer" class="text-st hover:text-si text-xs font-mono hover:underline transition-colors">↗ Live</a></div>
 
     </div>
   </div>
@@ -956,7 +987,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
 
       <div class="hud-card bracket rounded-xl p-6 lg:col-span-2 reveal flex flex-col items-center text-center justify-center personal-side-card">
         <div class="personal-icon-wrap mb-6">
-          <img src="icon.png" alt="AI Sidebar Hub + Highlights icon" class="personal-icon rounded-lg"/>
+          <img src="assets/icon-192.jpg" srcset="assets/icon-192.jpg 192w, assets/icon-384.jpg 384w" sizes="112px" width="112" height="112" loading="lazy" decoding="async" alt="AI Sidebar Hub + Highlights icon" class="personal-icon rounded-lg"/>
         </div>
         <div class="personal-signal-bars" aria-hidden="true"><span></span><span></span><span></span></div>
         <p class="font-mono text-xs tracking-widest mb-2" style="color:#2d4050;" data-i18n="personal_role_label">ROLE</p>
@@ -1018,7 +1049,7 @@ section:hover .section-3d-canvas{opacity:0.75;}
         <span class="flex items-center justify-center" style="width:28px;height:28px;"><i data-lucide="smartphone" class="contact-icon" style="width:22px;height:22px;color:#4ade80;"></i></span>
         <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;" data-i18n="contact_phone_lbl">PHONE</div><div class="text-sm font-semibold" style="color:#c8d6e5;">034 256 8696</div></div>
       </a>
-      <a href="https://github.com/mrhungdinhdev" target="_blank" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
+      <a href="https://github.com/mrhungdinhdev" target="_blank" rel="noopener noreferrer" class="hud-card bracket rounded-xl px-6 py-4 flex items-center gap-3 no-underline text-left">
         <span class="flex items-center justify-center" style="width:28px;height:28px;"><i data-lucide="github" class="contact-icon" style="width:22px;height:22px;color:#a78bfa;"></i></span>
         <div><div class="font-mono text-xs mb-0.5" style="color:#2d4050;" data-i18n="contact_github_lbl">GITHUB</div><div class="text-sm font-semibold" style="color:#c8d6e5;">mrhungdinhdev</div></div>
       </a>
@@ -1027,8 +1058,10 @@ section:hover .section-3d-canvas{opacity:0.75;}
   </div>
 </section>
 
+  </main>
+
 <footer class="relative z-10 py-6 text-center border-t" style="border-color:rgba(200,214,229,0.07);">
-  <p class="font-mono text-xs tracking-widest" style="color:#1a2530;">ĐINH VĂN HÙNG © 2026 &nbsp;·&nbsp; HO CHI MINH CITY &nbsp;·&nbsp; 金 KIM HÀNH &nbsp;·&nbsp; THREE.JS + TAILWIND</p>
+  <p class="font-mono text-xs tracking-widest" style="color:#7fa8c9;">ĐINH VĂN HÙNG © 2026 &nbsp;·&nbsp; HO CHI MINH CITY &nbsp;·&nbsp; 金 KIM HÀNH &nbsp;·&nbsp; THREE.JS + TAILWIND</p>
 </footer>
 
 <script>
@@ -1246,11 +1279,16 @@ function applyLang(l) {
   localStorage.setItem('dvh_lang', l);
 }
 
-function toggleLang() {
+function toggleLang(event) {
+  if (event) event.preventDefault();
+  const trigger = event && event.currentTarget;
   lang = lang === 'en' ? 'vi' : 'en';
   applyLang(lang);
   resetTyping();
   window.dispatchEvent(new CustomEvent('dvh:lang-change', { detail: { lang } }));
+  if (trigger && typeof trigger.blur === 'function') {
+    requestAnimationFrame(() => trigger.blur());
+  }
 }
 
 applyLang(lang);
@@ -1258,7 +1296,17 @@ document.getElementById('lang-toggle').addEventListener('click', toggleLang);
 document.getElementById('lang-toggle-mob').addEventListener('click', toggleLang);
 
 /* ── LOADER ── */
-window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('hide'), 1800));
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (!loader) return;
+  const reduceMotion = window.DVHPerf ? window.DVHPerf.reduceMotion : false;
+  setTimeout(() => loader.classList.add('hide'), reduceMotion ? 120 : 650);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', hideLoader, { once: true });
+} else {
+  hideLoader();
+}
 
 /* ── PERF HELPERS ── */
 const DVHPerf = (() => {
@@ -1274,6 +1322,9 @@ const DVHPerf = (() => {
   };
   listen(reduced, e => { state.reduceMotion = e.matches; });
   listen(fine, e => { state.finePointer = e.matches; });
+  function isLowPower() {
+    return state.reduceMotion || innerWidth < 768 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  }
 
   function makeVisibility(el, rootMargin = '180px') {
     const visible = { active: true };
@@ -1300,6 +1351,7 @@ const DVHPerf = (() => {
   return {
     get reduceMotion() { return state.reduceMotion; },
     get finePointer() { return state.finePointer; },
+    get lowPower() { return isLowPower(); },
     makeVisibility,
     makeFrameGate,
   };
@@ -1343,17 +1395,19 @@ setInterval(() => {
 }, 1000);
 
 /* ── 1. SPACE BACKGROUND ── */
-(function spaceScene() {
+function initSpaceScene() {
   const canvas = document.getElementById('space-canvas');
+  if (!canvas || !window.THREE || canvas.dataset.ready === 'true') return;
+  canvas.dataset.ready = 'true';
   const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, DVHPerf.lowPower ? 1 : 1.25));
   renderer.setSize(innerWidth, innerHeight);
-  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : 30);
+  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : DVHPerf.lowPower ? 18 : 30);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 200);
   camera.position.z = 6;
 
-  const N = DVHPerf.reduceMotion ? 900 : 2200, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
+  const N = DVHPerf.reduceMotion ? 500 : DVHPerf.lowPower ? 850 : 2200, sp = new Float32Array(N*3), sc = new Float32Array(N*3);
   const pal = [
     [0.78,0.84,0.90],[0.50,0.66,0.79],[0.66,0.85,0.92],
     [0.72,0.84,0.94],[0.88,0.92,0.96],[0.95,0.97,1.00],
@@ -1379,7 +1433,7 @@ setInterval(() => {
   grid.position.y = -10;
   scene.add(grid);
 
-  const WL = 120, wPos = new Float32Array(WL*6), wCol = new Float32Array(WL*6);
+  const WL = DVHPerf.lowPower ? 55 : 120, wPos = new Float32Array(WL*6), wCol = new Float32Array(WL*6);
   for (let i=0;i<WL;i++) {
     const ang=i/WL*Math.PI*2, dist=8+Math.random()*60;
     wPos[i*6]=Math.cos(ang)*dist; wPos[i*6+1]=(Math.random()-.5)*30; wPos[i*6+2]=Math.sin(ang)*dist;
@@ -1395,7 +1449,7 @@ setInterval(() => {
   scene.add(warpLines);
 
   const rocks = [];
-  for (let i=0;i<10;i++) {
+  for (let i=0;i<(DVHPerf.lowPower ? 4 : 10);i++) {
     const m = new THREE.Mesh(new THREE.IcosahedronGeometry(.05+Math.random()*.12,0), new THREE.MeshBasicMaterial({color:0x0a1828,wireframe:Math.random()>.4}));
     m.position.set((Math.random()-.5)*22,(Math.random()-.5)*14,(Math.random()-.5)*8-4);
     m._spd={rx:(Math.random()-.5)*.4,ry:(Math.random()-.5)*.3}; m._oy=m.position.y; m._ph=Math.random()*Math.PI*2;
@@ -1418,21 +1472,23 @@ setInterval(() => {
     rocks.forEach(r=>{r.rotation.x+=r._spd.rx*.016;r.rotation.y+=r._spd.ry*.016;r.position.y=r._oy+Math.sin(t*.38+r._ph)*.22;});
     renderer.render(scene,camera);
   })();
-})();
+}
 
 /* ── 2. HERO 3D SCENE ── */
-(function heroScene() {
+function initHeroScene() {
   const canvas   = document.getElementById('hero-canvas');
-  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  if (!canvas || !window.THREE || canvas.dataset.ready === 'true') return;
+  canvas.dataset.ready = 'true';
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:!DVHPerf.lowPower});
   const visible  = DVHPerf.makeVisibility(canvas.parentElement, '220px');
-  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : 30);
+  const canFrame = DVHPerf.makeFrameGate(DVHPerf.reduceMotion ? 12 : DVHPerf.lowPower ? 18 : 30);
   const scene    = new THREE.Scene();
   const camera   = new THREE.PerspectiveCamera(50, 1, .1, 100);
   camera.position.set(0,0,6);
 
   function resize(){
     const w=canvas.parentElement.clientWidth, h=canvas.parentElement.clientHeight;
-    renderer.setPixelRatio(Math.min(devicePixelRatio,1.25)); renderer.setSize(w,h);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,DVHPerf.lowPower ? 1 : 1.25)); renderer.setSize(w,h);
     camera.aspect=w/h; camera.updateProjectionMatrix();
   }
   resize(); window.addEventListener('resize', resize);
@@ -1443,35 +1499,35 @@ setInterval(() => {
   const ptG  = new THREE.PointLight(0xa8c8dc, 2.0, 16);  ptG.position.set(0,-4,2);  scene.add(ptG);
 
   const planet = new THREE.Mesh(
-    new THREE.SphereGeometry(1.2,64,64),
+    new THREE.SphereGeometry(1.2,DVHPerf.lowPower ? 32 : 64,DVHPerf.lowPower ? 32 : 64),
     new THREE.MeshPhongMaterial({color:0x0a1520,emissive:0x060c14,shininess:140,specular:0xc8d6e5})
   );
   planet.position.set(2.3,-.2,0); scene.add(planet);
 
   const pWire = new THREE.Mesh(
-    new THREE.SphereGeometry(1.23,22,22),
+    new THREE.SphereGeometry(1.23,DVHPerf.lowPower ? 14 : 22,DVHPerf.lowPower ? 14 : 22),
     new THREE.MeshBasicMaterial({color:0x7fa8c9,wireframe:true,transparent:true,opacity:.08})
   );
   pWire.position.copy(planet.position); scene.add(pWire);
 
   const atm = new THREE.Mesh(
-    new THREE.SphereGeometry(1.46,28,28),
+    new THREE.SphereGeometry(1.46,DVHPerf.lowPower ? 18 : 28,DVHPerf.lowPower ? 18 : 28),
     new THREE.MeshBasicMaterial({color:0xa8d8ea,transparent:true,opacity:.055,side:THREE.BackSide})
   );
   atm.position.copy(planet.position); scene.add(atm);
 
   const mkRing=(r,tube,op,col)=>{
-    const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,6,80),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
+    const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,5,DVHPerf.lowPower ? 44 : 80),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
     m.position.copy(planet.position); m.rotation.x=Math.PI*.35; scene.add(m); return m;
   };
   const ring1 = mkRing(1.95,.055,.50, 0xc8d6e5);
   const ring2 = mkRing(1.95,.14, .06, 0xc8d6e5);
   const ring3 = mkRing(2.35,.025,.28, 0xd0e8f8);
 
-  const moon1 = new THREE.Mesh(new THREE.SphereGeometry(.19,16,16),
+  const moon1 = new THREE.Mesh(new THREE.SphereGeometry(.19,DVHPerf.lowPower ? 10 : 16,DVHPerf.lowPower ? 10 : 16),
     new THREE.MeshPhongMaterial({color:0x0a1828,emissive:0x060e18,shininess:80,specular:0x7fa8c9}));
   scene.add(moon1);
-  const moon2 = new THREE.Mesh(new THREE.SphereGeometry(.10,12,12),
+  const moon2 = new THREE.Mesh(new THREE.SphereGeometry(.10,DVHPerf.lowPower ? 8 : 12,DVHPerf.lowPower ? 8 : 12),
     new THREE.MeshPhongMaterial({color:0x0d1520,emissive:0x080e14,shininess:60,specular:0xc8d6e5}));
   scene.add(moon2);
 
@@ -1492,7 +1548,7 @@ setInterval(() => {
   for(let i=-3;i<=3;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(i*1.2,-3.5,-2),new THREE.Vector3(i*1.2,3.5,-2)]),lm));
   for(let i=-2;i<=2;i++) scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-4,i*1.2,-2),new THREE.Vector3(4,i*1.2,-2)]),lm));
 
-  const eRing=new THREE.Mesh(new THREE.TorusGeometry(1.5,.008,4,120),
+  const eRing=new THREE.Mesh(new THREE.TorusGeometry(1.5,.008,4,DVHPerf.lowPower ? 64 : 120),
     new THREE.MeshBasicMaterial({color:0xc8d6e5,transparent:true,opacity:.55}));
   eRing.position.copy(planet.position); scene.add(eRing);
 
@@ -1519,7 +1575,7 @@ setInterval(() => {
     camera.lookAt(scene.position);
     renderer.render(scene,camera);
   })();
-})();
+}
 
 /* ── 3. TYPING ── */
 (function(){
@@ -1578,6 +1634,8 @@ document.querySelectorAll('.reveal').forEach(el=>rObs.observe(el));
 const ham=document.getElementById('ham'),menu=document.getElementById('mob-menu');
 ham.addEventListener('click',()=>{
   const open=menu.classList.toggle('open');
+  ham.setAttribute('aria-expanded', String(open));
+  ham.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
   const sp=ham.querySelectorAll('span');
   sp[0].style.transform=open?'translateY(7px) rotate(45deg)':'';
   sp[1].style.opacity=open?'0':'1';
@@ -1585,6 +1643,8 @@ ham.addEventListener('click',()=>{
 });
 menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
   menu.classList.remove('open');
+  ham.setAttribute('aria-expanded', 'false');
+  ham.setAttribute('aria-label', 'Open navigation menu');
   ham.querySelectorAll('span').forEach(s=>{s.style.transform='';s.style.opacity='1';});
 }));
 
@@ -2160,11 +2220,94 @@ document.querySelectorAll('#contact .hud-card').forEach(card => {
   setupFirstInteractionGreeting();
 })();
 
-/* ── INIT LUCIDE ICONS ── */
-lucide.createIcons();
+/* ── INIT NON-CRITICAL VISUAL ENGINES ── */
+function loadExternalScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      existing.addEventListener('load', resolve, { once: true });
+      existing.addEventListener('error', reject, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+}
 
-/* ── 12. SCI-FI 3D SECTION SCENES (external) ── */
+function whenIdle(callback, timeout) {
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(callback, timeout ? { timeout } : undefined);
+  } else {
+    setTimeout(callback, timeout || 1);
+  }
+}
+
+let threeReady = null;
+function ensureThree() {
+  if (!threeReady) {
+    threeReady = loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+  }
+  return threeReady;
+}
+
+function initPrimaryScenes() {
+  ensureThree()
+    .then(() => {
+      initSpaceScene();
+      initHeroScene();
+    })
+    .catch(() => {});
+}
+
+whenIdle(() => {
+  loadExternalScript('https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js')
+    .then(() => { if (window.lucide) lucide.createIcons(); })
+    .catch(() => {});
+}, 1400);
+
+if (DVHPerf.lowPower) {
+  const startPrimaryScenes = () => {
+    window.removeEventListener('scroll', startPrimaryScenes);
+    window.removeEventListener('pointerdown', startPrimaryScenes);
+    window.removeEventListener('keydown', startPrimaryScenes);
+    initPrimaryScenes();
+  };
+  window.addEventListener('scroll', startPrimaryScenes, { once: true, passive: true });
+  window.addEventListener('pointerdown', startPrimaryScenes, { once: true, passive: true });
+  window.addEventListener('keydown', startPrimaryScenes, { once: true });
+} else {
+  whenIdle(initPrimaryScenes, 1800);
+}
+
+/* ── 12. SCI-FI 3D SECTION SCENES (lazy external) ── */
+function loadSectionScenes() {
+  if (window.__dvhScenesLoading) return;
+  window.__dvhScenesLoading = true;
+  ensureThree()
+    .then(() => {
+      const script = document.createElement('script');
+      script.src = 'scenes3d.js';
+      script.async = true;
+      document.body.appendChild(script);
+    })
+    .catch(() => {});
+}
+
+const sceneAnchor = document.getElementById('about');
+if ('IntersectionObserver' in window && sceneAnchor) {
+  const sceneLoader = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    sceneLoader.disconnect();
+    loadSectionScenes();
+  }, { rootMargin: '0px' });
+  sceneLoader.observe(sceneAnchor);
+} else {
+  window.addEventListener('scroll', loadSectionScenes, { once: true, passive: true });
+}
 </script>
-<script src="scenes3d.js"></script>
 </body>
 </html>

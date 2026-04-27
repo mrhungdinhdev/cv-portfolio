@@ -41,10 +41,26 @@ function contentType(filePath) {
   return types[extname(filePath).toLowerCase()] || 'application/octet-stream';
 }
 
+function cacheHeaders(relative) {
+  if (relative === 'index.html') {
+    return { 'Cache-Control': 'no-cache' };
+  }
+
+  if (/\.(?:css|js|json|png|jpe?g|svg|txt)$/i.test(relative)) {
+    return { 'Cache-Control': 'public, max-age=31536000, immutable' };
+  }
+
+  return { 'Cache-Control': 'no-cache' };
+}
+
 function serveStatic(req, res) {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   const pathname = decodeURIComponent(url.pathname);
-  const relative = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
+  const relative = pathname === '/'
+    ? 'index.html'
+    : pathname === '/favicon.ico'
+      ? 'assets/favicon-32.png'
+      : pathname.replace(/^\/+/, '');
   const filePath = normalize(join(root, relative));
 
   if (
@@ -58,7 +74,10 @@ function serveStatic(req, res) {
     return;
   }
 
-  res.writeHead(200, { 'Content-Type': contentType(filePath) });
+  res.writeHead(200, {
+    'Content-Type': contentType(filePath),
+    ...cacheHeaders(relative)
+  });
   createReadStream(filePath).pipe(res);
 }
 

@@ -197,6 +197,7 @@
     let latestLocation = HOME;
     let countryLayer = null;
     let finderMessageUntil = 0;
+    let geoWatchId = null;
     const markerTarget = geoToDisplayVector(HOME.lat, HOME.lon, MARKER_R, true);
     const markerNormal = markerTarget.clone().normalize();
     const trailPoints = [];
@@ -516,10 +517,14 @@
     function bindFinderTrigger() {
       const targets = [readout.trigger, readout.panel].filter(Boolean);
       targets.forEach(el => {
-        el.addEventListener('click', launchFinder);
+        el.addEventListener('click', () => {
+          requestLocationTracking();
+          launchFinder();
+        });
         el.addEventListener('keydown', e => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
+            requestLocationTracking();
             launchFinder();
           }
         });
@@ -533,6 +538,7 @@
         launchFinder();
       }, {
         hover: false,
+        focusable: false,
         title: 'Click address to send the finder ship to Thu Duc / HCMC',
       });
     }
@@ -568,13 +574,18 @@
 
     function startLocationTracking() {
       setMarkerLocation(HOME, 'home');
+      updateReadout('home', HOME);
+    }
+
+    function requestLocationTracking() {
       if (!navigator.geolocation) {
         updateReadout('unavailable', HOME);
         return;
       }
+      if (geoWatchId !== null) return;
       let hasFix = false;
       try {
-        navigator.geolocation.watchPosition(
+        geoWatchId = navigator.geolocation.watchPosition(
           pos => {
             hasFix = true;
             const loc = {
