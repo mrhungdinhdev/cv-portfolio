@@ -1318,6 +1318,73 @@
       new THREE.Vector3(2.7, 0.12, 1.25),   // devops/cloud
       new THREE.Vector3(0.85, 0.12, 2.25),  // tools
     ];
+
+    const cpuRings = [];
+    [0.72, 1.02, 1.34].forEach((radius, i) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.01, 4, 100),
+        new THREE.MeshBasicMaterial({ color: i === 1 ? 0x22d3ee : 0xc8d6e5, transparent: true, opacity: 0.16, depthWrite: false })
+      );
+      ring.position.y = 0.34 + i * 0.04;
+      ring.rotation.x = -Math.PI / 2 + i * 0.18;
+      scene.add(ring);
+      cpuRings.push(ring);
+    });
+
+    const coreCrystal = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.34, 1),
+      new THREE.MeshBasicMaterial({ color: 0xc8d6e5, wireframe: true, transparent: true, opacity: 0.28, depthWrite: false })
+    );
+    coreCrystal.position.y = 0.64;
+    scene.add(coreCrystal);
+
+    const skillTowers = [];
+    skillTargets.forEach((target, i) => {
+      const group = new THREE.Group();
+      group.position.copy(target);
+      const baseColor = colors[i % colors.length];
+      const tower = new THREE.Mesh(
+        new THREE.BoxGeometry(0.32, 0.7 + (i % 3) * 0.18, 0.32),
+        new THREE.MeshBasicMaterial({ color: baseColor, wireframe: true, transparent: true, opacity: 0.16, depthWrite: false })
+      );
+      tower.position.y = 0.35;
+      const halo = new THREE.Mesh(
+        new THREE.TorusGeometry(0.48, 0.01, 4, 64),
+        new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.18, depthWrite: false })
+      );
+      halo.rotation.x = -Math.PI / 2;
+      halo.position.y = 0.76;
+      const cap = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.12, 0),
+        new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.58, depthWrite: false })
+      );
+      cap.position.y = 0.86;
+      group.add(tower, halo, cap);
+      group._tower = tower;
+      group._halo = halo;
+      group._cap = cap;
+      group._baseY = target.y;
+      group._phase = i * 0.85;
+      hexGroup.add(group);
+      skillTowers.push(group);
+    });
+
+    const dataSpokes = skillTargets.map((target, i) => {
+      const mid = target.clone().multiplyScalar(0.5);
+      mid.y = 0.62 + (i % 2) * 0.22;
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0.38, 0),
+        mid,
+        target.clone().setY(0.58),
+      ]);
+      const line = new THREE.Line(
+        geo,
+        new THREE.LineBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 0.1, depthWrite: false })
+      );
+      hexGroup.add(line);
+      return line;
+    });
+
     const skillFocus = new THREE.Mesh(
       new THREE.TorusGeometry(0.62, 0.012, 4, 90),
       new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0, depthWrite: false })
@@ -1367,6 +1434,32 @@
         cpu.material.color.set(0xc8d6e5);
         cpu.material.opacity += (0.2 - cpu.material.opacity) * 0.06;
       }
+
+      coreCrystal.rotation.x = t * 0.36;
+      coreCrystal.rotation.y = -t * 0.52;
+      coreCrystal.material.color.set(target ? colors[activeSkill % colors.length] : 0xc8d6e5);
+      coreCrystal.material.opacity = 0.22 + (target ? 0.16 + burst * 0.18 : Math.sin(t * 1.5) * 0.04);
+      cpuRings.forEach((ring, i) => {
+        ring.rotation.z = t * (i % 2 ? -0.34 : 0.28);
+        ring.material.color.set(target ? colors[activeSkill % colors.length] : (i === 1 ? 0x22d3ee : 0xc8d6e5));
+        ring.material.opacity = 0.12 + Math.sin(t * 2 + i) * 0.04 + (target ? burst * 0.18 : 0);
+        ring.scale.setScalar(1 + Math.sin(t * 1.6 + i) * 0.035 + (target ? burst * 0.12 : 0));
+      });
+
+      skillTowers.forEach((tower, i) => {
+        const focus = i === activeSkill ? 1 : 0;
+        tower.position.y = tower._baseY + Math.sin(t * 0.9 + tower._phase) * 0.06 + focus * 0.12;
+        tower._tower.scale.y = 1 + focus * (0.65 + burst * 0.28) + Math.sin(t * 1.4 + i) * 0.05;
+        tower._tower.material.opacity = 0.12 + focus * 0.32;
+        tower._halo.rotation.z = t * (0.42 + i * 0.04);
+        tower._halo.scale.setScalar(1 + focus * (0.28 + burst * 0.2) + Math.sin(t * 2 + i) * 0.04);
+        tower._halo.material.opacity = 0.12 + focus * 0.34;
+        tower._cap.rotation.x = t * 0.7;
+        tower._cap.rotation.y = -t * 0.9;
+        tower._cap.scale.setScalar(1 + focus * (0.5 + burst * 0.26));
+        tower._cap.material.opacity = 0.42 + focus * 0.36;
+        dataSpokes[i].material.opacity = 0.06 + focus * (0.35 + Math.sin(t * 7) * 0.05 + burst * 0.24);
+      });
 
       // Data pulses
       const pos = pGeo.attributes.position.array;
@@ -1446,6 +1539,41 @@
       color: 0x7fa8c9, transparent: true, opacity: 0.15
     })));
 
+    const careerCurve = new THREE.CatmullRomCurve3(pathPoints);
+    const careerTube = new THREE.Mesh(
+      new THREE.TubeGeometry(careerCurve, 160, 0.024, 8, false),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.16, depthWrite: false })
+    );
+    pathGroup.add(careerTube);
+
+    const spineLines = [];
+    for (let i = 0; i < pathPoints.length; i += 3) {
+      const p = pathPoints[i];
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, p.y, 0),
+          p.clone(),
+        ]),
+        new THREE.LineBasicMaterial({ color: i % 2 ? 0xc8d6e5 : 0x22d3ee, transparent: true, opacity: 0.055, depthWrite: false })
+      );
+      line._phase = i * 0.24;
+      pathGroup.add(line);
+      spineLines.push(line);
+    }
+
+    const helixBands = [];
+    for (let i = 0; i < 5; i++) {
+      const band = new THREE.Mesh(
+        new THREE.TorusGeometry(helixR + 0.18 + i * 0.02, 0.008, 4, 96),
+        new THREE.MeshBasicMaterial({ color: i % 2 ? 0xa78bfa : 0x22d3ee, transparent: true, opacity: 0.11, depthWrite: false })
+      );
+      band.rotation.x = Math.PI / 2;
+      band.position.y = totalH * (i + 0.5) / 5;
+      band._phase = i * 0.7;
+      pathGroup.add(band);
+      helixBands.push(band);
+    }
+
     // Milestone markers (3 công ty)
     const msColors = [0x4ade80, 0x22d3ee, 0xa78bfa];
     const milestoneVisuals = [];
@@ -1476,7 +1604,35 @@
       ring.position.copy(pt);
       ring._i = i;
       pathGroup.add(ring);
-      milestoneVisuals.push({ ms, glow, ring, point: pt.clone() });
+
+      const panel = new THREE.Group();
+      panel.position.copy(pt.clone().add(new THREE.Vector3(i % 2 ? -0.82 : 0.82, 0.12, 0)));
+      const panelFill = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.05, 0.5),
+        new THREE.MeshBasicMaterial({ color: msColors[i], transparent: true, opacity: 0.055, side: THREE.DoubleSide, depthWrite: false })
+      );
+      const panelBorder = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.08, 0.53),
+        new THREE.MeshBasicMaterial({ color: msColors[i], wireframe: true, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false })
+      );
+      panel.add(panelFill, panelBorder);
+      for (let j = 0; j < 3; j++) {
+        const row = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.32 + j * 0.14, 0.025),
+          new THREE.MeshBasicMaterial({ color: j === 0 ? msColors[i] : 0xc8d6e5, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false })
+        );
+        row.position.set(-0.22 + j * 0.03, 0.13 - j * 0.13, 0.02);
+        panel.add(row);
+      }
+      panel._i = i;
+      pathGroup.add(panel);
+
+      const tether = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([pt.clone(), panel.position.clone()]),
+        new THREE.LineBasicMaterial({ color: msColors[i], transparent: true, opacity: 0.12, depthWrite: false })
+      );
+      pathGroup.add(tether);
+      milestoneVisuals.push({ ms, glow, ring, panel, tether, point: pt.clone() });
     });
 
     // Ascending particles (energy flowing up)
@@ -1528,6 +1684,15 @@
       const expBurst = Math.max(0, (expPulseUntil - performance.now()) / 1200);
 
       pathGroup.rotation.y = t * 0.06;
+      careerTube.material.opacity = 0.12 + Math.sin(t * 1.4) * 0.04 + (activeMilestone ? expBurst * 0.12 : 0);
+      helixBands.forEach((band, i) => {
+        band.rotation.z = t * (0.22 + i * 0.035);
+        band.material.opacity = 0.08 + Math.sin(t * 1.8 + band._phase) * 0.035 + (activeMilestone ? expBurst * 0.08 : 0);
+        band.scale.setScalar(1 + Math.sin(t * 1.2 + i) * 0.04);
+      });
+      spineLines.forEach(line => {
+        line.material.opacity = 0.035 + Math.max(0, Math.sin(t * 2.2 + line._phase)) * 0.08;
+      });
 
       // Milestone pulse
       pathGroup.children.forEach(child => {
@@ -1548,6 +1713,17 @@
         m.glow.material.opacity = 0.09 + Math.sin(t * 2 + i) * 0.05 + focus * 0.22;
         m.ring.scale.setScalar(1 + focus * (0.45 + Math.sin(t * 4.5) * 0.08));
         m.ring.material.opacity = 0.2 + focus * 0.45;
+        m.panel.rotation.y = -pathGroup.rotation.y + Math.sin(t * 0.7 + i) * 0.08;
+        m.panel.position.y = m.point.y + 0.12 + Math.sin(t * 1.1 + i) * 0.08 + focus * 0.08;
+        m.panel.scale.setScalar(1 + focus * (0.25 + expBurst * 0.18));
+        m.panel.children.forEach(child => {
+          if (child.material) child.material.opacity = (child.geometry && child.geometry.type === 'PlaneGeometry' ? 0.08 : 0.16) + focus * 0.18;
+        });
+        const tetherPos = m.tether.geometry.attributes.position.array;
+        tetherPos[0] = m.point.x; tetherPos[1] = m.point.y; tetherPos[2] = m.point.z;
+        tetherPos[3] = m.panel.position.x; tetherPos[4] = m.panel.position.y; tetherPos[5] = m.panel.position.z;
+        m.tether.geometry.attributes.position.needsUpdate = true;
+        m.tether.material.opacity = 0.08 + focus * 0.24;
       });
 
       if (activeMilestone) {
@@ -1610,6 +1786,29 @@
     const screenGroup = new THREE.Group();
     scene.add(screenGroup);
 
+    const projectHub = new THREE.Group();
+    projectHub.position.set(0, 0, 1.5);
+    scene.add(projectHub);
+    const hubCore = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.42, 1),
+      new THREE.MeshBasicMaterial({ color: 0xc8d6e5, wireframe: true, transparent: true, opacity: 0.24, depthWrite: false })
+    );
+    const hubGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.82, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.045, side: THREE.BackSide, depthWrite: false })
+    );
+    const hubRingA = new THREE.Mesh(
+      new THREE.TorusGeometry(0.78, 0.012, 4, 120),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.2, depthWrite: false })
+    );
+    const hubRingB = new THREE.Mesh(
+      new THREE.TorusGeometry(1.08, 0.009, 4, 120),
+      new THREE.MeshBasicMaterial({ color: 0xc8d6e5, transparent: true, opacity: 0.12, depthWrite: false })
+    );
+    hubRingA.rotation.x = Math.PI / 2;
+    hubRingB.rotation.y = Math.PI / 2;
+    projectHub.add(hubGlow, hubCore, hubRingA, hubRingB);
+
     // 8 floating screens (tương ứng 8 projects)
     const screenColors = [0x22d3ee, 0xfb923c, 0x34d399, 0xa3e635, 0x38bdf8, 0xc084fc, 0xfb7185, 0xfbbf24];
     const screens = [];
@@ -1637,6 +1836,13 @@
       );
       group.add(border);
 
+      const rear = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.18, 0.72),
+        new THREE.MeshBasicMaterial({ color: screenColors[i], wireframe: true, transparent: true, opacity: 0.08, side: THREE.DoubleSide, depthWrite: false })
+      );
+      rear.position.z = -0.12;
+      group.add(rear);
+
       // Scan line inside screen
       const scanGeo = new THREE.PlaneGeometry(1.3, 0.01);
       const scan = new THREE.Mesh(scanGeo, new THREE.MeshBasicMaterial({
@@ -1657,6 +1863,17 @@
         codeLines.push(codeLine);
       }
 
+      const metricDots = [];
+      for (let j = 0; j < 5; j++) {
+        const dot = new THREE.Mesh(
+          new THREE.CircleGeometry(0.025, 12),
+          new THREE.MeshBasicMaterial({ color: j % 2 ? 0xc8d6e5 : screenColors[i], transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false })
+        );
+        dot.position.set(0.46 - (j % 2) * 0.16, -0.26 + j * 0.11, 0.035);
+        group.add(dot);
+        metricDots.push(dot);
+      }
+
       // Corner brackets
       const bracketMat = new THREE.LineBasicMaterial({ color: screenColors[i], transparent: true, opacity: 0.3 });
       const corners = [[-0.72, 0.47], [0.72, 0.47], [-0.72, -0.47], [0.72, -0.47]];
@@ -1671,9 +1888,11 @@
       group._home = new THREE.Vector3(pos[0], pos[1], pos[2]);
       group._frame = frame;
       group._border = border;
+      group._rear = rear;
       group.lookAt(cam.position);
       group._scan = scan;
       group._codeLines = codeLines;
+      group._metricDots = metricDots;
       group._phase = i * 0.8;
       group._i = i;
       group._color = screenColors[i];
@@ -1689,6 +1908,36 @@
       ]);
       scene.add(new THREE.Line(geo, connMat));
     }
+
+    const hubLinks = screens.map((screen, i) => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+      const line = new THREE.Line(
+        geo,
+        new THREE.LineBasicMaterial({ color: screenColors[i], transparent: true, opacity: 0.08, depthWrite: false })
+      );
+      scene.add(line);
+      return line;
+    });
+
+    const flowCount = 120;
+    const flowPos = new Float32Array(flowCount * 3);
+    const flowData = [];
+    for (let i = 0; i < flowCount; i++) {
+      flowData.push({
+        screen: i % screens.length,
+        p: Math.random(),
+        speed: 0.0035 + Math.random() * 0.006,
+        lift: Math.random() * 0.8,
+      });
+    }
+    const flowGeo = new THREE.BufferGeometry();
+    flowGeo.setAttribute('position', new THREE.BufferAttribute(flowPos, 3));
+    const flowPoints = new THREE.Points(
+      flowGeo,
+      new THREE.PointsMaterial({ color: 0xc8d6e5, size: 0.035, transparent: true, opacity: 0.5, depthWrite: false })
+    );
+    scene.add(flowPoints);
 
     const beamGeo = new THREE.BufferGeometry();
     beamGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
@@ -1715,6 +1964,17 @@
       const activeScreen = activeProject >= 0 ? screens[activeProject] : null;
       const projectBurst = Math.max(0, (projectPulseUntil - performance.now()) / 1100);
 
+      projectHub.rotation.x = t * 0.18;
+      projectHub.rotation.y = -t * 0.28;
+      hubCore.material.color.set(activeScreen ? activeScreen._color : 0xc8d6e5);
+      hubCore.material.opacity = 0.2 + Math.sin(t * 2.2) * 0.04 + (activeScreen ? projectBurst * 0.22 : 0);
+      hubGlow.material.color.set(activeScreen ? activeScreen._color : 0x22d3ee);
+      hubGlow.material.opacity = 0.04 + (activeScreen ? 0.06 + projectBurst * 0.05 : Math.sin(t * 1.4) * 0.015);
+      hubRingA.rotation.z = t * 0.62;
+      hubRingB.rotation.z = -t * 0.48;
+      hubRingA.material.color.set(activeScreen ? activeScreen._color : 0x22d3ee);
+      hubRingA.material.opacity = 0.16 + (activeScreen ? projectBurst * 0.2 : 0);
+
       screens.forEach(s => {
         const focus = s === activeScreen ? 1 : 0;
         const desired = s._home.clone();
@@ -1726,6 +1986,11 @@
         s.scale.setScalar(1 + focus * (0.35 + projectBurst * 0.16));
         if (s._frame) s._frame.material.opacity = 0.04 + focus * 0.22;
         if (s._border) s._border.material.opacity = 0.15 + focus * 0.5;
+        if (s._rear) {
+          s._rear.position.z = -0.12 - focus * 0.12;
+          s._rear.material.opacity = 0.08 + focus * 0.22;
+          s._rear.scale.setScalar(1 + focus * 0.18);
+        }
         // Face camera
         s.lookAt(cam.position);
         // Scan line animation
@@ -1739,11 +2004,45 @@
             line.scale.x = 1 + focus * (0.18 + Math.sin(t * 3.5 + j) * 0.06);
           });
         }
+        if (s._metricDots) {
+          s._metricDots.forEach((dot, j) => {
+            dot.material.opacity = 0.16 + Math.max(0, Math.sin(t * 3 + s._phase + j)) * 0.16 + focus * 0.24;
+            dot.scale.setScalar(1 + focus * 0.25 + Math.sin(t * 2 + j) * 0.08);
+          });
+        }
       });
+
+      hubLinks.forEach((link, i) => {
+        const pos = link.geometry.attributes.position.array;
+        pos[0] = projectHub.position.x; pos[1] = projectHub.position.y; pos[2] = projectHub.position.z;
+        pos[3] = screens[i].position.x; pos[4] = screens[i].position.y; pos[5] = screens[i].position.z;
+        link.geometry.attributes.position.needsUpdate = true;
+        const focus = screens[i] === activeScreen ? 1 : 0;
+        link.material.opacity = 0.045 + focus * (0.28 + projectBurst * 0.18) + Math.max(0, Math.sin(t * 2.1 + i)) * 0.04;
+      });
+
+      const flowArray = flowGeo.attributes.position.array;
+      for (let i = 0; i < flowCount; i++) {
+        const d = flowData[i];
+        if (activeProject >= 0 && projectBurst > 0.15 && i % 3 === 0) d.screen = activeProject;
+        d.p += d.speed * (activeProject === d.screen ? 1.8 : 1);
+        if (d.p > 1) {
+          d.p = 0;
+          d.screen = activeProject >= 0 && Math.random() > 0.35 ? activeProject : Math.floor(Math.random() * screens.length);
+        }
+        const dest = screens[d.screen].position;
+        const p = d.p;
+        flowArray[i * 3] = projectHub.position.x + (dest.x - projectHub.position.x) * p;
+        flowArray[i * 3 + 1] = projectHub.position.y + (dest.y - projectHub.position.y) * p + Math.sin(p * Math.PI) * d.lift;
+        flowArray[i * 3 + 2] = projectHub.position.z + (dest.z - projectHub.position.z) * p;
+      }
+      flowGeo.attributes.position.needsUpdate = true;
+      flowPoints.material.color.set(activeScreen ? activeScreen._color : 0xc8d6e5);
+      flowPoints.material.opacity = 0.38 + (activeScreen ? 0.2 : 0);
 
       if (activeScreen) {
         const pos = beamGeo.attributes.position.array;
-        pos[0] = 0; pos[1] = 0; pos[2] = 1.5;
+        pos[0] = projectHub.position.x; pos[1] = projectHub.position.y; pos[2] = projectHub.position.z;
         pos[3] = activeScreen.position.x; pos[4] = activeScreen.position.y; pos[5] = activeScreen.position.z;
         beamGeo.attributes.position.needsUpdate = true;
         activeBeam.material.color.set(activeScreen._color);
@@ -2428,6 +2727,32 @@
     );
     coreGroup.add(base);
 
+    const dishRings = [];
+    [0.72, 1.05, 1.42].forEach((radius, i) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.01, 4, 96),
+        new THREE.MeshBasicMaterial({ color: i === 1 ? 0x22d3ee : 0xc8d6e5, transparent: true, opacity: 0.11, depthWrite: false })
+      );
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = -0.48 + i * 0.03;
+      ring._phase = i * 0.7;
+      coreGroup.add(ring);
+      dishRings.push(ring);
+    });
+
+    const mastPanels = [];
+    for (let i = 0; i < 4; i++) {
+      const panel = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.38, 0.14),
+        new THREE.MeshBasicMaterial({ color: i % 2 ? 0x4ade80 : 0x22d3ee, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })
+      );
+      panel.position.set(Math.cos(i * Math.PI / 2) * 0.45, 0.38 + i * 0.11, Math.sin(i * Math.PI / 2) * 0.45);
+      panel.lookAt(0, 0.7, 0);
+      panel._phase = i * 0.8;
+      coreGroup.add(panel);
+      mastPanels.push(panel);
+    }
+
     // Signal wave rings (expanding from top)
     const waveRings = [];
     for (let i = 0; i < 5; i++) {
@@ -2461,6 +2786,21 @@
       node.position.set(...ep.pos);
       coreGroup.add(node);
 
+      const portal = new THREE.Mesh(
+        new THREE.TorusGeometry(0.34, 0.01, 4, 72),
+        new THREE.MeshBasicMaterial({ color: ep.color, transparent: true, opacity: 0.18, depthWrite: false })
+      );
+      portal.position.copy(node.position);
+      portal.rotation.x = Math.PI / 2;
+      coreGroup.add(portal);
+
+      const halo = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 16, 16),
+        new THREE.MeshBasicMaterial({ color: ep.color, transparent: true, opacity: 0.06, side: THREE.BackSide, depthWrite: false })
+      );
+      halo.position.copy(node.position);
+      coreGroup.add(halo);
+
       // Connection line
       const geo = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(0, 1.3, 0), node.position.clone()
@@ -2469,8 +2809,27 @@
         color: ep.color, transparent: true, opacity: 0.06
       }));
       coreGroup.add(line);
-      epMeshes.push({ node, line, color: ep.color });
+      epMeshes.push({ node, portal, halo, line, color: ep.color });
     });
+
+    const signalCount = 90;
+    const signalPos = new Float32Array(signalCount * 3);
+    const signalData = [];
+    for (let i = 0; i < signalCount; i++) {
+      signalData.push({
+        endpoint: i % epMeshes.length,
+        p: Math.random(),
+        speed: 0.004 + Math.random() * 0.006,
+        twist: Math.random() * Math.PI * 2,
+      });
+    }
+    const signalGeo = new THREE.BufferGeometry();
+    signalGeo.setAttribute('position', new THREE.BufferAttribute(signalPos, 3));
+    const signalPoints = new THREE.Points(
+      signalGeo,
+      new THREE.PointsMaterial({ color: 0x22d3ee, size: 0.04, transparent: true, opacity: 0.52, depthWrite: false })
+    );
+    coreGroup.add(signalPoints);
 
     // Grid floor
     const gridH = new THREE.GridHelper(10, 20, 0x0a1828, 0x0a1828);
@@ -2503,6 +2862,18 @@
       diamondGlow.material.opacity = 0.05 + Math.sin(t * 2) * 0.05 + contactBurst * 0.1;
       diamondGlow.scale.setScalar(1 + Math.sin(t * 2.5) * 0.2 + contactBurst * 0.4);
 
+      dishRings.forEach((ring, i) => {
+        ring.rotation.z = t * (i % 2 ? -0.34 : 0.42);
+        ring.material.color.set(activeEndpoint ? activeEndpoint.color : (i === 1 ? 0x22d3ee : 0xc8d6e5));
+        ring.material.opacity = 0.08 + Math.sin(t * 2 + ring._phase) * 0.035 + contactBurst * 0.1;
+        ring.scale.setScalar(1 + Math.sin(t * 1.7 + i) * 0.04 + contactBurst * 0.12);
+      });
+      mastPanels.forEach((panel, i) => {
+        panel.material.color.set(activeEndpoint ? activeEndpoint.color : (i % 2 ? 0x4ade80 : 0x22d3ee));
+        panel.material.opacity = 0.12 + Math.max(0, Math.sin(t * 2.5 + panel._phase)) * 0.12 + contactBurst * 0.08;
+        panel.scale.x = 1 + Math.sin(t * 1.8 + i) * 0.12;
+      });
+
       // Wave rings expand and fade
       waveRings.forEach(ring => {
         const waveSpeed = activeEndpoint ? 0.95 : 0.6;
@@ -2522,8 +2893,32 @@
         ep.node.rotation.x = t * (0.3 + focus * 0.55);
         ep.node.scale.setScalar(1 + focus * (0.55 + contactBurst * 0.35));
         ep.node.material.opacity = 0.4 + Math.sin(t * 2 + i) * 0.2 + focus * 0.35;
+        ep.portal.rotation.z = t * (0.35 + focus * 0.9);
+        ep.portal.scale.setScalar(1 + focus * (0.42 + contactBurst * 0.26) + Math.sin(t * 2 + i) * 0.06);
+        ep.portal.material.opacity = 0.14 + focus * 0.32 + Math.sin(t * 2.4 + i) * 0.04;
+        ep.halo.material.opacity = 0.04 + focus * 0.16 + Math.sin(t * 2.1 + i) * 0.025;
         ep.line.material.opacity = 0.06 + focus * (0.28 + Math.sin(t * 5) * 0.04 + contactBurst * 0.2);
       });
+
+      const signalArray = signalGeo.attributes.position.array;
+      for (let i = 0; i < signalCount; i++) {
+        const d = signalData[i];
+        if (activeContact >= 0 && contactBurst > 0.16 && i % 2 === 0) d.endpoint = activeContact;
+        d.p += d.speed * (activeContact === d.endpoint ? 1.7 : 1);
+        if (d.p > 1) {
+          d.p = 0;
+          d.endpoint = activeContact >= 0 && Math.random() > 0.38 ? activeContact : Math.floor(Math.random() * epMeshes.length);
+        }
+        const ep = epMeshes[d.endpoint].node.position;
+        const p = d.p;
+        const spiral = Math.sin(p * Math.PI) * 0.22;
+        signalArray[i * 3] = ep.x * p + Math.cos(t * 3 + d.twist) * spiral;
+        signalArray[i * 3 + 1] = 1.3 + (ep.y - 1.3) * p + Math.sin(t * 2.5 + d.twist) * spiral;
+        signalArray[i * 3 + 2] = ep.z * p + Math.sin(t * 3 + d.twist) * spiral;
+      }
+      signalGeo.attributes.position.needsUpdate = true;
+      signalPoints.material.color.set(activeEndpoint ? activeEndpoint.color : 0x22d3ee);
+      signalPoints.material.opacity = 0.4 + (activeEndpoint ? 0.2 : 0);
 
       coreGroup.rotation.y = t * 0.04;
       cam.position.x += (gmx * 1.5 - cam.position.x) * 0.02;
