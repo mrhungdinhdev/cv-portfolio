@@ -48,17 +48,17 @@ export function createApp() {
 
   app.get('/favicon.ico', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    res.sendFile(join(env.publicDir, 'assets', 'favicon-32.png'));
+    res.sendFile(join(env.publicDir, 'assets', 'images', 'favicon-32.png'));
   });
 
   app.get('/assets/favicon.png', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    res.sendFile(join(env.publicDir, 'assets', 'favicon-32.png'));
+    res.sendFile(join(env.publicDir, 'assets', 'images', 'favicon-32.png'));
   });
 
   app.get('/icon.png', (req, res) => {
     res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    res.sendFile(join(env.publicDir, 'assets', 'icon-384.jpg'));
+    res.sendFile(join(env.publicDir, 'assets', 'images', 'icon-384.jpg'));
   });
 
   app.use(express.static(env.publicDir, {

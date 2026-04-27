@@ -1,22 +1,20 @@
 # Dinh Van Hung Portfolio
 
-Portfolio được tổ chức theo cấu trúc ExpressJS, tách rõ backend và frontend.
+Portfolio fullstack dùng ExpressJS để phục vụ cả API và giao diện tĩnh trong cùng một project.
 
 ## Cấu trúc
 
 ```text
-backend/
-  data/                 # Dữ liệu server sử dụng, ví dụ CV JSON
-  src/
-    config/             # Cấu hình môi trường và đường dẫn
-    routes/             # Express routers cho /api/*
-    services/           # Logic gọi OpenRouter, OpenAI TTS, đọc CV
-    app.js              # Khởi tạo Express app
-    server.js           # Entry point chạy HTTP server
+src/
+  config/               # Cấu hình môi trường và đường dẫn
+  routes/               # Express routers cho /api/*
+  services/             # Logic gọi OpenRouter, OpenAI TTS, đọc CV
+  app.js                # Khởi tạo Express app
+  dev.js                # Entry point chạy local HTTP server
+  server.js             # Entry point cho Vercel serverless
 
-frontend/
-  public/               # HTML, CSS, JS, ảnh tĩnh được Express phục vụ
-
+public/                 # HTML, CSS, JS, ảnh tĩnh được Express phục vụ
+data/                   # Dữ liệu server sử dụng, ví dụ CV JSON
 docs/                   # Tài liệu/phác thảo dự án
 ```
 
@@ -32,12 +30,12 @@ Mặc định server chạy ở `http://localhost:3001`. Có thể đổi port b
 ## Scripts
 
 - `npm run dev`: chạy Express server local.
-- `npm start`: chạy server ở chế độ production.
-- `npm run check`: kiểm tra cú pháp các file backend chính.
+- `npm start`: chạy Express server.
+- `npm run check`: kiểm tra cú pháp các file trong `src/`.
 
 ## API
 
-- `POST /api/chat`: tạo phản hồi AI dựa trên dữ liệu `backend/data/cv.json`.
+- `POST /api/chat`: tạo phản hồi AI dựa trên dữ liệu `data/cv.json`.
 - `POST /api/tts`: tạo audio TTS dạng MP3.
 
-Các biến môi trường cần thiết nằm trong `.env.example`.
+Các biến môi trường cần thiết đặt trong `.env`.

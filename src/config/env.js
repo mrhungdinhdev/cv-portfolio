@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const projectRoot = fileURLToPath(new URL('../../..', import.meta.url));
+const projectRoot = fileURLToPath(new URL('../..', import.meta.url));
 
 config({ path: join(projectRoot, '.env') });
 
@@ -25,6 +25,6 @@ export const env = {
   openAiTtsVoice: process.env.OPENAI_TTS_VOICE || 'cedar',
   openAiTimeoutMs: numberFromEnv(process.env.OPENAI_TIMEOUT_MS, 30000),
   projectRoot,
-  publicDir: join(projectRoot, 'frontend', 'public'),
-  cvPath: join(projectRoot, 'backend', 'data', 'cv.json')
+  publicDir: join(projectRoot, 'public'),
+  cvPath: join(projectRoot, 'data', 'cv.json')
 };

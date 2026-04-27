@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node backend/src/dev.js",
-    "start": "node backend/src/dev.js",
+    "dev": "node src/dev.js",
+    "start": "node src/dev.js",
     "build": "echo 'No build step needed'",
-    "check": "find backend/src -name '*.js' -exec node --check {} \\;"
+    "check": "find src -name '*.js' -exec node --check {} \\;"
   },
   "dependencies": {
     "compression": "^1.8.1",
