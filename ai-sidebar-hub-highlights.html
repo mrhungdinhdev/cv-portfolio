@@ -7,7 +7,7 @@
 <meta name="description" content="User guide and privacy information for AI Sidebar Hub + Highlights, a Chrome extension for multi-AI side panel access, highlights, notes, and cookie banner blocking."/>
 <meta name="theme-color" content="#f7f7f4"/>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"/>
-<link rel="preconnect" href="https://unpkg.com" crossorigin/>
+<link rel="preconnect" href="https://unpkg.com" crossorigin="anonymous"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -181,6 +181,19 @@ h1{
   gap:12px;
   margin-top:34px;
 }
+.hero-support-note{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:520px;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:.92rem;
+}
+.hero-support-note i{
+  color:#0070ba;
+  flex:0 0 auto;
+}
 .btn{
   min-height:44px;
   display:inline-flex;
@@ -283,6 +296,11 @@ h1{
   display:block;
   color:var(--muted);
   font-size:.92rem;
+}
+.support-teaser em{
+  color:#0070ba;
+  font-style:normal;
+  font-weight:700;
 }
 .support-teaser-actions{
   display:flex;
@@ -494,6 +512,78 @@ h2{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:16px;
+}
+.support-moment{
+  margin-top:18px;
+  border:1px solid rgba(0,112,186,.2);
+  border-radius:10px;
+  padding:24px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:22px;
+  align-items:center;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(0,112,186,.1),transparent 34%),
+    linear-gradient(135deg,rgba(255,255,255,.94),rgba(247,247,244,.78));
+  box-shadow:0 18px 44px rgba(17,17,17,.08);
+}
+.support-moment-icon{
+  width:50px;
+  height:50px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  color:#fff;
+  background:linear-gradient(145deg,#009cde,#003087);
+  box-shadow:0 14px 30px rgba(0,112,186,.2);
+}
+.support-moment-copy{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:15px;
+  align-items:center;
+}
+.support-moment strong{
+  display:block;
+  color:#111;
+  font-size:1.15rem;
+  margin-bottom:4px;
+}
+.support-moment p{
+  color:var(--muted);
+  font-size:.96rem;
+}
+.support-moment-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:10px;
+}
+.support-moment-btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border-radius:8px;
+  padding:0 15px;
+  color:#fff;
+  background:linear-gradient(135deg,#009cde,#003087);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.74rem;
+  font-weight:700;
+  letter-spacing:.07em;
+  white-space:nowrap;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.support-moment-btn.secondary{
+  color:#111;
+  border:1px solid rgba(17,17,17,.14);
+  background:rgba(255,255,255,.72);
+}
+.support-moment-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 28px rgba(17,17,17,.12);
 }
 .split-grid{
   display:grid;
@@ -755,6 +845,12 @@ h2{
   color:var(--muted);
   font-size:.94rem;
 }
+.support-lead{
+  max-width:720px;
+  margin:-4px 0 24px;
+  color:var(--soft);
+  font-size:clamp(1.05rem,1.7vw,1.22rem);
+}
 .support-kicker{
   display:inline-flex;
   align-items:center;
@@ -829,6 +925,18 @@ h2{
   gap:12px;
   margin-top:0;
 }
+.support-thanks{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:18px;
+  color:var(--soft);
+  font-size:.92rem;
+}
+.support-thanks i{
+  color:#0070ba;
+  flex:0 0 auto;
+}
 .paypal-btn{
   min-height:52px;
   display:inline-flex;
@@ -893,6 +1001,80 @@ h2{
   margin-top:12px;
   color:var(--muted);
   font-size:.9rem;
+}
+.support-ai-nudge{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:30;
+  width:min(340px,calc(100% - 32px));
+  border:1px solid rgba(0,112,186,.22);
+  border-radius:12px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:12px;
+  align-items:start;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 20px 50px rgba(17,17,17,.16);
+  backdrop-filter:blur(16px);
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(18px);
+  transition:opacity .28s ease,transform .28s ease;
+}
+.support-ai-nudge.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+.support-ai-avatar{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  color:#fff;
+  background:linear-gradient(145deg,#111,#3a3a3a);
+}
+.support-ai-nudge strong{
+  display:block;
+  color:#111;
+  font-size:.92rem;
+  margin-bottom:3px;
+}
+.support-ai-nudge p{
+  color:var(--muted);
+  font-size:.86rem;
+}
+.support-ai-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.support-ai-actions a,
+.support-ai-actions button{
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:0;
+  border-radius:8px;
+  padding:0 11px;
+  cursor:pointer;
+  color:#fff;
+  background:linear-gradient(135deg,#009cde,#003087);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.06em;
+}
+.support-ai-actions button{
+  color:#111;
+  border:1px solid rgba(17,17,17,.14);
+  background:rgba(17,17,17,.04);
 }
 .policy-grid{
   display:grid;
@@ -995,7 +1177,8 @@ h2{
 @media (max-width:900px){
   .hero{grid-template-columns:1fr;padding-top:50px;}
   .product-visual{min-height:auto;}
-  .feature-grid,.policy-grid,.provider-table,.split-grid,.support-grid{grid-template-columns:1fr;}
+  .feature-grid,.policy-grid,.provider-table,.split-grid,.support-grid,.support-moment{grid-template-columns:1fr;}
+  .support-moment-actions{justify-content:flex-start;}
   .step-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .service-grid,.color-grid,.shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .provider{border-right:0;border-bottom:1px solid var(--line);}
@@ -1020,6 +1203,10 @@ h2{
   .support-teaser-copy{align-items:flex-start;}
   .support-teaser-actions{flex-wrap:wrap;}
   .support-teaser-link{flex:1 1 150px;}
+  .support-moment{padding:18px;}
+  .support-moment-copy{grid-template-columns:1fr;}
+  .support-moment-btn{flex:1 1 190px;}
+  .support-ai-nudge{right:14px;bottom:14px;}
   .workspace{grid-template-columns:1fr;}
   .article-mock{border-right:0;border-bottom:1px solid var(--line);}
   .browser-shell{border-radius:10px;}
@@ -1062,10 +1249,11 @@ h2{
           Open ChatGPT, Gemini, Claude, Qwen and other AI services in a Chrome side panel while you read. Highlight important text, add notes, send selected passages to AI, manage saved highlights, and automatically block supported cookie banners.
         </p>
         <div class="hero-actions">
-          <a class="btn support-primary" href="#support"><i data-lucide="heart-handshake" style="width:17px;height:17px;"></i> SUPPORT PROJECT</a>
+          <a class="btn support-primary" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer"><i data-lucide="coffee" style="width:17px;height:17px;"></i> SUPPORT WITH A COFFEE</a>
           <a class="btn secondary" href="#guide"><i data-lucide="book-open" style="width:17px;height:17px;"></i> START GUIDE</a>
-          <a class="btn secondary" href="#privacy"><i data-lucide="shield-check" style="width:17px;height:17px;"></i> PRIVACY</a>
+          <a class="btn secondary" href="#support"><i data-lucide="qr-code" style="width:17px;height:17px;"></i> BANK QR</a>
         </div>
+        <p class="hero-support-note"><i data-lucide="heart" style="width:16px;height:16px;"></i> If this tool helped you, even a small coffee helps me keep it maintained.</p>
         <div class="hero-meta" aria-label="Product principles">
           <div class="metric"><strong>7+</strong><span>AI services</span></div>
           <div class="metric"><strong>5</strong><span>Highlight colors</span></div>
@@ -1128,16 +1316,16 @@ h2{
         <div class="support-teaser-copy">
           <span class="support-teaser-icon"><i data-lucide="heart-handshake" style="width:22px;height:22px;"></i></span>
           <div>
-            <strong>Support keeps AI Sidebar Hub maintained.</strong>
-            <span>Use PayPal internationally or scan the VietinBank QR in Vietnam.</span>
+            <strong>If this tool helped you, you can support me with a coffee.</strong>
+            <span><em>PayPal is 1-click</em> for international users, or scan the VietinBank QR in Vietnam.</span>
           </div>
         </div>
         <div class="support-teaser-actions">
           <a class="support-teaser-link" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
-            <i data-lucide="circle-dollar-sign" style="width:16px;height:16px;"></i> PAYPAL
+            <i data-lucide="circle-dollar-sign" style="width:16px;height:16px;"></i> PAYPAL 1-CLICK
           </a>
           <a class="support-teaser-link secondary" href="#support">
-            <i data-lucide="qr-code" style="width:16px;height:16px;"></i> BANK QR
+            <i data-lucide="qr-code" style="width:16px;height:16px;"></i> QR VIETNAM
           </a>
         </div>
       </div>
@@ -1186,6 +1374,23 @@ h2{
             <p>Automatically blocks supported OneTrust cookie consent banners with no setup required.</p>
           </article>
         </div>
+        <aside class="support-moment reveal" aria-label="Support after reading features">
+          <div class="support-moment-copy">
+            <span class="support-moment-icon"><i data-lucide="coffee" style="width:24px;height:24px;"></i></span>
+            <div>
+              <strong>Useful for your workflow?</strong>
+              <p>If AI Sidebar Hub saves you time while reading, researching, or working, a small coffee helps keep updates moving.</p>
+            </div>
+          </div>
+          <div class="support-moment-actions">
+            <a class="support-moment-btn" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
+              <i data-lucide="circle-dollar-sign" style="width:16px;height:16px;"></i> PAYPAL 1-CLICK
+            </a>
+            <a class="support-moment-btn secondary" href="#support">
+              <i data-lucide="qr-code" style="width:16px;height:16px;"></i> QR VIETNAM
+            </a>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -1534,10 +1739,11 @@ h2{
         <div class="section-head reveal">
           <div>
             <p class="section-label">Support</p>
-            <h2>Support my work.</h2>
+            <h2>Support My Work</h2>
           </div>
-          <p class="section-intro">If this extension helps your reading or research workflow, you can support continued development through PayPal or bank transfer in Vietnam.</p>
+          <p class="section-intro">If this extension helps your reading or research workflow, you can support me with a small coffee through PayPal or bank transfer in Vietnam.</p>
         </div>
+        <p class="support-lead reveal">Even a small coffee makes a difference. Your support helps me keep the extension maintained, fix browser changes, and improve the highlight and AI workflows.</p>
         <div class="support-grid">
           <article class="support-block paypal-block reveal">
             <div>
@@ -1545,32 +1751,33 @@ h2{
               <div class="paypal-mark">
                 <span class="paypal-logo"><i data-lucide="wallet" style="width:24px;height:24px;"></i></span>
                 <div>
-                  <strong>Donate via PayPal</strong>
-                  <span>Support ongoing extension development.</span>
+                  <strong>Support via PayPal</strong>
+                  <span>International, 1-click support.</span>
                 </div>
               </div>
-              <p>Use PayPal for international support. The link opens in a new tab and goes directly to the donation page.</p>
+              <p>Use PayPal if you want the fastest support option. The link opens directly to the donation page in a new tab.</p>
               <div class="support-points" aria-label="What support helps with">
                 <span><i data-lucide="check" style="width:16px;height:16px;"></i> Maintenance and browser compatibility updates</span>
                 <span><i data-lucide="check" style="width:16px;height:16px;"></i> New AI service integrations</span>
                 <span><i data-lucide="check" style="width:16px;height:16px;"></i> Highlight and notes workflow improvements</span>
               </div>
+              <p class="support-thanks"><i data-lucide="heart" style="width:16px;height:16px;"></i> Thank you for supporting independent extension development.</p>
             </div>
             <div class="support-actions">
               <a class="paypal-btn" href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
                 <i data-lucide="circle-dollar-sign" style="width:18px;height:18px;"></i>
-                DONATE VIA PAYPAL
+                SUPPORT VIA PAYPAL
               </a>
             </div>
           </article>
           <article class="support-block qr-block reveal">
             <span class="support-kicker"><i data-lucide="landmark" style="width:14px;height:14px;"></i> Vietnam</span>
-            <h3>Bank QR Transfer</h3>
+            <h3>Scan QR to Support</h3>
             <div class="qr-frame">
               <img src="assets/qr-bank-vn.png" loading="lazy" decoding="async" alt="QR donate for Dinh Van Hung via VietinBank"/>
             </div>
             <p class="bank-detail">Dinh Van Hung<br/>VietinBank</p>
-            <p class="qr-note">Scan the QR image above with your banking app. The image keeps its original ratio so the full transfer QR remains readable.</p>
+            <p class="qr-note">For supporters in Vietnam, scan this QR with your banking app. Thank you for helping keep the project alive.</p>
           </article>
         </div>
       </div>
@@ -1589,6 +1796,23 @@ h2{
       </div>
     </section>
   </main>
+
+  <aside class="support-ai-nudge" id="support-ai-nudge" aria-live="polite" aria-label="Support reminder">
+    <span class="support-ai-avatar"><i data-lucide="bot" style="width:20px;height:20px;"></i></span>
+    <div>
+      <strong>AI Sidebar Hub</strong>
+      <p>If this tool helped you, you can support me here.</p>
+      <div class="support-ai-actions">
+        <a href="https://paypal.me/hungdinhdvh" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="coffee" style="width:14px;height:14px;"></i> PAYPAL
+        </a>
+        <a href="#support">
+          <i data-lucide="qr-code" style="width:14px;height:14px;"></i> QR
+        </a>
+        <button type="button" id="support-ai-close">DISMISS</button>
+      </div>
+    </div>
+  </aside>
 
   <footer class="site-footer">
     <div class="container footer-row">
@@ -1615,6 +1839,43 @@ if ('IntersectionObserver' in window) {
   revealItems.forEach(item => observer.observe(item));
 } else {
   revealItems.forEach(item => item.classList.add('in'));
+}
+
+const supportSection = document.querySelector('#support');
+const supportNudge = document.querySelector('#support-ai-nudge');
+const supportNudgeClose = document.querySelector('#support-ai-close');
+const supportNudgeDismissedKey = 'aiSidebarSupportNudgeDismissed';
+const hasDismissedSupportNudge = () => {
+  try {
+    return sessionStorage.getItem(supportNudgeDismissedKey) === '1';
+  } catch {
+    return false;
+  }
+};
+const dismissSupportNudge = () => {
+  try {
+    sessionStorage.setItem(supportNudgeDismissedKey, '1');
+  } catch {
+    // Storage can be unavailable in restricted browser contexts.
+  }
+};
+
+if (supportNudge && supportNudgeClose) {
+  supportNudgeClose.addEventListener('click', () => {
+    supportNudge.classList.remove('show');
+    dismissSupportNudge();
+  });
+}
+
+if (supportSection && supportNudge && 'IntersectionObserver' in window) {
+  const supportObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting || hasDismissedSupportNudge()) return;
+      supportNudge.classList.add('show');
+      supportObserver.unobserve(entry.target);
+    });
+  }, { threshold: .28 });
+  supportObserver.observe(supportSection);
 }
 </script>
 </body>
