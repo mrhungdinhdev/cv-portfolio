@@ -36,9 +36,31 @@
     });
     r.setPixelRatio(Math.min(devicePixelRatio, PERF.reduceMotion ? 1 : 1.25));
     const sec = c.parentElement;
-    function resize() { const w = sec.clientWidth, h = sec.clientHeight; r.setSize(w, h); return { w, h }; }
+    const resizeCallbacks = new Set();
+    function measure() {
+      const canvasRect = c.getBoundingClientRect();
+      const rect = sec.getBoundingClientRect();
+      return {
+        w: Math.max(1, Math.round(canvasRect.width || rect.width || sec.clientWidth || c.clientWidth || innerWidth)),
+        h: Math.max(1, Math.round(canvasRect.height || rect.height || sec.clientHeight || c.clientHeight || innerHeight)),
+      };
+    }
+    function resize() {
+      const { w, h } = measure();
+      r.setSize(w, h, false);
+      return { w, h };
+    }
+    function notifyResize() {
+      const size = resize();
+      resizeCallbacks.forEach(callback => callback(size));
+    }
     const sz = resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', notifyResize);
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(notifyResize);
+      ro.observe(sec);
+      c.__dvhResizeObserver = ro;
+    }
     const visible = PERF.makeVisibility(sec, '220px');
     const gate = PERF.makeFrameGate(PERF.reduceMotion ? 12 : 24);
     return {
@@ -47,6 +69,10 @@
       w: sz.w,
       h: sz.h,
       resize,
+      onResize(callback) {
+        resizeCallbacks.add(callback);
+        return () => resizeCallbacks.delete(callback);
+      },
       canFrame: () => visible.active && gate(),
     };
   }
@@ -2628,8 +2654,8 @@
       }
     }
 
-    function resize() {
-      const s = ctx.resize();
+    function resize(size) {
+      const s = size || ctx.resize();
       cam.aspect = s.w / s.h;
       cam.updateProjectionMatrix();
       layout(s.w);
@@ -2638,7 +2664,7 @@
         cam.userData.ready = true;
       }
     }
-    window.addEventListener('resize', resize);
+    ctx.onResize(resize);
     resize();
 
     const clk = new THREE.Clock();
@@ -2899,13 +2925,13 @@
       }
     }
 
-    function resize() {
-      const s = ctx.resize();
+    function resize(size) {
+      const s = size || ctx.resize();
       cam.aspect = s.w / s.h;
       cam.updateProjectionMatrix();
       layout(s.w);
     }
-    window.addEventListener('resize', resize);
+    ctx.onResize(resize);
     resize();
 
     const clk = new THREE.Clock();
@@ -2989,7 +3015,13 @@
     const scene = new THREE.Scene();
     const cam = new THREE.PerspectiveCamera(50, ctx.w / ctx.h, 0.1, 100);
     cam.position.set(0, 2, 7);
-    window.addEventListener('resize', () => { const s = ctx.resize(); cam.aspect = s.w / s.h; cam.updateProjectionMatrix(); });
+    function resize(size) {
+      const s = size || ctx.resize();
+      cam.aspect = s.w / s.h;
+      cam.updateProjectionMatrix();
+    }
+    ctx.onResize(resize);
+    resize();
 
     const coreGroup = new THREE.Group();
     scene.add(coreGroup);
