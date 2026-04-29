@@ -1,6 +1,8 @@
-Privacy Policy - AI Sidebar Hub + Highlights
+Privacy Policy - SideAI Hub
 
-AI Sidebar Hub + Highlights does not collect, sell, or share personal user data for advertising, profiling, or data resale.
+SideAI Hub does not collect, sell, or share personal user data for advertising, profiling, or data resale.
+
+Website: https://sideaihub.com/
 
 All highlights, notes, and settings are stored locally in the user's browser using Chrome storage. The extension does not store personal data on external servers.
 

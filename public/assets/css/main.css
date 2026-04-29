@@ -369,6 +369,35 @@ nav a{text-decoration:none;}
 .personal-feature-cell:nth-child(2)::after{animation-delay:.6s;}
 .personal-feature-cell:nth-child(3)::after{animation-delay:1.2s;}
 .personal-main-card:hover .personal-feature-cell{border-color:rgba(34,211,238,0.42);transform:translateZ(18px) translateX(3px);}
+.personal-site-row{
+  display:flex;align-items:center;gap:10px;width:100%;padding-top:12px;border-top:1px solid rgba(127,168,201,0.15);
+  color:#7fa8c9;transition:color .22s ease,border-color .22s ease;
+}
+.personal-site-row:hover{border-color:rgba(34,211,238,0.34);color:#c8d6e5;}
+.personal-site-label{
+  display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;color:#2d4050;
+  font:700 .72rem/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.personal-site-url{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#a8d8ea;font:700 .9rem/1.25 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  transition:color .22s ease;
+}
+.personal-site-row:hover .personal-site-url{color:#d8ecf8;}
+.personal-site-arrow{
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:26px;height:26px;border-radius:7px;
+  border:1px solid rgba(34,211,238,0.22);background:rgba(34,211,238,0.055);color:#22d3ee;
+  transition:border-color .22s ease,background .22s ease,transform .22s ease;
+}
+.personal-site-row:hover .personal-site-arrow{border-color:rgba(34,211,238,0.48);background:rgba(34,211,238,0.1);transform:translate(2px,-2px);}
+.personal-side-url{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:7px 10px;border:1px solid rgba(34,211,238,0.25);
+  border-radius:7px;background:rgba(34,211,238,0.07);color:#a8d8ea;
+  font:700 .74rem/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  transition:border-color .25s ease,color .25s ease,background .25s ease,transform .25s ease;
+}
+.personal-side-url:hover{border-color:rgba(34,211,238,0.58);color:#c8d6e5;background:rgba(34,211,238,0.12);transform:translateY(-1px);}
+.personal-side-url span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .personal-signal-bars{display:flex;align-items:center;justify-content:center;gap:8px;margin:-12px 0 18px;}
 .personal-signal-bars span{display:block;width:26px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,transparent,rgba(34,211,238,0.85),transparent);

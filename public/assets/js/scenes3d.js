@@ -2359,7 +2359,7 @@
   })();
 
   /* ────────────────────────────────────────────────────────────
-     E. PERSONAL PROJECT — AI Sidebar Extension Lab
+     E. PERSONAL PROJECT — SideAI Hub Extension Lab
      Ý nghĩa: Browser extension, vùng highlight, AI sidebar, local storage, privacy shield
      Vị trí: Hologram nổi phía sau card personal project
      ──────────────────────────────────────────────────────────── */

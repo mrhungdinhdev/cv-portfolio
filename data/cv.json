@@ -189,7 +189,8 @@
       ]
     },
     {
-      "name": "AI Sidebar Hub + Highlights",
+      "name": "SideAI Hub",
+      "url": "https://sideaihub.com/",
       "description": "Privacy-focused Chrome extension for highlighting, note-taking, and opt-in AI assistance.",
       "role": "Solo Product Builder",
       "techStack": ["JavaScript", "Chrome Extension", "OpenAI ChatGPT", "Google Gemini", "Anthropic Claude", "Chrome Storage"],
